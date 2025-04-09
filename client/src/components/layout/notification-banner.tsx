@@ -29,7 +29,7 @@ export default function NotificationBanner() {
         <div className="flex items-center justify-between">
           <div className="flex-1 text-center">
             <p className="text-primary font-medium text-sm md:text-base">
-              This tool is under construction, but you will be able to use it
+              This tool is under construction, but you will be able to use it - <span className="font-semibold">@Sumanth Csy (CEO-Taskify AI)</span>
             </p>
           </div>
           <button 
