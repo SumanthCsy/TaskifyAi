@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateAiResponse, generateReportContent, getSuggestedPrompts } from "./openai";
+import { generateAiResponse, generateReportContent, getSuggestedPrompts } from "./huggingface";
 import { z } from "zod";
 import { insertPromptSchema, insertReportSchema } from "@shared/schema";
 
@@ -21,6 +21,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const prompts = await storage.getFavoritePrompts();
       res.json(prompts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get suggested prompts
+  app.get("/api/prompts/suggested", async (req, res) => {
+    try {
+      const suggestedPrompts = await getSuggestedPrompts();
+      res.json({ prompts: suggestedPrompts });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -52,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = querySchema.parse(req.body);
       const { prompt } = validatedData;
       
-      // Generate content using OpenAI
+      // Generate content using HuggingFace AI
       const aiResponse = await generateAiResponse(prompt);
       
       // Create the prompt entry
@@ -64,16 +74,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.json(newPrompt);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Get suggested prompts
-  app.get("/api/prompts/suggested", async (req, res) => {
-    try {
-      const suggestedPrompts = await getSuggestedPrompts();
-      res.json({ prompts: suggestedPrompts });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Prompt not found" });
       }
       
-      // Generate report content using OpenAI
+      // Generate report content using HuggingFace AI
       const reportContent = await generateReportContent(promptData.prompt, title);
       
       // Create the report
