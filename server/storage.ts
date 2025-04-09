@@ -54,14 +54,27 @@ export class DatabaseStorage implements IStorage {
 
   async createPrompt(promptData: InsertPrompt): Promise<Prompt> {
     try {
+      // Ensure all values are proper SQLite types
+      const prompt = String(promptData.prompt);
+      const content = String(promptData.content);
+      const title = String(promptData.title);
+      const isFavorite = promptData.isFavorite === true ? 1 : 0;
+      
+      console.log('Creating prompt with data:', {
+        prompt,
+        title,
+        contentLength: content.length,
+        isFavorite
+      });
+      
       const stmt = rawDb.prepare(
         'INSERT INTO prompts (prompt, content, title, is_favorite) VALUES (?, ?, ?, ?)'
       );
       const result = stmt.run(
-        promptData.prompt,
-        promptData.content,
-        promptData.title,
-        promptData.isFavorite || false
+        prompt,
+        content,
+        title,
+        isFavorite
       );
       
       const id = result.lastInsertRowid as number;
@@ -176,14 +189,26 @@ export class DatabaseStorage implements IStorage {
 
   async createReport(reportData: InsertReport): Promise<Report> {
     try {
+      // Ensure all values are proper SQLite types
+      const title = String(reportData.title);
+      const promptId = Number(reportData.promptId);
+      const content = String(reportData.content);
+      const pdfBlob = reportData.pdfBlob || null;
+      
+      console.log('Creating report with data:', {
+        title,
+        promptId,
+        contentLength: content.length
+      });
+      
       const stmt = rawDb.prepare(
         'INSERT INTO reports (title, prompt_id, content, pdf_blob) VALUES (?, ?, ?, ?)'
       );
       const result = stmt.run(
-        reportData.title,
-        reportData.promptId,
-        reportData.content,
-        reportData.pdfBlob || null
+        title,
+        promptId,
+        content,
+        pdfBlob
       );
       
       const id = result.lastInsertRowid as number;
@@ -223,11 +248,11 @@ export class DatabaseStorage implements IStorage {
       
       if (!existingPrefs) {
         // Create new preferences
+        const theme = String(prefsUpdate.theme || 'dark');
+        const fontSize = String(prefsUpdate.fontSize || 'medium');
+        
         const stmt = rawDb.prepare('INSERT INTO preferences (theme, font_size) VALUES (?, ?)');
-        const result = stmt.run(
-          prefsUpdate.theme || 'dark',
-          prefsUpdate.fontSize || 'medium'
-        );
+        const result = stmt.run(theme, fontSize);
         
         const id = result.lastInsertRowid as number;
         return this.getPreferences() as Promise<Preference>;
@@ -238,19 +263,19 @@ export class DatabaseStorage implements IStorage {
         
         if (prefsUpdate.theme !== undefined) {
           fields.push('theme = ?');
-          values.push(prefsUpdate.theme);
+          values.push(String(prefsUpdate.theme));
         }
         
         if (prefsUpdate.fontSize !== undefined) {
           fields.push('font_size = ?');
-          values.push(prefsUpdate.fontSize);
+          values.push(String(prefsUpdate.fontSize));
         }
         
         if (fields.length === 0) {
           return existingPrefs;
         }
         
-        values.push(existingPrefs.id);
+        values.push(Number(existingPrefs.id));
         const stmt = rawDb.prepare(
           `UPDATE preferences SET ${fields.join(', ')} WHERE id = ?`
         );

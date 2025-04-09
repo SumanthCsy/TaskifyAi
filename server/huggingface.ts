@@ -30,8 +30,12 @@ Include a concise title at the beginning that captures the essence of the prompt
 
     const fullContent = response.generated_text || '';
     
+    // Add debugging
+    console.log('HuggingFace response:', fullContent);
+    
     // Extract response (everything after the prompt)
     const responseContent = fullContent.split('[/INST]</s>')[1]?.trim() || fullContent;
+    console.log('Extracted response content:', responseContent);
     
     // Extract a title from the content
     let title = 'Generated Response';
@@ -46,6 +50,7 @@ Include a concise title at the beginning that captures the essence of the prompt
       if (title.length > 100) {
         title = title.substring(0, 100) + '...';
       }
+      console.log('Extracted title:', title);
     }
 
     return {
