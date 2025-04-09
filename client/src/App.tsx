@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import Footer from "@/components/layout/footer";
+import NotificationBanner from "@/components/layout/notification-banner";
 import Home from "@/pages/home";
 import Settings from "@/pages/settings";
 import { motion } from "framer-motion";
@@ -17,6 +18,7 @@ import FavoritesPage from "@/pages/favorites";
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <NotificationBanner />
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
