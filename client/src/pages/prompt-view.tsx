@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useLocation } from 'wouter';
-import { Bookmark, BookmarkCheck, ArrowLeft, FileText, Trash } from 'lucide-react';
+import { Bookmark, BookmarkCheck, ArrowLeft, FileText, Trash, Download } from 'lucide-react';
 import ReportGenerator from '@/components/report/report-generator';
 import { useDeletePrompt } from '@/hooks/use-prompts';
 import { marked } from 'marked';
+import { generateAndDownloadPdf } from '@/lib/pdf-generator';
 
 interface PromptViewProps {
   id: number;
@@ -75,11 +76,12 @@ export default function PromptView({ id }: PromptViewProps) {
           </Button>
           <Button 
             variant="outline" 
-            size="icon" 
             onClick={() => setShowReportGenerator(!showReportGenerator)} 
             title="Generate Report"
+            className="flex items-center"
           >
-            <FileText className="h-5 w-5" />
+            <FileText className="h-5 w-5 mr-2" />
+            {showReportGenerator ? "Hide PDF Generator" : "Generate PDF"}
           </Button>
           <Button 
             variant="outline" 
@@ -107,6 +109,15 @@ export default function PromptView({ id }: PromptViewProps) {
         <CardContent>
           <div className="prose prose-invert max-w-none">
             <div dangerouslySetInnerHTML={{ __html: marked.parse(prompt.content) }} />
+          </div>
+          <div className="mt-6 flex justify-end">
+            <Button
+              onClick={() => generateAndDownloadPdf(prompt.title, prompt.content)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download as PDF
+            </Button>
           </div>
         </CardContent>
       </Card>
