@@ -7,11 +7,12 @@ import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import Footer from "@/components/layout/footer";
 import Home from "@/pages/home";
-import Search from "@/pages/search";
-import Topic from "@/pages/topic";
-import History from "@/pages/history";
 import Settings from "@/pages/settings";
 import { motion } from "framer-motion";
+
+// New page imports for our restructured app
+import PromptView from "@/pages/prompt-view";
+import FavoritesPage from "@/pages/favorites";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -45,24 +46,17 @@ function Router() {
           </Layout>
         )}
       </Route>
-      <Route path="/search">
-        {() => (
-          <Layout>
-            <Search />
-          </Layout>
-        )}
-      </Route>
-      <Route path="/topic/:id">
+      <Route path="/prompt/:id">
         {(params) => (
           <Layout>
-            <Topic id={parseInt(params.id)} />
+            <PromptView id={parseInt(params.id)} />
           </Layout>
         )}
       </Route>
-      <Route path="/history">
+      <Route path="/favorites">
         {() => (
           <Layout>
-            <History />
+            <FavoritesPage />
           </Layout>
         )}
       </Route>

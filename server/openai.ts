@@ -1,22 +1,17 @@
 import OpenAI from "openai";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "your-api-key" });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-interface TopicContent {
+interface AiResponse {
   title: string;
-  description: string;
   content: string;
-  category: string;
-  tags: string[];
-  sections: {
-    title: string;
-    content: string;
-  }[];
-  relatedTopics: string[];
 }
 
-export async function generateTopicContent(query: string): Promise<TopicContent> {
+/**
+ * Generates a detailed response based on user prompt
+ */
+export async function generateAiResponse(prompt: string): Promise<AiResponse> {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -24,11 +19,11 @@ export async function generateTopicContent(query: string): Promise<TopicContent>
         {
           role: "system",
           content:
-            "You are an AI information assistant. Generate comprehensive, accurate, and well-structured information about the requested topic. Format the response as JSON with the following structure: { title, description, content, category, tags, sections: [{ title, content }], relatedTopics }. Make the content educational, detailed and informative."
+            "You are Taskify AI, an advanced AI assistant that provides detailed, accurate, and well-structured information in response to user prompts. Your responses should be educational and informative. Format your response as JSON with the following structure: { title: 'A concise title that captures the essence of the prompt', content: 'The detailed response in markdown format with proper headings, lists, and paragraphs' }"
         },
         {
           role: "user",
-          content: `Generate detailed information about: ${query}`
+          content: prompt
         }
       ],
       response_format: { type: "json_object" },
@@ -37,21 +32,19 @@ export async function generateTopicContent(query: string): Promise<TopicContent>
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
     return {
-      title: result.title || query,
-      description: result.description || "",
-      content: result.content || "",
-      category: result.category || "General",
-      tags: result.tags || [],
-      sections: result.sections || [],
-      relatedTopics: result.relatedTopics || []
+      title: result.title || "Response to: " + prompt.substring(0, 30) + "...",
+      content: result.content || "Sorry, I couldn't generate a response for this prompt."
     };
   } catch (error: any) {
-    console.error("Error generating topic content:", error.message);
-    throw new Error(`Failed to generate topic content: ${error.message}`);
+    console.error("Error generating AI response:", error.message);
+    throw new Error(`Failed to generate response: ${error.message}`);
   }
 }
 
-export async function generateReportContent(topicData: any): Promise<string> {
+/**
+ * Generates a comprehensive report based on user prompt
+ */
+export async function generateReportContent(prompt: string, title: string): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -59,11 +52,11 @@ export async function generateReportContent(topicData: any): Promise<string> {
         {
           role: "system",
           content:
-            "You are a report generation assistant. Create a well-formatted, comprehensive PDF report about the provided topic. The report should be structured with sections, bullet points where appropriate, and should be informative and educational. Format the response as a string of well-formatted markdown that can be converted to PDF."
+            "You are Taskify AI's report generator. Create a well-formatted, comprehensive PDF report on the given prompt. The report should be structured with clear sections, bullet points where appropriate, and should be informative and educational. Format the response as a string of well-formatted markdown that can be converted to PDF. Include a title, introduction, several content sections, and a conclusion."
         },
         {
           role: "user",
-          content: `Generate a detailed report about: ${JSON.stringify(topicData)}`
+          content: `Generate a detailed report on this topic: ${prompt}\nUse this title: ${title}`
         }
       ],
     });
@@ -75,7 +68,10 @@ export async function generateReportContent(topicData: any): Promise<string> {
   }
 }
 
-export async function getSuggestedTopics(): Promise<string[]> {
+/**
+ * Generates suggested prompts for the home page
+ */
+export async function getSuggestedPrompts(): Promise<string[]> {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -83,46 +79,20 @@ export async function getSuggestedTopics(): Promise<string[]> {
         {
           role: "system",
           content:
-            "You are a topic suggestion assistant. Generate 6 interesting and diverse topic suggestions that users might want to learn about. These should be specific enough to generate detailed content about. Respond with JSON in this format: { 'topics': [array of topic strings] }"
+            "You are Taskify AI's suggestion generator. Create 6 diverse and interesting prompt suggestions that users might want to ask an AI assistant. These should cover different domains of knowledge and be phrased as questions or requests a user might type. Respond with JSON in this format: { 'prompts': [array of prompt strings] }"
         },
         {
           role: "user",
-          content: "Generate topic suggestions"
+          content: "Generate prompt suggestions"
         }
       ],
       response_format: { type: "json_object" },
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result.topics || [];
+    return result.prompts || [];
   } catch (error: any) {
-    console.error("Error generating topic suggestions:", error.message);
-    throw new Error(`Failed to generate topic suggestions: ${error.message}`);
-  }
-}
-
-export async function getCategoryTopics(category: string): Promise<string[]> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            `You are a topic suggestion assistant. Generate 5 specific topics related to the ${category} category. These should be specific enough to generate detailed content about. Respond with JSON in this format: { 'topics': [array of topic strings] }`
-        },
-        {
-          role: "user",
-          content: `Generate topics in the ${category} category`
-        }
-      ],
-      response_format: { type: "json_object" },
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result.topics || [];
-  } catch (error: any) {
-    console.error(`Error generating topics for category ${category}:`, error.message);
-    throw new Error(`Failed to generate topics for category ${category}: ${error.message}`);
+    console.error("Error generating prompt suggestions:", error.message);
+    throw new Error(`Failed to generate prompt suggestions: ${error.message}`);
   }
 }

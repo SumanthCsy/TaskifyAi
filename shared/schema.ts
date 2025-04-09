@@ -1,57 +1,56 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Topics table to store the searched/generated topics
-export const topics = pgTable("topics", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
+// Prompts table to store user prompts and generated content
+export const prompts = sqliteTable("prompts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  prompt: text("prompt").notNull(),
   content: text("content").notNull(),
-  category: text("category").notNull(),
-  tags: text("tags").array(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  isBookmarked: boolean("is_bookmarked").default(false),
-});
-
-// Topic search history
-export const searchHistory = pgTable("search_history", {
-  id: serial("id").primaryKey(),
-  query: text("query").notNull(),
-  resultTopicId: integer("result_topic_id").references(() => topics.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  title: text("title").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  isFavorite: integer("is_favorite", { mode: "boolean" }).default(false),
 });
 
 // Generated reports
-export const reports = pgTable("reports", {
-  id: serial("id").primaryKey(),
+export const reports = sqliteTable("reports", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
-  topicId: integer("topic_id").references(() => topics.id),
+  promptId: integer("prompt_id").references(() => prompts.id),
   content: text("content").notNull(),
-  format: text("format").notNull(), // pdf, etc.
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  pdfBlob: blob("pdf_blob", { mode: "buffer" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
 });
 
 // User preferences
-export const preferences = pgTable("preferences", {
-  id: serial("id").primaryKey(),
+export const preferences = sqliteTable("preferences", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   theme: text("theme").default("dark"),
   fontSize: text("font_size").default("medium"),
-  language: text("language").default("english"),
 });
 
 // Insert schemas
-export const insertTopicSchema = createInsertSchema(topics).omit({ id: true, createdAt: true });
-export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit({ id: true, createdAt: true });
-export const insertReportSchema = createInsertSchema(reports).omit({ id: true, createdAt: true });
-export const insertPreferencesSchema = createInsertSchema(preferences).omit({ id: true });
+export const insertPromptSchema = createInsertSchema(prompts).omit({ 
+  id: true, 
+  createdAt: true 
+});
+
+export const insertReportSchema = createInsertSchema(reports).omit({ 
+  id: true, 
+  createdAt: true 
+});
+
+export const insertPreferencesSchema = createInsertSchema(preferences).omit({ 
+  id: true 
+});
 
 // Types
-export type Topic = typeof topics.$inferSelect;
-export type InsertTopic = z.infer<typeof insertTopicSchema>;
-
-export type SearchHistory = typeof searchHistory.$inferSelect;
-export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
+export type Prompt = typeof prompts.$inferSelect;
+export type InsertPrompt = z.infer<typeof insertPromptSchema>;
 
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;

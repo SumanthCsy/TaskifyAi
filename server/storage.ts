@@ -1,185 +1,268 @@
 import { 
-  Topic, InsertTopic, 
-  SearchHistory, InsertSearchHistory,
+  Prompt, InsertPrompt,
   Report, InsertReport,
   Preference, InsertPreference
 } from "@shared/schema";
+import { db, rawDb } from "./db";
+import { prompts, reports, preferences } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  // Topics
-  getTopic(id: number): Promise<Topic | undefined>;
-  getTopics(): Promise<Topic[]>;
-  getTopicsByCategory(category: string): Promise<Topic[]>;
-  createTopic(topic: InsertTopic): Promise<Topic>;
-  updateTopic(id: number, topic: Partial<InsertTopic>): Promise<Topic | undefined>;
-  deleteTopic(id: number): Promise<boolean>;
-  bookmarkTopic(id: number): Promise<Topic | undefined>;
-
-  // Search History
-  getSearchHistory(): Promise<SearchHistory[]>;
-  getSearchHistoryByQuery(query: string): Promise<SearchHistory | undefined>;
-  createSearchHistory(searchHistory: InsertSearchHistory): Promise<SearchHistory>;
-  deleteSearchHistory(id: number): Promise<boolean>;
-  clearSearchHistory(): Promise<boolean>;
+  // Prompts
+  getPrompt(id: number): Promise<Prompt | undefined>;
+  getPrompts(): Promise<Prompt[]>;
+  createPrompt(prompt: InsertPrompt): Promise<Prompt>;
+  updatePrompt(id: number, prompt: Partial<InsertPrompt>): Promise<Prompt | undefined>;
+  deletePrompt(id: number): Promise<boolean>;
+  toggleFavorite(id: number): Promise<Prompt | undefined>;
+  getFavoritePrompts(): Promise<Prompt[]>;
 
   // Reports
   getReport(id: number): Promise<Report | undefined>;
-  getReportsByTopicId(topicId: number): Promise<Report[]>;
+  getReportsByPromptId(promptId: number): Promise<Report[]>;
   createReport(report: InsertReport): Promise<Report>;
   deleteReport(id: number): Promise<boolean>;
 
   // Preferences
   getPreferences(): Promise<Preference | undefined>;
-  updatePreferences(preferences: Partial<InsertPreference>): Promise<Preference>;
+  updatePreferences(prefs: Partial<InsertPreference>): Promise<Preference>;
 }
 
-export class MemStorage implements IStorage {
-  private topics: Map<number, Topic>;
-  private searchHistory: Map<number, SearchHistory>;
-  private reports: Map<number, Report>;
-  private preferences: Preference | undefined;
-  
-  private topicId: number;
-  private searchHistoryId: number;
-  private reportId: number;
-  private preferencesId: number;
-
-  constructor() {
-    this.topics = new Map();
-    this.searchHistory = new Map();
-    this.reports = new Map();
-    
-    this.topicId = 1;
-    this.searchHistoryId = 1;
-    this.reportId = 1;
-    this.preferencesId = 1;
-
-    // Set default preferences
-    this.preferences = {
-      id: this.preferencesId,
-      theme: "dark",
-      fontSize: "medium",
-      language: "english"
-    };
+export class DatabaseStorage implements IStorage {
+  // Prompts
+  async getPrompt(id: number): Promise<Prompt | undefined> {
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM prompts WHERE id = ?');
+      const result = stmt.get(id);
+      return result as Prompt | undefined;
+    } catch (error) {
+      console.error('Error getting prompt:', error);
+      return undefined;
+    }
   }
 
-  // Topics
-  async getTopic(id: number): Promise<Topic | undefined> {
-    return this.topics.get(id);
+  async getPrompts(): Promise<Prompt[]> {
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM prompts ORDER BY created_at DESC');
+      const results = stmt.all();
+      return results as Prompt[];
+    } catch (error) {
+      console.error('Error getting prompts:', error);
+      return [];
+    }
   }
 
-  async getTopics(): Promise<Topic[]> {
-    return Array.from(this.topics.values());
+  async createPrompt(promptData: InsertPrompt): Promise<Prompt> {
+    try {
+      const stmt = rawDb.prepare(
+        'INSERT INTO prompts (prompt, content, title, is_favorite) VALUES (?, ?, ?, ?)'
+      );
+      const result = stmt.run(
+        promptData.prompt,
+        promptData.content,
+        promptData.title,
+        promptData.isFavorite || false
+      );
+      
+      const id = result.lastInsertRowid as number;
+      return this.getPrompt(id) as Promise<Prompt>;
+    } catch (error) {
+      console.error('Error creating prompt:', error);
+      throw new Error('Failed to create prompt');
+    }
   }
 
-  async getTopicsByCategory(category: string): Promise<Topic[]> {
-    return Array.from(this.topics.values()).filter(
-      (topic) => topic.category === category
-    );
+  async updatePrompt(id: number, promptUpdate: Partial<InsertPrompt>): Promise<Prompt | undefined> {
+    try {
+      const fields: string[] = [];
+      const values: any[] = [];
+      
+      if (promptUpdate.prompt !== undefined) {
+        fields.push('prompt = ?');
+        values.push(promptUpdate.prompt);
+      }
+      
+      if (promptUpdate.content !== undefined) {
+        fields.push('content = ?');
+        values.push(promptUpdate.content);
+      }
+      
+      if (promptUpdate.title !== undefined) {
+        fields.push('title = ?');
+        values.push(promptUpdate.title);
+      }
+      
+      if (promptUpdate.isFavorite !== undefined) {
+        fields.push('is_favorite = ?');
+        values.push(promptUpdate.isFavorite);
+      }
+      
+      if (fields.length === 0) {
+        return this.getPrompt(id);
+      }
+      
+      values.push(id);
+      const stmt = rawDb.prepare(
+        `UPDATE prompts SET ${fields.join(', ')} WHERE id = ?`
+      );
+      stmt.run(...values);
+      
+      return this.getPrompt(id);
+    } catch (error) {
+      console.error('Error updating prompt:', error);
+      return undefined;
+    }
   }
 
-  async createTopic(insertTopic: InsertTopic): Promise<Topic> {
-    const id = this.topicId++;
-    const now = new Date();
-    const topic: Topic = { ...insertTopic, id, createdAt: now };
-    this.topics.set(id, topic);
-    return topic;
+  async deletePrompt(id: number): Promise<boolean> {
+    try {
+      const stmt = rawDb.prepare('DELETE FROM prompts WHERE id = ?');
+      const result = stmt.run(id);
+      return result.changes > 0;
+    } catch (error) {
+      console.error('Error deleting prompt:', error);
+      return false;
+    }
   }
 
-  async updateTopic(id: number, topicUpdate: Partial<InsertTopic>): Promise<Topic | undefined> {
-    const topic = this.topics.get(id);
-    if (!topic) return undefined;
-
-    const updatedTopic: Topic = { ...topic, ...topicUpdate };
-    this.topics.set(id, updatedTopic);
-    return updatedTopic;
+  async toggleFavorite(id: number): Promise<Prompt | undefined> {
+    try {
+      const prompt = await this.getPrompt(id);
+      if (!prompt) return undefined;
+      
+      const stmt = rawDb.prepare('UPDATE prompts SET is_favorite = ? WHERE id = ?');
+      stmt.run(!prompt.isFavorite, id);
+      
+      return this.getPrompt(id);
+    } catch (error) {
+      console.error('Error toggling favorite status:', error);
+      return undefined;
+    }
   }
 
-  async deleteTopic(id: number): Promise<boolean> {
-    return this.topics.delete(id);
-  }
-
-  async bookmarkTopic(id: number): Promise<Topic | undefined> {
-    const topic = this.topics.get(id);
-    if (!topic) return undefined;
-
-    const updatedTopic: Topic = { ...topic, isBookmarked: !topic.isBookmarked };
-    this.topics.set(id, updatedTopic);
-    return updatedTopic;
-  }
-
-  // Search History
-  async getSearchHistory(): Promise<SearchHistory[]> {
-    return Array.from(this.searchHistory.values()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
-
-  async getSearchHistoryByQuery(query: string): Promise<SearchHistory | undefined> {
-    return Array.from(this.searchHistory.values()).find(
-      (history) => history.query === query
-    );
-  }
-
-  async createSearchHistory(insertSearchHistory: InsertSearchHistory): Promise<SearchHistory> {
-    const id = this.searchHistoryId++;
-    const now = new Date();
-    const searchHistory: SearchHistory = { ...insertSearchHistory, id, createdAt: now };
-    this.searchHistory.set(id, searchHistory);
-    return searchHistory;
-  }
-
-  async deleteSearchHistory(id: number): Promise<boolean> {
-    return this.searchHistory.delete(id);
-  }
-
-  async clearSearchHistory(): Promise<boolean> {
-    this.searchHistory.clear();
-    return true;
+  async getFavoritePrompts(): Promise<Prompt[]> {
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM prompts WHERE is_favorite = 1 ORDER BY created_at DESC');
+      const results = stmt.all();
+      return results as Prompt[];
+    } catch (error) {
+      console.error('Error getting favorite prompts:', error);
+      return [];
+    }
   }
 
   // Reports
   async getReport(id: number): Promise<Report | undefined> {
-    return this.reports.get(id);
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM reports WHERE id = ?');
+      const result = stmt.get(id);
+      return result as Report | undefined;
+    } catch (error) {
+      console.error('Error getting report:', error);
+      return undefined;
+    }
   }
 
-  async getReportsByTopicId(topicId: number): Promise<Report[]> {
-    return Array.from(this.reports.values()).filter(
-      (report) => report.topicId === topicId
-    );
+  async getReportsByPromptId(promptId: number): Promise<Report[]> {
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM reports WHERE prompt_id = ? ORDER BY created_at DESC');
+      const results = stmt.all(promptId);
+      return results as Report[];
+    } catch (error) {
+      console.error('Error getting reports for prompt:', error);
+      return [];
+    }
   }
 
-  async createReport(insertReport: InsertReport): Promise<Report> {
-    const id = this.reportId++;
-    const now = new Date();
-    const report: Report = { ...insertReport, id, createdAt: now };
-    this.reports.set(id, report);
-    return report;
+  async createReport(reportData: InsertReport): Promise<Report> {
+    try {
+      const stmt = rawDb.prepare(
+        'INSERT INTO reports (title, prompt_id, content, pdf_blob) VALUES (?, ?, ?, ?)'
+      );
+      const result = stmt.run(
+        reportData.title,
+        reportData.promptId,
+        reportData.content,
+        reportData.pdfBlob || null
+      );
+      
+      const id = result.lastInsertRowid as number;
+      return this.getReport(id) as Promise<Report>;
+    } catch (error) {
+      console.error('Error creating report:', error);
+      throw new Error('Failed to create report');
+    }
   }
 
   async deleteReport(id: number): Promise<boolean> {
-    return this.reports.delete(id);
+    try {
+      const stmt = rawDb.prepare('DELETE FROM reports WHERE id = ?');
+      const result = stmt.run(id);
+      return result.changes > 0;
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      return false;
+    }
   }
 
   // Preferences
   async getPreferences(): Promise<Preference | undefined> {
-    return this.preferences;
+    try {
+      const stmt = rawDb.prepare('SELECT * FROM preferences LIMIT 1');
+      const result = stmt.get();
+      return result as Preference | undefined;
+    } catch (error) {
+      console.error('Error getting preferences:', error);
+      return undefined;
+    }
   }
 
-  async updatePreferences(preferencesUpdate: Partial<InsertPreference>): Promise<Preference> {
-    if (!this.preferences) {
-      const id = this.preferencesId;
-      this.preferences = {
-        id,
-        theme: preferencesUpdate.theme || "dark",
-        fontSize: preferencesUpdate.fontSize || "medium",
-        language: preferencesUpdate.language || "english"
-      };
-    } else {
-      this.preferences = { ...this.preferences, ...preferencesUpdate };
+  async updatePreferences(prefsUpdate: Partial<InsertPreference>): Promise<Preference> {
+    try {
+      const existingPrefs = await this.getPreferences();
+      
+      if (!existingPrefs) {
+        // Create new preferences
+        const stmt = rawDb.prepare('INSERT INTO preferences (theme, font_size) VALUES (?, ?)');
+        const result = stmt.run(
+          prefsUpdate.theme || 'dark',
+          prefsUpdate.fontSize || 'medium'
+        );
+        
+        const id = result.lastInsertRowid as number;
+        return this.getPreferences() as Promise<Preference>;
+      } else {
+        // Update existing preferences
+        const fields: string[] = [];
+        const values: any[] = [];
+        
+        if (prefsUpdate.theme !== undefined) {
+          fields.push('theme = ?');
+          values.push(prefsUpdate.theme);
+        }
+        
+        if (prefsUpdate.fontSize !== undefined) {
+          fields.push('font_size = ?');
+          values.push(prefsUpdate.fontSize);
+        }
+        
+        if (fields.length === 0) {
+          return existingPrefs;
+        }
+        
+        values.push(existingPrefs.id);
+        const stmt = rawDb.prepare(
+          `UPDATE preferences SET ${fields.join(', ')} WHERE id = ?`
+        );
+        stmt.run(...values);
+        
+        return this.getPreferences() as Promise<Preference>;
+      }
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      throw new Error('Failed to update preferences');
     }
-    return this.preferences;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

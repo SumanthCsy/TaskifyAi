@@ -1,167 +1,142 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateTopicContent, generateReportContent, getSuggestedTopics, getCategoryTopics } from "./openai";
+import { generateAiResponse, generateReportContent, getSuggestedPrompts } from "./openai";
 import { z } from "zod";
-import { insertTopicSchema, insertSearchHistorySchema, insertReportSchema } from "@shared/schema";
+import { insertPromptSchema, insertReportSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all topics
-  app.get("/api/topics", async (req, res) => {
+  // Get all prompts
+  app.get("/api/prompts", async (req, res) => {
     try {
-      const topics = await storage.getTopics();
-      res.json(topics);
+      const prompts = await storage.getPrompts();
+      res.json(prompts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get topic by id
-  app.get("/api/topics/:id", async (req, res) => {
+  // Get favorite prompts
+  app.get("/api/prompts/favorites", async (req, res) => {
+    try {
+      const prompts = await storage.getFavoritePrompts();
+      res.json(prompts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get prompt by id
+  app.get("/api/prompts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const topic = await storage.getTopic(id);
+      const prompt = await storage.getPrompt(id);
       
-      if (!topic) {
-        return res.status(404).json({ message: "Topic not found" });
+      if (!prompt) {
+        return res.status(404).json({ message: "Prompt not found" });
       }
       
-      res.json(topic);
+      res.json(prompt);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get topics by category
-  app.get("/api/topics/category/:category", async (req, res) => {
-    try {
-      const category = req.params.category;
-      const topics = await storage.getTopicsByCategory(category);
-      res.json(topics);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Search for a topic
-  app.post("/api/topics/search", async (req, res) => {
+  // Generate AI response from prompt
+  app.post("/api/generate", async (req, res) => {
     try {
       const querySchema = z.object({
-        query: z.string().min(1),
+        prompt: z.string().min(1),
       });
       
       const validatedData = querySchema.parse(req.body);
-      const { query } = validatedData;
+      const { prompt } = validatedData;
       
-      // Generate topic content using OpenAI
-      const topicContent = await generateTopicContent(query);
+      // Generate content using OpenAI
+      const aiResponse = await generateAiResponse(prompt);
       
-      // Create the topic
-      const newTopic = await storage.createTopic({
-        title: topicContent.title,
-        description: topicContent.description,
-        content: topicContent.content,
-        category: topicContent.category,
-        tags: topicContent.tags,
-        isBookmarked: false
+      // Create the prompt entry
+      const newPrompt = await storage.createPrompt({
+        prompt: prompt,
+        title: aiResponse.title,
+        content: aiResponse.content,
+        isFavorite: false
       });
       
-      // Add to search history
-      await storage.createSearchHistory({
-        query: query,
-        resultTopicId: newTopic.id
-      });
-      
-      res.json(newTopic);
+      res.json(newPrompt);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get suggested topics
-  app.get("/api/topics/suggested", async (req, res) => {
+  // Get suggested prompts
+  app.get("/api/prompts/suggested", async (req, res) => {
     try {
-      const suggestedTopics = await getSuggestedTopics();
-      res.json({ topics: suggestedTopics });
+      const suggestedPrompts = await getSuggestedPrompts();
+      res.json({ prompts: suggestedPrompts });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get topics for a specific category
-  app.get("/api/categories/:category/topics", async (req, res) => {
-    try {
-      const category = req.params.category;
-      const topics = await getCategoryTopics(category);
-      res.json({ topics });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Bookmark a topic
-  app.post("/api/topics/:id/bookmark", async (req, res) => {
+  // Toggle favorite status for a prompt
+  app.post("/api/prompts/:id/favorite", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updatedTopic = await storage.bookmarkTopic(id);
+      const updatedPrompt = await storage.toggleFavorite(id);
       
-      if (!updatedTopic) {
-        return res.status(404).json({ message: "Topic not found" });
+      if (!updatedPrompt) {
+        return res.status(404).json({ message: "Prompt not found" });
       }
       
-      res.json(updatedTopic);
+      res.json(updatedPrompt);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get search history
-  app.get("/api/history", async (req, res) => {
+  // Delete a prompt
+  app.delete("/api/prompts/:id", async (req, res) => {
     try {
-      const history = await storage.getSearchHistory();
-      res.json(history);
+      const id = parseInt(req.params.id);
+      const success = await storage.deletePrompt(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Prompt not found" });
+      }
+      
+      res.json({ message: "Prompt deleted successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Clear search history
-  app.delete("/api/history", async (req, res) => {
-    try {
-      await storage.clearSearchHistory();
-      res.json({ message: "Search history cleared" });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Generate a report for a topic
+  // Generate a report for a prompt
   app.post("/api/reports", async (req, res) => {
     try {
       const reportSchema = z.object({
-        topicId: z.number(),
-        title: z.string(),
-        format: z.string().default("pdf")
+        promptId: z.number(),
+        title: z.string()
       });
       
       const validatedData = reportSchema.parse(req.body);
-      const { topicId, title, format } = validatedData;
+      const { promptId, title } = validatedData;
       
-      // Get the topic
-      const topic = await storage.getTopic(topicId);
-      if (!topic) {
-        return res.status(404).json({ message: "Topic not found" });
+      // Get the prompt
+      const promptData = await storage.getPrompt(promptId);
+      if (!promptData) {
+        return res.status(404).json({ message: "Prompt not found" });
       }
       
       // Generate report content using OpenAI
-      const reportContent = await generateReportContent(topic);
+      const reportContent = await generateReportContent(promptData.prompt, title);
       
       // Create the report
       const report = await storage.createReport({
         title,
-        topicId,
+        promptId,
         content: reportContent,
-        format
+        pdfBlob: null
       });
       
       res.json(report);
@@ -186,11 +161,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get reports for a topic
-  app.get("/api/topics/:id/reports", async (req, res) => {
+  // Get reports for a prompt
+  app.get("/api/prompts/:id/reports", async (req, res) => {
     try {
-      const topicId = parseInt(req.params.id);
-      const reports = await storage.getReportsByTopicId(topicId);
+      const promptId = parseInt(req.params.id);
+      const reports = await storage.getReportsByPromptId(promptId);
       res.json(reports);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -201,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/preferences", async (req, res) => {
     try {
       const preferences = await storage.getPreferences();
-      res.json(preferences);
+      res.json(preferences || { id: 0, theme: "dark", fontSize: "medium" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -212,8 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const preferencesSchema = z.object({
         theme: z.string().optional(),
-        fontSize: z.string().optional(),
-        language: z.string().optional()
+        fontSize: z.string().optional()
       });
       
       const validatedData = preferencesSchema.parse(req.body);

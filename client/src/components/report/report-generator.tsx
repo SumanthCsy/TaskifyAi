@@ -1,117 +1,129 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, FileText, Download, Check } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
-import { Topic } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
-import PDFViewer from "./pdf-viewer";
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import { useGenerateReport, usePromptReports } from '@/hooks/use-reports';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Download, Clock } from 'lucide-react';
+import { generateAndDownloadPdf } from '@/lib/pdf-generator';
+import { Report } from '@shared/schema';
+
+const formSchema = z.object({
+  title: z.string().min(1, {
+    message: 'Report title is required.',
+  }),
+});
 
 interface ReportGeneratorProps {
-  topic: Topic;
+  promptId: number;
 }
 
-export default function ReportGenerator({ topic }: ReportGeneratorProps) {
-  const [reportContent, setReportContent] = useState<string | null>(null);
-  const { toast } = useToast();
+export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
+  const generateReport = useGenerateReport();
+  const { data: reports, isLoading } = usePromptReports(promptId);
+  const [generatingReport, setGeneratingReport] = useState(false);
 
-  const generateReport = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/reports", {
-        topicId: topic.id,
-        title: `${topic.title} - Report`,
-        format: "pdf"
-      });
-      return await res.json();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
     },
-    onSuccess: (data) => {
-      setReportContent(data.content);
-      toast({
-        title: "Report Generated",
-        description: "Your PDF report has been successfully generated.",
-        duration: 3000,
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Failed to generate report:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate report. Please try again.",
-        variant: "destructive",
-      });
-    }
   });
 
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    setGeneratingReport(true);
+    generateReport.mutate(
+      {
+        promptId,
+        title: values.title,
+      },
+      {
+        onSettled: () => {
+          setGeneratingReport(false);
+          form.reset();
+        },
+      }
+    );
+  }
+
+  function handleDownload(report: Report) {
+    generateAndDownloadPdf(report.title, report.content);
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="border-primary/20">
-        <CardHeader className="bg-primary/5 border-b border-primary/20">
-          <CardTitle className="flex items-center">
-            <FileText className="mr-2 text-primary" size={20} />
-            Generate PDF Report
-          </CardTitle>
-          <CardDescription>
-            Create a comprehensive, downloadable PDF report about this topic
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="pt-6">
-          {!reportContent ? (
-            <div className="text-center py-8">
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5, type: "spring" }}
-              >
-                <FileText size={48} className="mx-auto mb-4 text-primary/50" />
-                <h3 className="text-lg font-medium mb-2">Ready to Generate Report</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Our AI will create a detailed report about "{topic.title}" that you can download as a PDF.
-                </p>
-              </motion.div>
-              
-              <Button
-                onClick={() => generateReport.mutate()}
-                disabled={generateReport.isPending}
-                className="w-full"
-              >
-                {generateReport.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Report...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Generate PDF Report
-                  </>
-                )}
-              </Button>
-            </div>
-          ) : (
-            <PDFViewer content={reportContent} title={`${topic.title} - Report`} />
-          )}
-        </CardContent>
-        
-        {reportContent && (
-          <CardFooter className="border-t bg-card flex justify-between">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Check size={16} className="mr-1 text-green-500" />
-              Report successfully generated
-            </div>
-            <Button variant="outline" size="sm">
-              <Download size={16} className="mr-1" />
-              Download PDF
-            </Button>
-          </CardFooter>
-        )}
-      </Card>
-    </motion.div>
+    <div className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Report Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter a title for your report" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This will be used as the title of your PDF report.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button 
+            type="submit" 
+            disabled={generateReport.isPending || generatingReport}
+          >
+            {generateReport.isPending || generatingReport ? (
+              <>Generating Report...</>
+            ) : (
+              <>Generate PDF Report</>
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      {reports && reports.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Previous Reports</h3>
+          <Separator className="my-4" />
+          <div className="space-y-4">
+            {reports.map((report: Report) => (
+              <Card key={report.id}>
+                <CardContent className="p-4 flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">{report.title}</h4>
+                    <p className="text-sm text-muted-foreground flex items-center mt-1">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {new Date(report.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDownload(report)}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
