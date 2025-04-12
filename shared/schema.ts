@@ -41,11 +41,11 @@ export const chatMessages = sqliteTable("chat_messages", {
 export const chatSessions = sqliteTable("chat_sessions", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date())
+  createdAt: integer("created_at")
+    .$defaultFn(() => Date.now())
     .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date())
+  updatedAt: integer("updated_at")
+    .$defaultFn(() => Date.now())
     .notNull(),
 });
 

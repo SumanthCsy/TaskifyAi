@@ -96,7 +96,8 @@ export async function generateExcelFromPrompt(prompt: Prompt): Promise<Buffer> {
   }
   
   // Create a buffer for the xlsx file
-  return await workbook.xlsx.writeBuffer();
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }
 
 /**
@@ -189,5 +190,6 @@ export async function generateExcelFromReport(title: string, content: string): P
   }
   
   // Create a buffer for the xlsx file
-  return await workbook.xlsx.writeBuffer();
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }

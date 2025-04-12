@@ -311,8 +311,8 @@ export class DatabaseStorage implements IStorage {
       return {
         id,
         title,
-        createdAt: now,
-        updatedAt: now
+        createdAt: new Date(now),
+        updatedAt: new Date(now)
       } as ChatSession;
     } catch (error) {
       console.error('Error creating chat session:', error);
