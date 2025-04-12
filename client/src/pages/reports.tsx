@@ -7,6 +7,7 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,8 @@ export default function Reports() {
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState<string>('');
   const [showReportContent, setShowReportContent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { toast } = useToast();
   
   // Form setup
   const form = useForm<z.infer<typeof reportFormSchema>>({
@@ -50,20 +53,54 @@ export default function Reports() {
 
   const generateReport = async (values: z.infer<typeof reportFormSchema>) => {
     setIsGenerating(true);
+    setErrorMessage(null);
+    
     try {
+      // Enhanced prompt to ensure comprehensive report
+      const enhancedPrompt = `
+      Please generate a detailed, well-structured report on the following topic:
+      "${values.prompt}"
+      
+      The report should:
+      - Include a clear introduction and conclusion
+      - Be organized with meaningful headings and subheadings
+      - Provide factual information and insights
+      - Use markdown formatting for better readability
+      - Be thorough and comprehensive
+      `;
+      
       // Send request to generate AI content
       const response = await apiRequest('/api/generate', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: values.prompt
+          prompt: enhancedPrompt
         }),
       });
+      
+      if (!response || !response.content) {
+        throw new Error("The AI service returned an empty response");
+      }
       
       setReportTitle(values.title);
       setReportContent(response.content);
       setShowReportContent(true);
+      
+      // Show success toast
+      toast({
+        title: "Report Generated",
+        description: "Your report has been successfully generated.",
+      });
+      
     } catch (error) {
       console.error('Failed to generate report:', error);
+      setErrorMessage("Failed to generate the report. Please try again with a different prompt.");
+      
+      // Show error toast
+      toast({
+        title: "Report Generation Failed",
+        description: "There was an error generating your report. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -141,6 +178,17 @@ export default function Reports() {
                       </FormItem>
                     )}
                   />
+                  
+                  {errorMessage && (
+                    <div className="bg-red-900/20 border border-red-900 text-red-100 px-4 py-3 rounded-md mb-4">
+                      <p className="flex items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {errorMessage}
+                      </p>
+                    </div>
+                  )}
                   
                   <Button 
                     type="submit" 

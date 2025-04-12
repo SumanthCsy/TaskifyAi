@@ -195,18 +195,21 @@ export default function AiChat() {
 
     setMessages(prev => [...prev, userMessage]);
 
-    // Extract text content from files to send to API
-    const textContents = uploadedFiles
-      .filter(file => 
-        file.type.startsWith('text/') || 
-        file.type === 'application/json' || 
-        file.type === 'application/xml' ||
-        file.type === 'application/javascript'
-      )
-      .map(file => `File: ${file.name}\nContent: ${file.content}`)
-      .join('\n\n');
+    // Prepare content from all files (both text and images)
+    let filesContent = "";
+    
+    // Process each file based on type
+    uploadedFiles.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        // For images, just mention the file but don't include the base64 data
+        filesContent += `File: ${file.name} (Image file)\n`;
+      } else {
+        // For text files, include the content
+        filesContent += `File: ${file.name}\nContent: ${file.content}\n\n`;
+      }
+    });
 
-    const prompt = `Please analyze these files and provide insights:\n${textContents}`;
+    const prompt = `Please analyze these ${uploadedFiles.length} files and provide insights:\n${filesContent}`;
 
     // Generate AI response for the files
     generateResponse.mutate(prompt, {
