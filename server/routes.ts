@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateAiResponse, generateReportContent, getSuggestedPrompts } from "./huggingface";
+import { generateAiResponse, generateReportContent, getSuggestedPrompts } from "./openrouter";
 import { z } from "zod";
 import { insertPromptSchema, insertReportSchema } from "@shared/schema";
 
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = querySchema.parse(req.body);
       const { prompt } = validatedData;
       
-      // Generate content using HuggingFace AI
+      // Generate content using OpenRouter AI
       const aiResponse = await generateAiResponse(prompt);
       
       // Create the prompt entry
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Prompt not found" });
       }
       
-      // Generate report content using HuggingFace AI
+      // Generate report content using OpenRouter AI
       const reportContent = await generateReportContent(promptData.prompt, title);
       
       // Create the report
