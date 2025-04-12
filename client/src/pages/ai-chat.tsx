@@ -6,10 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check, Sparkles } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
 import { marked } from "marked";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
   sender: 'user' | 'ai';
@@ -69,6 +70,16 @@ export default function AiChat() {
       
       setMessages(prev => [...prev, userMessage]);
       setInputMessage("");
+      setSendingMessage(true);
+      
+      // Add typing indicator message
+      const typingMessage: Message = {
+        sender: 'ai',
+        content: '<div class="thinking-animation"></div>',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, typingMessage]);
       
       // Enhance prompt with information about Taskify AI and its founder
       const enhancedPrompt = inputMessage + (
@@ -87,12 +98,29 @@ export default function AiChat() {
       // Generate AI response
       generateResponse.mutate(enhancedPrompt, {
         onSuccess: (data) => {
+          // Remove the typing indicator message
+          setMessages(prev => prev.slice(0, -1));
+          
           const aiResponse: Message = {
             sender: 'ai',
             content: data.content,
             timestamp: new Date()
           };
           setMessages(prev => [...prev, aiResponse]);
+          setSendingMessage(false);
+        },
+        onError: (error) => {
+          // Remove the typing indicator message
+          setMessages(prev => prev.slice(0, -1));
+          setSendingMessage(false);
+          
+          // Add error message
+          const errorMessage: Message = {
+            sender: 'ai',
+            content: "Sorry, I encountered an error while processing your request. Please try again.",
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
         }
       });
     }

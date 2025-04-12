@@ -11,3 +11,78 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Animated dots for the typing indicator */
+.thinking-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.thinking-animation::after {
+  content: '';
+  width: 80px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='30' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Ccircle id='dot1' r='6' cx='15' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0s'/%3E%3C/circle%3E%3Ccircle id='dot2' r='6' cx='40' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0.2s'/%3E%3C/circle%3E%3Ccircle id='dot3' r='6' cx='65' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0.4s'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Shimmer effect for loading states */
+.shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(168, 85, 247, 0.2) 50%, 
+    rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Pulse animation */
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Sparkle animations for features */
+.sparkle {
+  position: relative;
+}
+
+.sparkle::before, .sparkle::after {
+  content: '';
+  position: absolute;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z'/%3E%3C/svg%3E");
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.sparkle::before {
+  top: -15px;
+  left: -5px;
+  animation: sparkle-animation 3s ease-in-out infinite;
+}
+
+.sparkle::after {
+  bottom: -10px;
+  right: -10px;
+  animation: sparkle-animation 3s ease-in-out 0.4s infinite;
+}
+
+@keyframes sparkle-animation {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+}
