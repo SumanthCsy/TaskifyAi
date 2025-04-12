@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
+import { marked } from "marked";
 
 interface Message {
   sender: 'user' | 'ai';
@@ -32,7 +33,7 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      content: 'Hello! I\'m your AI assistant. How can I help you today?\nYou can also upload files for analysis by using the file upload tab.',
+      content: '# Welcome to Taskify AI Assistant! 👋\n\nI\'m your AI assistant, ready to help with any questions or tasks. I can provide detailed information, suggest ideas, or assist with problem-solving.\n\n**How can I help you today?**\n\n*Tip: You can also upload files for analysis using the file upload tab.*',
       timestamp: new Date()
     }
   ]);
@@ -300,12 +301,18 @@ File contents:${filesContent}`;
                         {message.sender === 'ai' ? 'Taskify AI' : 'You'} • {formatTimestamp(message.timestamp)}
                       </span>
                     </div>
-                    <div 
-                      className="whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ 
-                        __html: message.content.replace(/\n/g, '<br/>') 
-                      }} 
-                    />
+                    {message.sender === 'ai' ? (
+                      <div 
+                        className="prose prose-invert max-w-none prose-sm"
+                        dangerouslySetInnerHTML={{ 
+                          __html: marked(message.content) 
+                        }} 
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                    )}
                     
                     {/* Display file attachments if any */}
                     {message.attachments && message.attachments.length > 0 && (

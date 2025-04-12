@@ -30,8 +30,7 @@ const formSchema = z.object({
 export default function CodeGenerator() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<{code: string, explanation: string} | null>(null);
-  const [activeTab, setActiveTab] = useState('code');
+  const [result, setResult] = useState<{code: string} | null>(null);
   const [copied, setCopied] = useState(false);
   const [_, setLocation] = useLocation();
 
@@ -74,16 +73,19 @@ export default function CodeGenerator() {
       }
 
       // Create a stronger prompt for code generation
-      const enhancedPrompt = prompt;
+      const enhancedPrompt = `Generate only code for the following request without explanation or comments: ${prompt}. 
+      Return only the code as a code block with language identifier, no explanations.
+      If multiple code files are needed, identify each with a filename comment at the top.`;
       
       // Use the dedicated code generation endpoint
-      const response = await apiRequest('/api/generate/code', {
+      const response = await apiRequest('/api/generate', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: enhancedPrompt,
-          language: detectedLanguage,
-          codeType: "complete code solution"
+          prompt: enhancedPrompt
         }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       // Extract code and explanation from the generated response
@@ -117,42 +119,24 @@ export default function CodeGenerator() {
         }
       }
       
-      // Look for explanation section
-      let explanation = '';
-      const explanationRegex = /EXPLANATION:\s*\n([\s\S]*?)(?=$)/i;
-      const explanationMatch = explanationRegex.exec(content);
-      
-      if (explanationMatch && explanationMatch[1]) {
-        explanation = explanationMatch[1].trim();
-      } else {
-        // If no explanation section found, remove code blocks to get explanation
-        explanation = content.replace(/```[\s\S]*?```/g, '').replace(/CODE:[\s\S]*?(?=EXPLANATION:|$)/i, '');
-        
-        // Remove "EXPLANATION:" header if present
-        explanation = explanation.replace(/EXPLANATION:\s*\n/i, '');
-      }
-      
       // If somehow we still don't have code, extract it differently
       if (!code && content.includes('```')) {
         const parts = content.split('```');
         if (parts.length >= 3) {
           // The code is usually the second part (index 1) in a split by ```
           code = parts[1].trim();
-          
-          // Explanation is usually before or after the code block
-          if (!explanation) {
-            explanation = parts[0].trim() + (parts.length > 2 ? parts.slice(2).join('').trim() : '');
-          }
         }
       }
       
-      // Set the result with code and explanation
-      setResult({ 
-        code: code || 'No code block detected in the response.', 
-        explanation: explanation || 'No explanation provided.'
-      });
+      // If all extraction methods fail, use the entire content as code
+      if (!code && content) {
+        code = content.trim();
+      }
       
-      setActiveTab('code');
+      // Set the result with code only
+      setResult({ 
+        code: code || 'No code block detected in the response.'
+      });
       
       toast({
         title: 'Code Generated',
@@ -310,55 +294,37 @@ export default function CodeGenerator() {
             <CardContent>
               {result ? (
                 <div className="space-y-4">
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-                      <TabsTrigger value="code" className="data-[state=active]:bg-gray-700">Code</TabsTrigger>
-                      <TabsTrigger value="explanation" className="data-[state=active]:bg-gray-700">Explanation</TabsTrigger>
-                    </TabsList>
+                  <div className="relative">
+                    <pre className="rounded-md bg-black p-4 overflow-x-auto text-gray-100 max-h-[500px] overflow-y-auto">
+                      <code>{result.code || 'No code generated yet.'}</code>
+                    </pre>
                     
-                    <TabsContent value="code" className="mt-4">
-                      <div className="relative">
-                        <pre className="rounded-md bg-black p-4 overflow-x-auto text-gray-100 max-h-[500px] overflow-y-auto">
-                          <code>{result.code || 'No code generated yet.'}</code>
-                        </pre>
-                        
-                        <div className="absolute top-2 right-2 flex gap-2">
-                          <Button 
-                            variant="secondary" 
-                            size="icon"
-                            onClick={copyToClipboard}
-                            disabled={!result.code}
-                            className="bg-gray-800"
-                          >
-                            {copied ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Copy className="h-4 w-4" />
-                            )}
-                          </Button>
-                          
-                          <Button 
-                            variant="secondary" 
-                            size="icon"
-                            onClick={downloadCode}
-                            disabled={!result.code}
-                            className="bg-gray-800"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="explanation" className="mt-4">
-                      <div className="rounded-md border border-gray-700 p-4 overflow-y-auto max-h-[500px]">
-                        <div 
-                          className="prose prose-invert max-w-none"
-                          dangerouslySetInnerHTML={{ __html: marked(result.explanation || 'No explanation available.') }}
-                        />
-                      </div>
-                    </TabsContent>
-                  </Tabs>
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <Button 
+                        variant="secondary" 
+                        size="icon"
+                        onClick={copyToClipboard}
+                        disabled={!result.code}
+                        className="bg-gray-800"
+                      >
+                        {copied ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        variant="secondary" 
+                        size="icon"
+                        onClick={downloadCode}
+                        disabled={!result.code}
+                        className="bg-gray-800"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="p-12 text-center">
