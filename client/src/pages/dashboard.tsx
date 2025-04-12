@@ -168,11 +168,11 @@ export default function Dashboard() {
           <span>© 2025 Taskify AI</span>
           <span className="text-gray-600">|</span>
           <a 
-            href="https://github.com/sumanthcsy" 
+            href="https://sumanthcsy.netlify.app" 
             target="_blank" 
             className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
           >
-            <Github size={14} /> 
+            <Globe size={14} /> 
             Developed by Sumanth Csy
           </a>
         </div>

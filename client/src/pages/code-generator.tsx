@@ -13,10 +13,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Code, Copy, CheckCircle, Download } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
@@ -25,13 +23,7 @@ import { marked } from 'marked';
 const formSchema = z.object({
   prompt: z.string().min(10, {
     message: 'Prompt must be at least 10 characters.',
-  }),
-  language: z.string().min(1, {
-    message: 'Please select a programming language.',
-  }),
-  codeType: z.string().min(1, {
-    message: 'Please select a code type.',
-  }),
+  })
 });
 
 export default function CodeGenerator() {
@@ -44,22 +36,18 @@ export default function CodeGenerator() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: '',
-      language: 'javascript',
-      codeType: 'function',
+      prompt: ''
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      // Send to the code-specific API endpoint
-      const response = await apiRequest('/api/generate/code', {
+      // Send to the standard generate endpoint
+      const response = await apiRequest('/api/generate', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: values.prompt,
-          language: values.language,
-          codeType: values.codeType
+          prompt: values.prompt
         }),
       });
       
@@ -112,41 +100,42 @@ export default function CodeGenerator() {
 
   function downloadCode() {
     if (result?.code) {
-      const language = form.getValues('language');
-      const fileExtension = getFileExtension(language);
+      // Attempt to detect language from code content or default to .txt
+      const extension = detectLanguageExtension(result.code);
       const blob = new Blob([result.code], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `code${fileExtension}`;
+      a.download = `code${extension}`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
     }
   }
 
-  function getFileExtension(language: string): string {
-    const extensions: Record<string, string> = {
-      javascript: '.js',
-      typescript: '.ts',
-      python: '.py',
-      java: '.java',
-      csharp: '.cs',
-      cpp: '.cpp',
-      php: '.php',
-      ruby: '.rb',
-      go: '.go',
-      swift: '.swift',
-      kotlin: '.kt',
-      rust: '.rs',
-      html: '.html',
-      css: '.css',
-      sql: '.sql',
-    };
-    
-    return extensions[language] || '.txt';
+  function detectLanguageExtension(code: string): string {
+    // Simple language detection based on code patterns
+    if (code.includes('def ') && (code.includes('print(') || code.includes('return '))) {
+      return '.py'; // Python
+    } else if (code.includes('function') && (code.includes('const ') || code.includes('let '))) {
+      return '.js'; // JavaScript
+    } else if (code.includes('class') && code.includes('public static void main')) {
+      return '.java'; // Java
+    } else if (code.includes('import React') || code.includes('export default')) {
+      return '.jsx'; // React/JSX
+    } else if (code.includes('<html') || code.includes('<!DOCTYPE')) {
+      return '.html'; // HTML
+    } else if (code.includes('using System;') || code.includes('namespace ')) {
+      return '.cs'; // C#
+    } else if (code.includes('#include <') || code.includes('std::')) {
+      return '.cpp'; // C++
+    } else {
+      return '.txt'; // Default
+    }
   }
 
   return (
@@ -184,73 +173,16 @@ export default function CodeGenerator() {
                   )}
                 />
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="language"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Programming Language</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select language" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="javascript">JavaScript</SelectItem>
-                            <SelectItem value="typescript">TypeScript</SelectItem>
-                            <SelectItem value="python">Python</SelectItem>
-                            <SelectItem value="java">Java</SelectItem>
-                            <SelectItem value="csharp">C#</SelectItem>
-                            <SelectItem value="cpp">C++</SelectItem>
-                            <SelectItem value="php">PHP</SelectItem>
-                            <SelectItem value="ruby">Ruby</SelectItem>
-                            <SelectItem value="go">Go</SelectItem>
-                            <SelectItem value="swift">Swift</SelectItem>
-                            <SelectItem value="kotlin">Kotlin</SelectItem>
-                            <SelectItem value="rust">Rust</SelectItem>
-                            <SelectItem value="html">HTML</SelectItem>
-                            <SelectItem value="css">CSS</SelectItem>
-                            <SelectItem value="sql">SQL</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="codeType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Code Type</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="function">Function</SelectItem>
-                            <SelectItem value="class">Class</SelectItem>
-                            <SelectItem value="component">Component</SelectItem>
-                            <SelectItem value="script">Full Script</SelectItem>
-                            <SelectItem value="api">API Endpoint</SelectItem>
-                            <SelectItem value="algorithm">Algorithm</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500 mb-4">
+                    <strong>Tips for better code generation:</strong>
+                    <br />
+                    • Include the programming language in your prompt (e.g., "Create a Python function that...")
+                    <br />
+                    • Specify the type of code you need (function, class, component, etc.)
+                    <br />
+                    • Include details about inputs, outputs, and edge cases
+                  </p>
                 </div>
                 
                 <Button 

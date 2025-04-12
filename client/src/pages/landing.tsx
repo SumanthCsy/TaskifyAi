@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { BrainCircuit, Sparkles, FileText, Code, Github } from "lucide-react";
+import { BrainCircuit, Sparkles, FileText, Code, Globe } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -118,12 +118,12 @@ export default function Landing() {
           
           <div className="text-gray-400 text-sm">
             © 2025 Taskify AI. Created by <a 
-              href="https://github.com/sumanthcsy" 
+              href="https://sumanthcsy.netlify.app" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
             >
-              Sumanth Csy <Github size={14} />
+              Sumanth Csy <Globe size={14} />
             </a>
           </div>
           
