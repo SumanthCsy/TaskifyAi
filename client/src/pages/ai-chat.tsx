@@ -89,19 +89,8 @@ export default function AiChat() {
       
       setMessages(prev => [...prev, typingMessage]);
       
-      // Enhance prompt with information about Taskify AI and its founder
-      const enhancedPrompt = inputMessage + (
-        inputMessage.toLowerCase().includes('taskify') || 
-        inputMessage.toLowerCase().includes('sumanth') || 
-        inputMessage.toLowerCase().includes('founder') || 
-        inputMessage.toLowerCase().includes('creator') || 
-        inputMessage.toLowerCase().includes('who made') || 
-        inputMessage.toLowerCase().includes('who created') || 
-        inputMessage.toLowerCase().includes('about you') ||
-        inputMessage.toLowerCase().includes('what are you')
-          ? '\n\nNote: Provide information about Taskify AI: Founded by Sumanth Csy in 2023, it was launched in April 2023. Taskify AI is a productivity platform featuring AI-powered tools including a report generator, code generator, and AI assistant. The platform aims to help users generate high-quality content efficiently. Include details about its features, usefulness, and why it was created, but don\'t mention specific dates beyond month and year.'
-          : '\n\nNote: You are Taskify AI, built with ❤️ by @Sumanth Csy.'
-      );
+      // Only include a simple signature note
+      const enhancedPrompt = inputMessage + "\n\nNote: You are Taskify AI, a helpful assistant.";
       
       // Generate AI response
       generateResponse.mutate(enhancedPrompt, {
@@ -296,8 +285,8 @@ export default function AiChat() {
     
     prompt += `\n\nFile contents:${filesContent}`;
     
-    // Add information about Taskify AI and its founder
-    prompt += `\n\nNote: Provide information about Taskify AI: Founded by Sumanth Csy in 2023, it was launched in April 2023. Taskify AI is a productivity platform featuring AI-powered tools including a report generator, code generator, and AI assistant. The platform aims to help users generate high-quality content efficiently. Include details about its features, usefulness, and why it was created, but don't mention specific dates beyond month and year.`;
+    // Add a simple note about the assistant identity
+    prompt += `\n\nNote: You are Taskify AI, a helpful assistant.`;
 
     // Add thinking/analyzing indicator
     const thinkingMessage: Message = {
@@ -492,13 +481,36 @@ export default function AiChat() {
                     <div className="text-xs text-gray-500">
                       Press Ctrl+Enter to send
                     </div>
-                    <Button
-                      className="bg-purple-600 hover:bg-purple-700 h-10 px-4 py-2"
-                      disabled={!inputMessage.trim() || generateResponse.isPending}
-                      onClick={handleSendMessage}
-                    >
-                      <Send className="h-5 w-5 mr-2" /> Send
-                    </Button>
+                    {generateResponse.isPending ? (
+                      <Button
+                        className="bg-red-600 hover:bg-red-700 h-10 px-4 py-2"
+                        onClick={() => {
+                          // Cancel the current response
+                          generateResponse.reset();
+                          // Remove the thinking indicator from messages
+                          setMessages(prev => prev.filter(msg => 
+                            !msg.content.includes('thinking-animation')
+                          ));
+                          setSendingMessage(false);
+                          // Show a toast notification
+                          toast({
+                            title: "Response Canceled",
+                            description: "AI response has been stopped.",
+                            variant: "default",
+                          });
+                        }}
+                      >
+                        <Square className="h-5 w-5 mr-2" /> Stop
+                      </Button>
+                    ) : (
+                      <Button
+                        className="bg-purple-600 hover:bg-purple-700 h-10 px-4 py-2"
+                        disabled={!inputMessage.trim() || generateResponse.isPending}
+                        onClick={handleSendMessage}
+                      >
+                        <Send className="h-5 w-5 mr-2" /> Send
+                      </Button>
+                    )}
                   </div>
                 </TabsContent>
                 
@@ -574,23 +586,38 @@ export default function AiChat() {
                             />
                           </div>
                           
-                          <Button 
-                            className="w-full bg-purple-600 hover:bg-purple-700"
-                            disabled={isAnalyzingFile || generateResponse.isPending}
-                            onClick={analyzeFiles}
-                          >
-                            {isAnalyzingFile ? (
-                              <>
-                                <LoadingSpinner size={16} className="mr-2" />
-                                Analyzing...
-                              </>
-                            ) : (
-                              <>
-                                <FileText className="h-5 w-5 mr-2" /> 
-                                Analyze Files
-                              </>
-                            )}
-                          </Button>
+                          {isAnalyzingFile ? (
+                            <Button 
+                              className="w-full bg-red-600 hover:bg-red-700"
+                              onClick={() => {
+                                // Cancel the current response
+                                generateResponse.reset();
+                                // Remove the thinking indicator from messages
+                                setMessages(prev => prev.filter(msg => 
+                                  !msg.content.includes('thinking-animation')
+                                ));
+                                setIsAnalyzingFile(false);
+                                // Show a toast notification
+                                toast({
+                                  title: "Analysis Canceled",
+                                  description: "File analysis has been stopped.",
+                                  variant: "default",
+                                });
+                              }}
+                            >
+                              <Square className="h-5 w-5 mr-2" />
+                              Stop Analysis
+                            </Button>
+                          ) : (
+                            <Button 
+                              className="w-full bg-purple-600 hover:bg-purple-700"
+                              disabled={isAnalyzingFile || generateResponse.isPending}
+                              onClick={analyzeFiles}
+                            >
+                              <FileText className="h-5 w-5 mr-2" /> 
+                              Analyze Files
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>

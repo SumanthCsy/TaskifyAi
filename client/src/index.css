@@ -25,13 +25,6 @@
   overflow: hidden;
 }
 
-.thinking-animation::before {
-  content: "Taskify AI is thinking...";
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 12px;
-}
-
 .thinking-animation::after {
   content: '';
   width: 120px;

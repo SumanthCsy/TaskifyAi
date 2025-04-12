@@ -24,11 +24,11 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     
     console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
     
-    // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific check)
-    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|sumanth\s*csy|founder|creator/i.test(prompt);
+    // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific and strict check)
+    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|(?:who|who's)\s+(?:is|made|created|developed|built)\s+(?:this|taskify)|who's\s+the\s+(?:creator|founder|developer|maker)|tell\s+(?:me|us)\s+about\s+(?:the\s+creator|the\s+founder|sumanth|the\s+developer)/i.test(prompt);
     
-    // Check if prompt is asking about Taskify AI
-    const isTaskifyAiQuery = /(?:what|tell|about|is)\s+(?:is|about|info|information|on)\s+(?:taskify|the app|this app|this platform|the platform|app|platform)/i.test(prompt);
+    // Check if prompt is asking about Taskify AI (more specific check)
+    const isTaskifyAiQuery = /(?:what|tell|about|is)\s+(?:is|about|info|information|on)\s+(?:taskify|this\s+app|the\s+app|this\s+platform|the\s+platform)|what\s+can\s+taskify\s+do|how\s+does\s+taskify\s+work|features\s+of\s+taskify/i.test(prompt);
     
     // Default system prompt
     let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content. Do not include any information about Sumanth Csy or Taskify AI unless specifically asked.";
