@@ -22,6 +22,7 @@ export default function Sidebar() {
     { path: "/", label: "Home", icon: <Home size={20} /> },
     { path: "/search", label: "Ask AI", icon: <BrainCircuit size={20} /> },
     { path: "/code-generator", label: "Code Generator", icon: <Code size={20} /> },
+    { path: "/reports", label: "Reports", icon: <FileText size={20} /> },
     { path: "/favorites", label: "Favorites", icon: <BookmarkCheck size={20} /> },
     { path: "/history", label: "History", icon: <Clock size={20} /> },
     { path: "/settings", label: "Settings", icon: <Settings size={20} /> },
@@ -58,10 +59,10 @@ export default function Sidebar() {
             <p className="text-xs text-muted-foreground mb-3">
               Create detailed PDF reports from any AI response with one click.
             </p>
-            <Link href="/search">
+            <Link href="/reports">
               <Button size="sm" className="w-full">
                 <FileText size={16} className="mr-2" />
-                Ask AI & Create Report
+                Generate Reports
               </Button>
             </Link>
           </motion.div>

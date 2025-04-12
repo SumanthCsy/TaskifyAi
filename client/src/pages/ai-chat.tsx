@@ -371,7 +371,7 @@ export default function AiChat() {
                             <Upload className="h-4 w-4 mr-2" /> Select Files
                           </Button>
                           <p className="text-xs text-gray-500 mt-2">
-                            Supported formats: .txt, .js, .json, .csv, .xml, .html, .css, .md, etc.
+                            Supported formats: Text files (.txt, .js, .json, .csv, .html, etc.) and images (.jpg, .png, .gif)
                           </p>
                         </div>
                       ) : (
