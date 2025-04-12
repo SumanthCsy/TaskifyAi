@@ -92,7 +92,7 @@ export default function Dashboard() {
       icon: <FileText size={24} />,
       title: "Report Generator",
       description: "Create comprehensive reports with rich formatting, and download as PDFs.",
-      link: "/search",
+      link: "/reports",
       color: "purple"
     },
     {

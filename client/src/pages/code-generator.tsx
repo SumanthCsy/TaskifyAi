@@ -43,11 +43,14 @@ export default function CodeGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      // Format the prompt to include code generation instructions
+      const codePrompt = `Generate code based on this request: ${values.prompt}\n\nPlease provide the code in a code block using markdown triple backticks, and include a detailed explanation after the code.`;
+      
       // Send to the standard generate endpoint
       const response = await apiRequest('/api/generate', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: values.prompt
+          prompt: codePrompt
         }),
       });
       
@@ -62,6 +65,13 @@ export default function CodeGenerator() {
       if (codeMatches && codeMatches.length > 0) {
         // Extract code from the first code block without the backticks
         code = codeMatches[0].replace(/```[\w]*\n|```/g, '');
+      } else {
+        // If no code block is found, try a different regex pattern that might match code without language specification
+        const simpleCodeBlockRegex = /```([\s\S]*?)```/g;
+        const simpleCodeMatches = content.match(simpleCodeBlockRegex);
+        if (simpleCodeMatches && simpleCodeMatches.length > 0) {
+          code = simpleCodeMatches[0].replace(/```|```/g, '');
+        }
       }
       
       // Remove code blocks from the content to get the explanation
@@ -75,6 +85,7 @@ export default function CodeGenerator() {
         description: 'Your code has been successfully generated.',
       });
     } catch (error) {
+      console.error("Code generation error:", error);
       toast({
         title: 'Error',
         description: 'Failed to generate code. Please try again.',

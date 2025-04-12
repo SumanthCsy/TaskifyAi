@@ -21,6 +21,7 @@ import PowerPointPresentation from "@/pages/powerpoint-presentation";
 import ExcelSpreadsheet from "@/pages/excel-spreadsheet";
 import AiChat from "@/pages/ai-chat";
 import CodeGenerator from "@/pages/code-generator";
+import Reports from "@/pages/reports";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -112,6 +113,14 @@ function Router() {
         {() => (
           <DarkLayout>
             <CodeGenerator />
+          </DarkLayout>
+        )}
+      </Route>
+
+      <Route path="/reports">
+        {() => (
+          <DarkLayout>
+            <Reports />
           </DarkLayout>
         )}
       </Route>

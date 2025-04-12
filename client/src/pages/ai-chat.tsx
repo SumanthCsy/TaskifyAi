@@ -91,9 +91,9 @@ export default function AiChat() {
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
+    
     // Define allowed text file types
-    const allowedTypes = [
+    const allowedTextTypes = [
       'text/plain', 'text/html', 'text/css', 'text/javascript',
       'text/markdown', 'text/csv', 'text/xml',
       'application/json', 'application/xml', 'application/javascript',
@@ -101,11 +101,21 @@ export default function AiChat() {
       'application/x-typescript'
     ];
     
+    // Define allowed image types
+    const allowedImageTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 
+      'image/svg+xml'
+    ];
+    
     // Define allowed extensions
-    const allowedExtensions = [
+    const allowedTextExtensions = [
       '.txt', '.js', '.jsx', '.ts', '.tsx', '.json', '.csv', '.xml', 
       '.html', '.css', '.md', '.py', '.java', '.c', '.cpp', '.h', 
       '.cs', '.php', '.rb', '.go'
+    ];
+    
+    const allowedImageExtensions = [
+      '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'
     ];
     
     // Process each file
@@ -116,37 +126,43 @@ export default function AiChat() {
         return;
       }
 
-      // Check if file is a text file by extension
+      // Check if file is a supported type by extension
       const fileExt = '.' + file.name.split('.').pop()?.toLowerCase();
-      if (!allowedExtensions.includes(fileExt)) {
-        alert(`File type not supported: ${file.name}. Only text-based files are supported.`);
+      const isTextFile = allowedTextExtensions.includes(fileExt);
+      const isImageFile = allowedImageExtensions.includes(fileExt);
+      
+      if (!isTextFile && !isImageFile) {
+        alert(`File type not supported: ${file.name}. Only text and image files are supported.`);
         return;
       }
 
       const reader = new FileReader();
+      
       reader.onload = (e) => {
         try {
           const content = e.target?.result as string;
-          // Only add if it looks like text content
-          if (typeof content === 'string') {
-            setUploadedFiles(prev => [
-              ...prev,
-              {
-                name: file.name,
-                type: file.type,
-                content: content,
-                size: file.size
-              }
-            ]);
-          }
+          
+          setUploadedFiles(prev => [
+            ...prev,
+            {
+              name: file.name,
+              type: file.type,
+              content: content,
+              size: file.size
+            }
+          ]);
         } catch (err) {
           console.error("Error processing file:", err);
-          alert(`Could not read ${file.name} as text. Only text files are supported.`);
+          alert(`Could not read ${file.name}. Please try a different file.`);
         }
       };
 
-      // Only try to read as text
-      reader.readAsText(file);
+      // Choose appropriate reader method based on file type
+      if (isTextFile) {
+        reader.readAsText(file);
+      } else if (isImageFile) {
+        reader.readAsDataURL(file);
+      }
     });
 
     // Reset the input
@@ -340,7 +356,7 @@ export default function AiChat() {
                         onChange={handleFileUpload}
                         className="hidden"
                         multiple
-                        accept=".txt,.js,.jsx,.ts,.tsx,.json,.csv,.xml,.html,.css,.md,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go"
+                        accept=".txt,.js,.jsx,.ts,.tsx,.json,.csv,.xml,.html,.css,.md,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.jpg,.jpeg,.png,.gif,.webp,.svg"
                       />
                       
                       {uploadedFiles.length === 0 ? (
