@@ -176,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/preferences", async (req, res) => {
     try {
       const preferences = await storage.getPreferences();
-      res.json(preferences || { id: 0, theme: "dark", fontSize: "medium" });
+      res.json(preferences || { id: 0, theme: "dark", fontSize: "medium", language: "english" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -187,7 +187,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const preferencesSchema = z.object({
         theme: z.string().optional(),
-        fontSize: z.string().optional()
+        fontSize: z.string().optional(),
+        language: z.string().optional()
       });
       
       const validatedData = preferencesSchema.parse(req.body);

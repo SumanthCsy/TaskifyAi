@@ -31,6 +31,7 @@ export const preferences = sqliteTable("preferences", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   theme: text("theme").default("dark"),
   fontSize: text("font_size").default("medium"),
+  language: text("language").default("english"),
 });
 
 // Insert schemas
