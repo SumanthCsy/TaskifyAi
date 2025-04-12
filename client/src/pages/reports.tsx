@@ -70,20 +70,52 @@ export default function Reports() {
       `;
       
       // Use the dedicated reports endpoint instead of the general generate endpoint
-      const response = await apiRequest('/api/reports/direct', {
-        method: 'POST',
-        body: JSON.stringify({ 
-          prompt: enhancedPrompt,
-          title: values.title
-        }),
-      });
+      // Generate the report using the API
+      let reportResponse: any;
       
-      if (!response || !response.content) {
+      try {
+        // Try the direct report endpoint first
+        reportResponse = await apiRequest('/api/reports/direct', {
+          method: 'POST',
+          body: JSON.stringify({ 
+            prompt: enhancedPrompt,
+            title: values.title
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (apiError) {
+        console.error('API error details:', apiError);
+        // Try using the generate endpoint as fallback
+        const fallbackResponse = await apiRequest('/api/generate', {
+          method: 'POST',
+          body: JSON.stringify({ 
+            prompt: enhancedPrompt
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!fallbackResponse || !fallbackResponse.content) {
+          throw new Error("The AI service returned an empty response");
+        }
+        
+        // Format the response to match the expected structure
+        reportResponse = {
+          title: values.title,
+          content: fallbackResponse.content,
+          createdAt: new Date().toISOString()
+        };
+      }
+      
+      if (!reportResponse || !reportResponse.content) {
         throw new Error("The AI service returned an empty response");
       }
       
       setReportTitle(values.title);
-      setReportContent(response.content);
+      setReportContent(reportResponse.content);
       setShowReportContent(true);
       
       // Show success toast
