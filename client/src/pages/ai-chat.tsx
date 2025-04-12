@@ -72,10 +72,18 @@ export default function AiChat() {
       setInputMessage("");
       setSendingMessage(true);
       
-      // Add typing indicator message
+      // Add typing indicator message with sparkles
       const typingMessage: Message = {
         sender: 'ai',
-        content: '<div class="thinking-animation"></div>',
+        content: `<div class="thinking-animation">
+          <div class="sparkle-container">
+            <div class="sparkle" style="top: 20%; left: 15%;"></div>
+            <div class="sparkle" style="top: 60%; left: 85%; animation-delay: 0.5s;"></div>
+            <div class="sparkle" style="top: 30%; left: 50%; animation-delay: 1s;"></div>
+            <div class="sparkle" style="top: 70%; left: 30%; animation-delay: 1.5s;"></div>
+            <div class="sparkle" style="top: 10%; left: 70%; animation-delay: 2s;"></div>
+          </div>
+        </div>`,
         timestamp: new Date()
       };
       
@@ -291,9 +299,29 @@ export default function AiChat() {
     // Add information about Taskify AI and its founder
     prompt += `\n\nNote: Provide information about Taskify AI: Founded by Sumanth Csy in 2023, it was launched in April 2023. Taskify AI is a productivity platform featuring AI-powered tools including a report generator, code generator, and AI assistant. The platform aims to help users generate high-quality content efficiently. Include details about its features, usefulness, and why it was created, but don't mention specific dates beyond month and year.`;
 
+    // Add thinking/analyzing indicator
+    const thinkingMessage: Message = {
+      sender: 'ai',
+      content: `<div class="thinking-animation">
+        <div class="sparkle-container">
+          <div class="sparkle" style="top: 20%; left: 15%;"></div>
+          <div class="sparkle" style="top: 60%; left: 85%; animation-delay: 0.5s;"></div>
+          <div class="sparkle" style="top: 30%; left: 50%; animation-delay: 1s;"></div>
+          <div class="sparkle" style="top: 70%; left: 30%; animation-delay: 1.5s;"></div>
+          <div class="sparkle" style="top: 10%; left: 70%; animation-delay: 2s;"></div>
+        </div>
+      </div>`,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, thinkingMessage]);
+    
     // Generate AI response for the files
     generateResponse.mutate(prompt, {
       onSuccess: (data) => {
+        // Remove the thinking indicator
+        setMessages(prev => prev.slice(0, -1));
+        
         const aiResponse: Message = {
           sender: 'ai',
           content: data.content,
@@ -306,6 +334,10 @@ export default function AiChat() {
       },
       onError: (error) => {
         console.error("Error analyzing files:", error);
+        
+        // Remove the thinking indicator
+        setMessages(prev => prev.slice(0, -1));
+        
         // Add error message to the chat
         const errorMessage: Message = {
           sender: 'ai',

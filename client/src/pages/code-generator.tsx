@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,10 +16,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Code, Copy, CheckCircle, Download, ArrowLeft } from 'lucide-react';
+import { Loader2, Code, Copy, CheckCircle, Download, ArrowLeft, Sparkles } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { marked } from 'marked';
 import { useLocation } from 'wouter';
+import { motion, AnimatePresence } from 'framer-motion';
+import LoadingSpinner from '@/components/ui/loading-spinner';
 
 const formSchema = z.object({
   prompt: z.string().min(10, {
@@ -269,7 +271,7 @@ export default function CodeGenerator() {
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Sparkles className="mr-2 h-4 w-4 text-yellow-300" />
                         Generating Code...
                       </>
                     ) : (
@@ -292,48 +294,119 @@ export default function CodeGenerator() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {result ? (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <pre className="rounded-md bg-black p-4 overflow-x-auto text-gray-100 max-h-[500px] overflow-y-auto">
-                      <code>{result.code || 'No code generated yet.'}</code>
-                    </pre>
-                    
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <Button 
-                        variant="secondary" 
-                        size="icon"
-                        onClick={copyToClipboard}
-                        disabled={!result.code}
-                        className="bg-gray-800"
-                      >
-                        {copied ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                      </Button>
-                      
-                      <Button 
-                        variant="secondary" 
-                        size="icon"
-                        onClick={downloadCode}
-                        disabled={!result.code}
-                        className="bg-gray-800"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {isLoading ? (
+                <motion.div 
+                  className="p-12 flex flex-col items-center justify-center text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="relative mb-6">
+                    <LoadingSpinner type="sparkles" size={56} className="mb-2" />
+                    <motion.div 
+                      className="absolute top-0 left-0 w-full h-full"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0, 0.5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <Sparkles className="h-8 w-8 text-purple-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                    </motion.div>
                   </div>
-                </div>
+                  
+                  <h3 className="text-xl font-medium text-white mb-3">Generating Your Code</h3>
+                  
+                  <div className="text-sm text-gray-300 max-w-md mx-auto mb-6">
+                    Our AI is writing high-quality, optimized code based on your requirements...
+                  </div>
+                  
+                  <div className="w-full max-w-md mx-auto h-8 relative overflow-hidden rounded-full bg-gray-800">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 shimmer"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 15, ease: "easeInOut" }}
+                    />
+                  </div>
+                  
+                  <div className="mt-8 flex flex-wrap justify-center gap-2">
+                    {['import', 'function', 'const', 'return', 'class', 'interface', 'async', 'await', 'try', 'export'].map((keyword, index) => (
+                      <motion.div
+                        key={keyword}
+                        className="px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 + 0.5 }}
+                      >
+                        {keyword}
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : result ? (
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    className="space-y-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 100 }}
+                    key="result"
+                  >
+                    <div className="relative">
+                      <pre className="rounded-md bg-black p-4 overflow-x-auto text-gray-100 max-h-[500px] overflow-y-auto">
+                        <code>{result.code || 'No code generated yet.'}</code>
+                      </pre>
+                      
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button 
+                            variant="secondary" 
+                            size="icon"
+                            onClick={copyToClipboard}
+                            disabled={!result.code}
+                            className="bg-gray-800"
+                          >
+                            {copied ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </motion.div>
+                        
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button 
+                            variant="secondary" 
+                            size="icon"
+                            onClick={downloadCode}
+                            disabled={!result.code}
+                            className="bg-gray-800"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
               ) : (
-                <div className="p-12 text-center">
+                <motion.div 
+                  className="p-12 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
                   <Code className="h-16 w-16 mb-4 mx-auto text-gray-500" />
                   <h3 className="text-lg font-medium text-white">No Code Generated</h3>
                   <p className="text-sm text-gray-400 mt-2 max-w-md mx-auto">
                     Fill out the form on the left with your code requirements and hit "Generate Code" to see your code appear here.
                   </p>
-                </div>
+                </motion.div>
               )}
             </CardContent>
           </Card>

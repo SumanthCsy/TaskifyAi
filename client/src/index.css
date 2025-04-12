@@ -12,21 +12,88 @@
   }
 }
 
-/* Animated dots for the typing indicator */
+/* Animated dots for the thinking indicator */
 .thinking-animation {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.thinking-animation::before {
+  content: "Taskify AI is thinking...";
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
 }
 
 .thinking-animation::after {
   content: '';
-  width: 80px;
-  height: 20px;
-  background-image: url("data:image/svg+xml,%3Csvg width='120' height='30' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Ccircle id='dot1' r='6' cx='15' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0s'/%3E%3C/circle%3E%3Ccircle id='dot2' r='6' cx='40' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0.2s'/%3E%3C/circle%3E%3Ccircle id='dot3' r='6' cx='65' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='opacity' dur='1s' values='0;1;0' repeatCount='indefinite' begin='0.4s'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+  width: 120px;
+  height: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='30' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Ccircle id='dot1' r='5' cx='15' cy='15' fill='%23a855f7'%3E%3Canimate attributeName='r' dur='1s' values='5;7;5' repeatCount='indefinite' begin='0s'/%3E%3Canimate attributeName='opacity' dur='1s' values='0.3;1;0.3' repeatCount='indefinite' begin='0s'/%3E%3C/circle%3E%3Ccircle id='dot2' r='5' cx='50' cy='15' fill='%237c3aed'%3E%3Canimate attributeName='r' dur='1s' values='5;7;5' repeatCount='indefinite' begin='0.2s'/%3E%3Canimate attributeName='opacity' dur='1s' values='0.3;1;0.3' repeatCount='indefinite' begin='0.2s'/%3E%3C/circle%3E%3Ccircle id='dot3' r='5' cx='85' cy='15' fill='%235b21b6'%3E%3Canimate attributeName='r' dur='1s' values='5;7;5' repeatCount='indefinite' begin='0.4s'/%3E%3Canimate attributeName='opacity' dur='1s' values='0.3;1;0.3' repeatCount='indefinite' begin='0.4s'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
+}
+
+/* Shimmer effect for the thinking animation */
+.thinking-animation::after {
+  position: relative;
+  z-index: 2;
+}
+
+.thinking-animation::before {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes pulse-bg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.thinking-animation {
+  background-size: 200% 200%;
+  animation: pulse-bg 3s ease infinite;
+}
+
+/* Sparkle animation on top of the thinking dots */
+.thinking-animation::before {
+  position: relative;
+  z-index: 10;
+}
+
+.thinking-animation .sparkle-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.thinking-animation .sparkle {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(168, 85, 247, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0;
+  transform: scale(0) rotate(0deg);
+  animation: float-sparkle 3s ease-in-out infinite;
+}
+
+@keyframes float-sparkle {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 0.8; transform: scale(1) rotate(180deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
 }
 
 /* Shimmer effect for loading states */
