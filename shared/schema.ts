@@ -26,6 +26,29 @@ export const reports = sqliteTable("reports", {
     .notNull(),
 });
 
+// Chat messages
+export const chatMessages = sqliteTable("chat_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  chatId: text("chat_id").notNull(),
+  role: text("role").notNull(), // user or assistant
+  content: text("content").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+// Chat sessions
+export const chatSessions = sqliteTable("chat_sessions", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 // User preferences
 export const preferences = sqliteTable("preferences", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -45,6 +68,16 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   createdAt: true 
 });
 
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true
+});
+
+export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
+  createdAt: true,
+  updatedAt: true
+});
+
 export const insertPreferencesSchema = createInsertSchema(preferences).omit({ 
   id: true 
 });
@@ -55,6 +88,12 @@ export type InsertPrompt = z.infer<typeof insertPromptSchema>;
 
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
 
 export type Preference = typeof preferences.$inferSelect;
 export type InsertPreference = z.infer<typeof insertPreferencesSchema>;
