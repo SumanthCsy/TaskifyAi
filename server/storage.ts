@@ -244,18 +244,47 @@ export class DatabaseStorage implements IStorage {
 
   async updatePreferences(prefsUpdate: Partial<InsertPreference>): Promise<Preference> {
     try {
+      // First, try to check if the preferences table exists
+      try {
+        const tableCheckStmt = rawDb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='preferences'");
+        const tableExists = tableCheckStmt.get();
+        
+        if (!tableExists) {
+          // Create the table if it doesn't exist
+          console.log('Creating preferences table...');
+          const createTableStmt = rawDb.prepare(`
+            CREATE TABLE IF NOT EXISTS preferences (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              theme TEXT DEFAULT 'dark',
+              font_size TEXT DEFAULT 'medium',
+              language TEXT DEFAULT 'english'
+            )
+          `);
+          createTableStmt.run();
+        }
+      } catch (error) {
+        console.log('Error checking table existence:', error);
+      }
+      
       const existingPrefs = await this.getPreferences();
       
       if (!existingPrefs) {
         // Create new preferences
         const theme = String(prefsUpdate.theme || 'dark');
         const fontSize = String(prefsUpdate.fontSize || 'medium');
+        const language = String(prefsUpdate.language || 'english');
         
-        const stmt = rawDb.prepare('INSERT INTO preferences (theme, font_size) VALUES (?, ?)');
-        const result = stmt.run(theme, fontSize);
+        console.log('Creating new preferences:', { theme, fontSize, language });
         
-        const id = result.lastInsertRowid as number;
-        return this.getPreferences() as Promise<Preference>;
+        const stmt = rawDb.prepare('INSERT INTO preferences (theme, font_size, language) VALUES (?, ?, ?)');
+        const result = stmt.run(theme, fontSize, language);
+        
+        return { 
+          id: Number(result.lastInsertRowid), 
+          theme, 
+          fontSize, 
+          language 
+        } as Preference;
       } else {
         // Update existing preferences
         const fields: string[] = [];
@@ -271,9 +300,16 @@ export class DatabaseStorage implements IStorage {
           values.push(String(prefsUpdate.fontSize));
         }
         
+        if (prefsUpdate.language !== undefined) {
+          fields.push('language = ?');
+          values.push(String(prefsUpdate.language));
+        }
+        
         if (fields.length === 0) {
           return existingPrefs;
         }
+        
+        console.log('Updating preferences:', { fields, values, id: existingPrefs.id });
         
         values.push(Number(existingPrefs.id));
         const stmt = rawDb.prepare(
