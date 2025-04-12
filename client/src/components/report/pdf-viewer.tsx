@@ -1,101 +1,60 @@
 import { useEffect, useState } from "react";
-import { Document, Page, Text, View, StyleSheet, PDFViewer as ReactPDFViewer } from "@react-pdf/renderer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { marked } from "marked";
 
 interface PDFViewerProps {
   content: string;
   title: string;
 }
 
-// Create styles for PDF content
-const styles = StyleSheet.create({
-  page: {
-    flexDirection: 'column',
-    backgroundColor: '#FFFFFF',
-    padding: 30,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 10,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-  },
-  text: {
-    fontSize: 12,
-    marginBottom: 10,
-    lineHeight: 1.5,
-  },
-  header: {
-    fontSize: 16,
-    marginTop: 15,
-    marginBottom: 6,
-    fontWeight: 'bold',
-  },
-  pageNumber: {
-    position: 'absolute',
-    bottom: 30,
-    left: 0,
-    right: 0,
-    fontSize: 10,
-    textAlign: 'center',
-  },
-});
-
-const formatMarkdownToPDFContent = (content: string) => {
-  const sections = content.split('\n## ');
-  
-  // Process the first section (which might contain the title)
-  const firstSection = sections.shift() || '';
-  const titleMatch = firstSection.match(/^# (.*?)(\n|$)/);
-  const title = titleMatch ? titleMatch[1] : '';
-  const introduction = titleMatch ? firstSection.replace(/^# (.*?)(\n|$)/, '') : firstSection;
-  
-  // Process remaining sections
-  const processedSections = sections.map(section => {
-    const lines = section.split('\n');
-    const sectionTitle = lines.shift() || '';
-    const sectionContent = lines.join('\n');
-    return { title: sectionTitle, content: sectionContent };
-  });
-  
-  return {
-    title,
-    introduction,
-    sections: processedSections
-  };
-};
-
 export default function PDFViewer({ content, title }: PDFViewerProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [formattedContent, setFormattedContent] = useState<any>(null);
   
   useEffect(() => {
     if (content) {
-      setFormattedContent(formatMarkdownToPDFContent(content));
       setIsLoading(false);
     }
   }, [content]);
 
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
-
-  const goToPrevPage = () => {
-    setPageNumber(pageNumber - 1 <= 1 ? 1 : pageNumber - 1);
-  };
-
-  const goToNextPage = () => {
-    setPageNumber(pageNumber + 1 >= numPages! ? numPages! : pageNumber + 1);
+  const handleDownloadPDF = () => {
+    try {
+      // Use jsPDF for direct PDF generation (avoiding React-PDF issues)
+      import('jspdf').then(({ jsPDF }) => {
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(22);
+        doc.text(title, 20, 20);
+        
+        // Add date
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+        
+        // Add content with smart pagination
+        doc.setFontSize(12);
+        const cleanContent = content.replace(/\n#+ /g, '\n\n').replace(/\n/g, '\n\n');
+        const splitText = doc.splitTextToSize(cleanContent, 170);
+        
+        let y = 40;
+        splitText.forEach((line: string) => {
+          if (y > 280) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(line, 20, y);
+          y += 7;
+        });
+        
+        // Download the PDF
+        doc.save(`${title.replace(/\s+/g, '_')}.pdf`);
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("There was a problem generating the PDF. Please try again.");
+    }
   };
 
   if (isLoading) {
@@ -106,31 +65,6 @@ export default function PDFViewer({ content, title }: PDFViewerProps) {
     );
   }
 
-  // Create PDF Document
-  const MyDocument = () => (
-    <Document title={title} onRender={() => console.log("PDF rendered")}>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>{title}</Text>
-        <View style={styles.section}>
-          <Text style={styles.text}>{formattedContent.introduction}</Text>
-        </View>
-        
-        {formattedContent.sections.map((section: any, index: number) => (
-          <View key={index} style={styles.section}>
-            <Text style={styles.header}>{section.title}</Text>
-            <Text style={styles.text}>{section.content}</Text>
-          </View>
-        ))}
-        
-        <Text
-          style={styles.pageNumber}
-          render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
-          fixed
-        />
-      </Page>
-    </Document>
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -139,39 +73,25 @@ export default function PDFViewer({ content, title }: PDFViewerProps) {
       className="w-full"
     >
       <Card className="border overflow-hidden">
-        <div style={{ height: '500px' }}>
-          <ReactPDFViewer width="100%" height="100%" showToolbar={false}>
-            <MyDocument />
-          </ReactPDFViewer>
-        </div>
-        
-        {numPages && (
-          <div className="flex justify-between items-center p-2 border-t">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{title}</h2>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={goToPrevPage}
-              disabled={pageNumber <= 1}
+              onClick={handleDownloadPDF}
+              className="flex items-center gap-2"
             >
-              <ChevronLeft size={16} />
-              Previous
-            </Button>
-            
-            <p className="text-sm">
-              Page {pageNumber} of {numPages}
-            </p>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={goToNextPage}
-              disabled={pageNumber >= numPages}
-            >
-              Next
-              <ChevronRight size={16} />
+              <Download size={16} />
+              Download PDF
             </Button>
           </div>
-        )}
+          
+          {/* Content Preview */}
+          <div className="prose prose-sm max-w-none dark:prose-invert border rounded-md p-6 h-[450px] overflow-y-auto bg-white dark:bg-gray-900">
+            <div dangerouslySetInnerHTML={{ __html: marked(content) }} />
+          </div>
+        </div>
       </Card>
     </motion.div>
   );
