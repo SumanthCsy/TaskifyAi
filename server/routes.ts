@@ -176,6 +176,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+  
+  // Generate a report directly from a prompt string (without saving to DB)
+  app.post("/api/reports/direct", async (req, res) => {
+    try {
+      const directReportSchema = z.object({
+        prompt: z.string().min(1),
+        title: z.string().min(1)
+      });
+      
+      const validatedData = directReportSchema.parse(req.body);
+      const { prompt, title } = validatedData;
+      
+      console.log(`Generating direct report: "${title}" based on prompt: "${prompt.substring(0, 50)}..."`);
+      
+      // Generate report content using OpenRouter AI
+      const reportContent = await generateReportContent(prompt, title);
+      
+      // Return the report content directly
+      res.json({
+        title,
+        content: reportContent,
+        createdAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Direct report generation error:", error);
+      res.status(500).json({ 
+        message: error.message,
+        stack: process.env.NODE_ENV === 'production' ? undefined : error.stack 
+      });
+    }
+  });
 
   // Get a report by id
   app.get("/api/reports/:id", async (req, res) => {

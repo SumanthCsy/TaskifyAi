@@ -45,22 +45,44 @@ export default function CodeGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      // Attempt to detect language from prompt
+      const prompt = values.prompt;
+      let detectedLanguage = "code";
+      
+      const languagePatterns = [
+        { pattern: /python|\.py/i, language: "python" },
+        { pattern: /javascript|js|node/i, language: "javascript" },
+        { pattern: /typescript|ts/i, language: "typescript" },
+        { pattern: /java\b|\.java/i, language: "java" },
+        { pattern: /html/i, language: "html" },
+        { pattern: /css/i, language: "css" },
+        { pattern: /c\+\+|cpp/i, language: "cpp" },
+        { pattern: /c#|csharp|\.cs/i, language: "csharp" },
+        { pattern: /php/i, language: "php" },
+        { pattern: /ruby|\.rb/i, language: "ruby" },
+        { pattern: /go\b|golang/i, language: "go" },
+        { pattern: /rust|\.rs/i, language: "rust" },
+        { pattern: /swift/i, language: "swift" },
+        { pattern: /sql/i, language: "sql" }
+      ];
+      
+      for (const lang of languagePatterns) {
+        if (lang.pattern.test(prompt)) {
+          detectedLanguage = lang.language;
+          break;
+        }
+      }
+
       // Create a stronger prompt for code generation
-      const enhancedPrompt = `
-      I need you to generate code based on this request: "${values.prompt}".
+      const enhancedPrompt = prompt;
       
-      Important instructions:
-      1. Write the code inside a code block using markdown triple backticks with language specification
-      2. After the code, include a detailed explanation of how the code works
-      3. Make sure the code is complete, well-documented, and follows best practices
-      4. Use proper formatting and syntax highlighting
-      `;
-      
-      // Send to the standard generate endpoint
-      const response = await apiRequest('/api/generate', {
+      // Use the dedicated code generation endpoint
+      const response = await apiRequest('/api/generate/code', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: enhancedPrompt
+          prompt: enhancedPrompt,
+          language: detectedLanguage,
+          codeType: "complete code solution"
         }),
       });
 
@@ -86,8 +108,29 @@ export default function CodeGenerator() {
         }
       }
       
-      // Remove code blocks to get the explanation
-      let explanation = content.replace(/```[\s\S]*?```/g, '');
+      // If we still don't have code, look for sections
+      if (!code) {
+        const codeSectionRegex = /CODE:\s*\n([\s\S]*?)(?=EXPLANATION:|$)/i;
+        const codeSectionMatch = codeSectionRegex.exec(content);
+        if (codeSectionMatch && codeSectionMatch[1]) {
+          code = codeSectionMatch[1].trim();
+        }
+      }
+      
+      // Look for explanation section
+      let explanation = '';
+      const explanationRegex = /EXPLANATION:\s*\n([\s\S]*?)(?=$)/i;
+      const explanationMatch = explanationRegex.exec(content);
+      
+      if (explanationMatch && explanationMatch[1]) {
+        explanation = explanationMatch[1].trim();
+      } else {
+        // If no explanation section found, remove code blocks to get explanation
+        explanation = content.replace(/```[\s\S]*?```/g, '').replace(/CODE:[\s\S]*?(?=EXPLANATION:|$)/i, '');
+        
+        // Remove "EXPLANATION:" header if present
+        explanation = explanation.replace(/EXPLANATION:\s*\n/i, '');
+      }
       
       // If somehow we still don't have code, extract it differently
       if (!code && content.includes('```')) {
@@ -95,7 +138,11 @@ export default function CodeGenerator() {
         if (parts.length >= 3) {
           // The code is usually the second part (index 1) in a split by ```
           code = parts[1].trim();
-          explanation = parts[0] + (parts.length > 2 ? parts.slice(2).join('') : '');
+          
+          // Explanation is usually before or after the code block
+          if (!explanation) {
+            explanation = parts[0].trim() + (parts.length > 2 ? parts.slice(2).join('').trim() : '');
+          }
         }
       }
       

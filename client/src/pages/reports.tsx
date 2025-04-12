@@ -56,7 +56,7 @@ export default function Reports() {
     setErrorMessage(null);
     
     try {
-      // Enhanced prompt to ensure comprehensive report
+      // Enhanced prompt with structure guidelines
       const enhancedPrompt = `
       Please generate a detailed, well-structured report on the following topic:
       "${values.prompt}"
@@ -69,11 +69,12 @@ export default function Reports() {
       - Be thorough and comprehensive
       `;
       
-      // Send request to generate AI content
-      const response = await apiRequest('/api/generate', {
+      // Use the dedicated reports endpoint instead of the general generate endpoint
+      const response = await apiRequest('/api/reports/direct', {
         method: 'POST',
         body: JSON.stringify({ 
-          prompt: enhancedPrompt
+          prompt: enhancedPrompt,
+          title: values.title
         }),
       });
       
