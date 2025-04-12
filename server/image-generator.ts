@@ -1,41 +1,57 @@
-import { HfInference } from '@huggingface/inference';
+import Replicate from 'replicate';
 
-const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+// Initialize Replicate with API key from environment
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
 /**
- * Generate an image based on a text prompt using Hugging Face's Stable Diffusion
+ * Generate an image based on a text prompt using Replicate's Stable Diffusion
  * @param prompt The text prompt to generate an image from
  * @returns The generated image as a Buffer, or null if there was an error
  */
 export async function generateImage(prompt: string): Promise<Buffer | null> {
   try {
     // Check if API key is set
-    if (!process.env.HUGGINGFACE_API_KEY) {
-      console.error('HuggingFace API key is not set');
-      throw new Error('HuggingFace API key is not set');
+    if (!process.env.REPLICATE_API_TOKEN) {
+      console.error('Replicate API token is not set');
+      throw new Error('Replicate API token is not set');
     }
     
     console.log(`Generating image for prompt: "${prompt}"`);
     
-    // Use a stable diffusion model to generate an image
-    const response = await hf.textToImage({
-      model: 'stabilityai/stable-diffusion-2',
-      inputs: prompt,
-      parameters: {
-        negative_prompt: 'blurry, bad quality, distorted, disfigured',
-        guidance_scale: 7.5,
-        num_inference_steps: 30,
+    // Use Stability AI's Stable Diffusion model
+    const output = await replicate.run(
+      "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+      {
+        input: {
+          prompt: prompt,
+          image_dimensions: "512x512",
+          negative_prompt: "blurry, bad quality, distorted, disfigured",
+          num_outputs: 1,
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
+        }
       }
-    });
+    );
     
-    // Convert the blob to a buffer
-    if (!(response instanceof Blob)) {
-      console.error('Unexpected response format:', typeof response);
+    // The output should be an array with one or more image URLs
+    if (Array.isArray(output) && output.length > 0) {
+      const imageUrl = output[0] as string;
+      
+      // Fetch the image and convert to buffer
+      const response = await fetch(imageUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    } else {
+      console.error('Unexpected output format from Replicate:', output);
       return null;
     }
-    
-    const arrayBuffer = await response.arrayBuffer();
-    return Buffer.from(arrayBuffer);
   } catch (error) {
     console.error('Error generating image:', error);
     return null;

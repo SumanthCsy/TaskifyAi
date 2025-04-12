@@ -20,10 +20,7 @@ export async function generatePptFromPrompt(prompt: Prompt): Promise<Buffer> {
   pres.layout = 'LAYOUT_WIDE';
   pres.theme = {
     headFontFace: 'Arial',
-    bodyFontFace: 'Arial',
-    titleColor: '0D47A1',
-    titleFontSize: 36,
-    bodyFontSize: 16
+    bodyFontFace: 'Arial'
   };
   
   // Title slide
@@ -192,17 +189,8 @@ export async function generatePptFromPrompt(prompt: Prompt): Promise<Buffer> {
   });
   
   // Export to Buffer
-  return await new Promise<Buffer>((resolve, reject) => {
-    pres.writeFile({ outputType: 'nodebuffer' })
-      .then((buffer) => {
-        if (buffer instanceof Buffer) {
-          resolve(buffer);
-        } else {
-          reject(new Error('Failed to generate PowerPoint presentation'));
-        }
-      })
-      .catch(reject);
-  });
+  const data = await pres.write({ outputType: 'nodebuffer' }) as any;
+  return Buffer.from(data);
 }
 
 /**
@@ -275,10 +263,7 @@ export async function generatePptFromReport(title: string, content: string): Pro
   pres.layout = 'LAYOUT_WIDE';
   pres.theme = {
     headFontFace: 'Arial',
-    bodyFontFace: 'Arial',
-    titleColor: '0D47A1',
-    titleFontSize: 36,
-    bodyFontSize: 16
+    bodyFontFace: 'Arial'
   };
   
   // Title slide
@@ -415,15 +400,6 @@ export async function generatePptFromReport(title: string, content: string): Pro
   });
   
   // Export to Buffer
-  return await new Promise<Buffer>((resolve, reject) => {
-    pres.writeFile({ outputType: 'nodebuffer' })
-      .then((buffer) => {
-        if (buffer instanceof Buffer) {
-          resolve(buffer);
-        } else {
-          reject(new Error('Failed to generate PowerPoint presentation'));
-        }
-      })
-      .catch(reject);
-  });
+  const data = await pres.write({ outputType: 'nodebuffer' }) as any;
+  return Buffer.from(data);
 }

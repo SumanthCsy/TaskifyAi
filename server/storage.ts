@@ -311,9 +311,9 @@ export class DatabaseStorage implements IStorage {
       return {
         id,
         title,
-        createdAt: new Date(now),
-        updatedAt: new Date(now)
-      } as ChatSession;
+        createdAt: now,
+        updatedAt: now
+      } as unknown as ChatSession;
     } catch (error) {
       console.error('Error creating chat session:', error);
       throw new Error('Failed to create chat session');
