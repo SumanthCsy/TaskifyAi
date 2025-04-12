@@ -6,9 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
 import { marked } from "marked";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   sender: 'user' | 'ai';
@@ -43,9 +44,11 @@ export default function AiChat() {
   const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
   const [fileAnalysisPrompt, setFileAnalysisPrompt] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const generateResponse = useGenerateResponse();
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -322,15 +325,41 @@ export default function AiChat() {
                         : 'bg-gray-800 text-white'
                     }`}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      {message.sender === 'ai' ? (
-                        <Bot className="h-4 w-4" />
-                      ) : (
-                        <User className="h-4 w-4" />
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        {message.sender === 'ai' ? (
+                          <Bot className="h-4 w-4" />
+                        ) : (
+                          <User className="h-4 w-4" />
+                        )}
+                        <span className="text-xs opacity-70">
+                          {message.sender === 'ai' ? 'Taskify AI' : 'You'} • {formatTimestamp(message.timestamp)}
+                        </span>
+                      </div>
+                      
+                      {message.sender === 'ai' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 rounded-full hover:bg-gray-700"
+                          onClick={() => {
+                            navigator.clipboard.writeText(message.content);
+                            setCopiedMessageId(index);
+                            toast({
+                              title: "Copied to clipboard",
+                              description: "Message content has been copied to your clipboard",
+                              duration: 2000,
+                            });
+                            setTimeout(() => setCopiedMessageId(null), 2000);
+                          }}
+                        >
+                          {copiedMessageId === index ? (
+                            <Check className="h-3 w-3 text-green-400" />
+                          ) : (
+                            <Copy className="h-3 w-3 text-gray-400" />
+                          )}
+                        </Button>
                       )}
-                      <span className="text-xs opacity-70">
-                        {message.sender === 'ai' ? 'Taskify AI' : 'You'} • {formatTimestamp(message.timestamp)}
-                      </span>
                     </div>
                     {message.sender === 'ai' ? (
                       <div 
