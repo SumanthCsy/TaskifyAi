@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useGenerateResponse, usePrompts, useSuggestedPrompts } from "@/hooks/use-prompts";
-import { FileText, Star, Clock, ArrowRight, Send, Sparkles } from "lucide-react";
+import { FileText, Star, Clock, ArrowRight, Send, Sparkles, File, FileSpreadsheet, Presentation, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import { Prompt } from "@shared/schema";
 
@@ -169,49 +169,171 @@ export default function Home() {
         </section>
       )}
 
-      <section>
-        <Card className="bg-primary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" /> Generate Professional PDF Reports
-            </CardTitle>
-            <CardDescription>
-              Transform any prompt response into a professionally formatted PDF document
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1">
-                <ul className="space-y-2 mb-4">
-                  <li className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-primary/10 h-6 w-6 flex items-center justify-center p-0 rounded-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* PDF Report Section */}
+        <section>
+          <Card className="bg-primary/5 border-primary/20 h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" /> PDF Reports
+              </CardTitle>
+              <CardDescription>
+                Generate professionally formatted PDF documents
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-40 bg-card border border-border shadow-lg rounded-md flex items-center justify-center">
+                  <FileText size={40} className="text-primary/50" />
+                </div>
+                <ul className="space-y-2 w-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
                       ✓
                     </Badge>
-                    <span>Detailed information structured in sections</span>
+                    <span>Structured information in sections</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-primary/10 h-6 w-6 flex items-center justify-center p-0 rounded-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
                       ✓
                     </Badge>
                     <span>Professional formatting with clean layout</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-primary/10 h-6 w-6 flex items-center justify-center p-0 rounded-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
                       ✓
                     </Badge>
                     <span>Ready to download, share or print</span>
                   </li>
                 </ul>
               </div>
-              <div className="flex-1 flex justify-center">
-                <div className="w-52 h-64 bg-card border border-border shadow-lg rounded-md flex items-center justify-center">
-                  <FileText size={64} className="text-primary/50" />
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Excel Reports Section */}
+        <section>
+          <Card className="bg-primary/5 border-primary/20 h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileSpreadsheet className="h-5 w-5" /> Excel Spreadsheets
+              </CardTitle>
+              <CardDescription>
+                Transform prompt responses into organized Excel files
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-40 bg-card border border-border shadow-lg rounded-md flex items-center justify-center">
+                  <FileSpreadsheet size={40} className="text-primary/50" />
                 </div>
+                <ul className="space-y-2 w-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Data organized in structured tables</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Properly formatted cells and columns</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Download in Excel format (.xlsx)</span>
+                  </li>
+                </ul>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* PowerPoint Presentation Section */}
+        <section>
+          <Card className="bg-primary/5 border-primary/20 h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Presentation className="h-5 w-5" /> PowerPoint Presentations
+              </CardTitle>
+              <CardDescription>
+                Create professional presentations from your prompts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-40 bg-card border border-border shadow-lg rounded-md flex items-center justify-center">
+                  <Presentation size={40} className="text-primary/50" />
+                </div>
+                <ul className="space-y-2 w-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Clean slide layouts with key points</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Title, content, and summary slides</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Download in PowerPoint format (.pptx)</span>
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* AI Chat Section */}
+        <section>
+          <Card className="bg-primary/5 border-primary/20 h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" /> Ask AI Chat
+              </CardTitle>
+              <CardDescription>
+                Interactive conversations with our AI assistant
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-40 bg-card border border-border shadow-lg rounded-md flex items-center justify-center">
+                  <MessageSquare size={40} className="text-primary/50" />
+                </div>
+                <ul className="space-y-2 w-full">
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Real-time conversation with AI</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Follow-up questions and clarifications</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Badge variant="outline" className="bg-primary/10 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                      ✓
+                    </Badge>
+                    <span>Persistent chat history for reference</span>
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }
