@@ -33,7 +33,7 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      content: '# Welcome to Taskify AI Assistant! 👋\n\nI\'m your AI assistant, built with ❤️ by @Sumanth Csy. I\'m ready to help with any questions or tasks, provide detailed information, suggest ideas, or assist with problem-solving.\n\n**How can I help you today?**\n\n*Tip: You can upload files for analysis in the Files tab, and add custom prompts about what you want analyzed.*',
+      content: '# Welcome to Taskify AI Assistant! 👋\n\nI\'m your AI assistant, ready to help with any questions or tasks. I can provide detailed information, suggest ideas, or assist with problem-solving.\n\n**How can I help you today?**\n\n*Tip: You can upload files for analysis in the Files tab, and add custom prompts about what you want analyzed.*',
       timestamp: new Date()
     }
   ]);
@@ -67,16 +67,18 @@ export default function AiChat() {
       setMessages(prev => [...prev, userMessage]);
       setInputMessage("");
       
-      // Enhance prompt with information about Sumanth Csy
+      // Enhance prompt with information about Taskify AI and its founder
       const enhancedPrompt = inputMessage + (
+        inputMessage.toLowerCase().includes('taskify') || 
         inputMessage.toLowerCase().includes('sumanth') || 
         inputMessage.toLowerCase().includes('founder') || 
         inputMessage.toLowerCase().includes('creator') || 
         inputMessage.toLowerCase().includes('who made') || 
         inputMessage.toLowerCase().includes('who created') || 
-        inputMessage.toLowerCase().includes('about you')
-          ? '\n\nNote: Remember to provide detailed and comprehensive information about Sumanth Csy as the founder and creator of Taskify AI, and not limited to any predefined text.'
-          : '\n\nNote: You are Taskify AI, built with ❤️ by @Sumanth Csy. Feel free to mention this when relevant.'
+        inputMessage.toLowerCase().includes('about you') ||
+        inputMessage.toLowerCase().includes('what are you')
+          ? '\n\nNote: Provide information about Taskify AI: Founded by Sumanth Csy in 2023, it was launched in April 2023. Taskify AI is a productivity platform featuring AI-powered tools including a report generator, code generator, and AI assistant. The platform aims to help users generate high-quality content efficiently. Include details about its features, usefulness, and why it was created, but don\'t mention specific dates beyond month and year.'
+          : '\n\nNote: You are Taskify AI, built with ❤️ by @Sumanth Csy.'
       );
       
       // Generate AI response
@@ -255,11 +257,8 @@ export default function AiChat() {
     
     prompt += `\n\nFile contents:${filesContent}`;
     
-    // Add information about Sumanth Csy
-    prompt += `\n\nNote: You are Taskify AI, built with ❤️ by Sumanth Csy. 
-As the founder, Sumanth Csy created this tool to empower users with AI capabilities for document analysis, 
-report generation, and creative content creation. Feel free to mention this when relevant, and remember 
-that you represent Sumanth's vision for accessible and powerful AI tools.`;
+    // Add information about Taskify AI and its founder
+    prompt += `\n\nNote: Provide information about Taskify AI: Founded by Sumanth Csy in 2023, it was launched in April 2023. Taskify AI is a productivity platform featuring AI-powered tools including a report generator, code generator, and AI assistant. The platform aims to help users generate high-quality content efficiently. Include details about its features, usefulness, and why it was created, but don't mention specific dates beyond month and year.`;
 
     // Generate AI response for the files
     generateResponse.mutate(prompt, {
@@ -394,7 +393,7 @@ that you represent Sumanth's vision for accessible and powerful AI tools.`;
                 <TabsContent value="text" className="mt-0">
                   <Textarea 
                     placeholder="Type your message here..." 
-                    className="flex-1 min-h-[100px] md:min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white"
+                    className="flex-1 min-h-[100px] md:min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-40"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -480,7 +479,7 @@ that you represent Sumanth's vision for accessible and powerful AI tools.`;
                             </label>
                             <Textarea
                               placeholder="E.g., 'Summarize the content and extract key concepts', 'Analyze the code and suggest improvements', 'Compare these files and identify patterns'..."
-                              className="min-h-[80px] bg-gray-700 border-gray-600 text-white resize-none"
+                              className="min-h-[80px] bg-gray-700 border-gray-600 text-white resize-none placeholder:text-gray-500 placeholder:opacity-40"
                               value={fileAnalysisPrompt}
                               onChange={(e) => setFileAnalysisPrompt(e.target.value)}
                             />
