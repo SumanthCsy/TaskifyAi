@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check, Sparkles, Square } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
 import { marked } from "marked";
 import { useToast } from "@/hooks/use-toast";
