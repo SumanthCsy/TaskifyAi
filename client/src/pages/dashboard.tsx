@@ -149,7 +149,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 border border-gray-800"
         >
-          <h2 className="text-2xl font-bold mb-4 text-white">Built with OpenRouter AI</h2>
+          <h2 className="text-2xl font-bold mb-4 text-white">Built with ❤️ by @Sumanth Csy</h2>
           <p className="text-gray-300 mb-4">
             Taskify AI leverages powerful AI models to help you create, learn, and build with ease.
             All features are powered by state-of-the-art large language models for the best possible results.
