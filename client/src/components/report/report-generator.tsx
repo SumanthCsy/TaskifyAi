@@ -76,7 +76,8 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
       setDownloading(null);
     } else if (format === 'excel') {
       // Download Excel file
-      apiRequest(`/api/reports/${report.id}/excel`, { method: 'GET', responseType: 'blob' })
+      fetch(`/api/reports/${report.id}/excel`, { method: 'GET' })
+        .then(response => response.blob())
         .then(blob => {
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
@@ -94,7 +95,8 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
         });
     } else if (format === 'ppt') {
       // Download PowerPoint file
-      apiRequest(`/api/reports/${report.id}/powerpoint`, { method: 'GET', responseType: 'blob' })
+      fetch(`/api/reports/${report.id}/powerpoint`, { method: 'GET' })
+        .then(response => response.blob())
         .then(blob => {
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
