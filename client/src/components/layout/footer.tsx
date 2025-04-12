@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="text-sm text-muted-foreground">
             <p>©Copyrights Taskify AI {new Date().getFullYear()}</p>
             <p className="text-xs mt-1">
-              Designed & Developed by <a href="https://sumanthcsy.netlify.app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Sumanth Csy</a>
+              Built with ❤️ by <a href="https://sumanthcsy.netlify.app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Sumanth Csy</a>
             </p>
           </div>
           

@@ -33,7 +33,7 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      content: '# Welcome to Taskify AI Assistant! 👋\n\nI\'m your AI assistant, ready to help with any questions or tasks. I can provide detailed information, suggest ideas, or assist with problem-solving.\n\n**How can I help you today?**\n\n*Tip: You can also upload files for analysis using the file upload tab.*',
+      content: '# Welcome to Taskify AI Assistant! 👋\n\nI\'m your AI assistant, built with ❤️ by @Sumanth Csy. I\'m ready to help with any questions or tasks, provide detailed information, suggest ideas, or assist with problem-solving.\n\n**How can I help you today?**\n\n*Tip: You can upload files for analysis in the Files tab, and add custom prompts about what you want analyzed.*',
       timestamp: new Date()
     }
   ]);
