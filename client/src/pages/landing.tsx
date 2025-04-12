@@ -1,69 +1,145 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { BrainCircuit, Sparkles, FileText, Code, Github } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center px-4 max-w-3xl"
-      >
-        <h1 className="text-5xl font-bold mb-6">
-          <span className="text-blue-400">Welcome to </span>
-          <span className="text-purple-400">Taskify AI</span>
-        </h1>
-        
-        <p className="text-xl text-gray-300 mb-2">
-          Taskify AI – Your Smart Assignment Assistant!
-        </p>
-        <p className="text-lg text-gray-400 mb-2">
-          Taskify AI – Automate, Learn, Succeed!
-        </p>
-        <p className="text-lg text-gray-400 mb-6">
-          Taskify AI – Smartly Complete, Effortlessly Create!
-        </p>
-        
-        <p className="text-2xl text-purple-400 mb-10">
-          Learn Faster - Work Smarter!
-        </p>
-        
-        <Link href="/dashboard">
-          <Button 
-            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 
-                     text-white px-10 py-6 rounded-md text-lg transition-all"
-          >
-            Continue
-          </Button>
-        </Link>
-      </motion.div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 px-6">
-        <div className="rounded-lg overflow-hidden shadow-xl bg-gray-800 flex items-center justify-center h-60">
-          <div className="text-blue-400 text-8xl">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="w-32 h-32">
-              <rect x="3" y="11" width="18" height="10" rx="2" />
-              <circle cx="12" cy="5" r="2" />
-              <path d="M12 7v4" />
-              <line x1="8" y1="16" x2="8" y2="16" />
-              <line x1="16" y1="16" x2="16" y2="16" />
-              <path d="M9 11v-4a3 3 0 0 1 6 0v4" />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-b from-black to-purple-950 text-white flex flex-col">
+      {/* Top Logo Section */}
+      <div className="w-full flex justify-center pt-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-3"
+        >
+          <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl">
+            <BrainCircuit size={40} className="text-white" />
           </div>
-        </div>
-        <div className="rounded-lg overflow-hidden shadow-xl bg-gray-800 flex items-center justify-center h-60">
-          <div className="text-purple-400 text-8xl">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="w-32 h-32">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-              <path d="M6 8h.01M6 12h.01M6 16h.01M10 8h.01M10 12h.01M10 16h.01M14 8h.01M14 12h.01M14 16h.01M18 8h.01M18 12h.01M18 16h.01" />
-            </svg>
-          </div>
-        </div>
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+            Taskify AI
+          </h1>
+        </motion.div>
       </div>
+
+      {/* Main Hero Section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="text-center max-w-4xl"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            <span className="block">Your AI-Powered</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+              Productivity Platform
+            </span>
+          </h2>
+          
+          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+            Boost your productivity with AI-powered tools for generating reports, 
+            code, and insights - all in one powerful platform.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/dashboard">
+              <Button 
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                         text-white px-8 py-6 rounded-xl text-lg transition-all shadow-lg shadow-purple-900/30"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                Get Started
+              </Button>
+            </Link>
+            <Link href="/ai-chat">
+              <Button 
+                variant="outline"
+                className="border-2 border-purple-500/30 text-white hover:bg-purple-500/10
+                         px-8 py-6 rounded-xl text-lg transition-all"
+              >
+                <BrainCircuit className="mr-2 h-5 w-5" />
+                Try AI Chat
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Features Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 md:px-16 lg:px-32 max-w-7xl mx-auto mb-16"
+      >
+        <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm 
+                      rounded-xl p-6 shadow-lg shadow-purple-900/20 border border-purple-500/10">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl inline-block mb-4">
+            <FileText className="w-6 h-6 text-white" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-blue-300">AI Report Generator</h3>
+          <p className="text-gray-300">
+            Generate comprehensive PDF reports with just a few clicks. Perfect for research, assignments, and presentations.
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 backdrop-blur-sm 
+                      rounded-xl p-6 shadow-lg shadow-purple-900/20 border border-purple-500/10">
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl inline-block mb-4">
+            <Code className="w-6 h-6 text-white" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-purple-300">Code Generator</h3>
+          <p className="text-gray-300">
+            Write code in multiple languages with AI assistance. Get explanations and examples to learn as you build.
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-br from-pink-900/30 to-blue-900/30 backdrop-blur-sm 
+                      rounded-xl p-6 shadow-lg shadow-purple-900/20 border border-purple-500/10">
+          <div className="bg-gradient-to-br from-pink-500 to-pink-600 p-3 rounded-xl inline-block mb-4">
+            <BrainCircuit className="w-6 h-6 text-white" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-pink-300">AI Assistant</h3>
+          <p className="text-gray-300">
+            Get instant answers to your questions. Our AI chat assistant helps you learn, research, and solve problems.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Footer */}
+      <footer className="border-t border-purple-900/30 py-8 backdrop-blur-sm bg-black/30">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <BrainCircuit size={20} className="text-purple-400" />
+            <span className="text-purple-400 font-medium">Taskify AI</span>
+          </div>
+          
+          <div className="text-gray-400 text-sm">
+            © 2025 Taskify AI. Created by <a 
+              href="https://github.com/sumanthcsy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
+            >
+              Sumanth Csy <Github size={14} />
+            </a>
+          </div>
+          
+          <div className="flex gap-4 mt-4 md:mt-0">
+            <Link href="/dashboard">
+              <span className="text-sm text-gray-400 hover:text-white transition-colors">Dashboard</span>
+            </Link>
+            <Link href="/ai-chat">
+              <span className="text-sm text-gray-400 hover:text-white transition-colors">AI Chat</span>
+            </Link>
+            <Link href="/code-generator">
+              <span className="text-sm text-gray-400 hover:text-white transition-colors">Code Generator</span>
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

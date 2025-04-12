@@ -69,47 +69,125 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
     );
   }
 
+  // Improved download handler with more robust browser support
   function handleDownload(report: Report, format: 'pdf' | 'excel' | 'ppt') {
     setDownloading(format);
+    
+    // Helper function to safely download any file
+    const safeDownload = (blob: Blob, filename: string) => {
+      try {
+        // Create a blob URL
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Create download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = blobUrl;
+        downloadLink.download = filename;
+        
+        // Make link invisible
+        downloadLink.style.position = 'absolute';
+        downloadLink.style.visibility = 'hidden';
+        downloadLink.style.opacity = '0';
+        
+        // Add to DOM, click, and clean up
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        
+        // Delay cleanup to ensure browser has time to process
+        setTimeout(() => {
+          document.body.removeChild(downloadLink);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+        
+        return true;
+      } catch (err) {
+        console.error(`Failed to download file (${format}):`, err);
+        return false;
+      }
+    };
+    
     if (format === 'pdf') {
-      generateAndDownloadPdf(report.title, report.content);
-      setDownloading(null);
-    } else if (format === 'excel') {
-      // Download Excel file
-      fetch(`/api/reports/${report.id}/excel`, { method: 'GET' })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', `${report.title.replace(/\s+/g, '_')}.xlsx`);
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          window.URL.revokeObjectURL(url);
+      try {
+        // Create PDF document using jsPDF
+        import('jspdf').then(({ jsPDF }) => {
+          const doc = new jsPDF();
+          
+          // Add title
+          doc.setFontSize(22);
+          doc.text(report.title, 20, 20);
+          
+          // Add date
+          doc.setFontSize(12);
+          doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+          
+          // Add content with smart pagination
+          doc.setFontSize(12);
+          const splitText = doc.splitTextToSize(report.content.replace(/\n#+ /g, '\n\n').replace(/\n/g, '\n\n'), 170);
+          let y = 40;
+          
+          splitText.forEach((line: string) => {
+            if (y > 280) {
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(line, 20, y);
+            y += 7;
+          });
+          
+          // Get the PDF as blob and download
+          const pdfBlob = doc.output('blob');
+          const success = safeDownload(pdfBlob, `${report.title.replace(/\s+/g, '_')}.pdf`);
+          
+          if (!success) {
+            // Fallback for PDF: open in new window
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfUrl, '_blank');
+          }
+        }).catch(err => {
+          console.error("Failed to load jsPDF:", err);
+        }).finally(() => {
           setDownloading(null);
+        });
+      } catch (err) {
+        console.error("PDF generation error:", err);
+        setDownloading(null);
+      }
+    } else if (format === 'excel') {
+      // Download Excel file with error handling
+      fetch(`/api/reports/${report.id}/excel`, { method: 'GET' })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Excel download failed with status: ${response.status}`);
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          safeDownload(blob, `${report.title.replace(/\s+/g, '_')}.xlsx`);
         })
         .catch(err => {
           console.error("Failed to download Excel:", err);
+          alert("Excel download failed. Please try again.");
+        })
+        .finally(() => {
           setDownloading(null);
         });
     } else if (format === 'ppt') {
-      // Download PowerPoint file
+      // Download PowerPoint file with error handling
       fetch(`/api/reports/${report.id}/powerpoint`, { method: 'GET' })
-        .then(response => response.blob())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`PowerPoint download failed with status: ${response.status}`);
+          }
+          return response.blob();
+        })
         .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', `${report.title.replace(/\s+/g, '_')}.pptx`);
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          window.URL.revokeObjectURL(url);
-          setDownloading(null);
+          safeDownload(blob, `${report.title.replace(/\s+/g, '_')}.pptx`);
         })
         .catch(err => {
           console.error("Failed to download PowerPoint:", err);
+          alert("PowerPoint download failed. Please try again.");
+        })
+        .finally(() => {
           setDownloading(null);
         });
     }
@@ -118,6 +196,8 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
   function handlePreview(report: Report) {
     setSelectedReport(report);
     setPreviewOpen(true);
+    // Pre-select the PDF preview tab when opening
+    setActiveTab('pdf');
   }
 
   return (

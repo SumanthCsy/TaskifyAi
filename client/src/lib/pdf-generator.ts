@@ -183,6 +183,10 @@ export function downloadPdf(blob: Blob, filename: string) {
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
   link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+  document.body.appendChild(link); // Append to body first
   link.click();
-  URL.revokeObjectURL(link.href);
+  setTimeout(() => {
+    document.body.removeChild(link); // Remove after a delay
+    URL.revokeObjectURL(link.href);
+  }, 100);
 }
