@@ -7,45 +7,73 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import { FileText, FileSpreadsheet, Presentation, Download, Eye, Plus, Search, ArrowLeft } from 'lucide-react';
-import { usePrompts } from '@/hooks/use-prompts';
-import { useGenerateReport } from '@/hooks/use-reports';
-import { Prompt } from '@shared/schema';
-import ReportGenerator from '@/components/report/report-generator';
+import { FileText, FileSpreadsheet, Presentation, Download, ArrowLeft, Bot } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
+import { generateAndDownloadPdf } from '@/lib/pdf-generator';
+import { marked } from 'marked';
+
+// Form schema for direct AI report generation
+const reportFormSchema = z.object({
+  prompt: z.string().min(10, {
+    message: 'Prompt must be at least 10 characters.',
+  }),
+  title: z.string().min(3, {
+    message: 'Title must be at least 3 characters.'
+  })
+});
 
 export default function Reports() {
   const [_, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPromptId, setSelectedPromptId] = useState<number | null>(null);
-  const [showGenerator, setShowGenerator] = useState(false);
-  const { data: prompts, isLoading } = usePrompts();
-  const generateReport = useGenerateReport();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportContent, setReportContent] = useState<string | null>(null);
+  const [reportTitle, setReportTitle] = useState<string>('');
+  const [showReportContent, setShowReportContent] = useState(false);
+  
+  // Form setup
+  const form = useForm<z.infer<typeof reportFormSchema>>({
+    resolver: zodResolver(reportFormSchema),
+    defaultValues: {
+      prompt: '',
+      title: ''
+    },
+  });
 
-  // Filter prompts by search query
-  const filteredPrompts = prompts?.filter((prompt: Prompt) => 
-    prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prompt.prompt.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const generateReport = async (values: z.infer<typeof reportFormSchema>) => {
+    setIsGenerating(true);
+    try {
+      // Send request to generate AI content
+      const response = await apiRequest('/api/generate', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          prompt: values.prompt
+        }),
+      });
+      
+      setReportTitle(values.title);
+      setReportContent(response.content);
+      setShowReportContent(true);
+    } catch (error) {
+      console.error('Failed to generate report:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const downloadAsPdf = () => {
+    if (reportContent && reportTitle) {
+      generateAndDownloadPdf(reportTitle, reportContent);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -53,7 +81,7 @@ export default function Reports() {
         <div>
           <h1 className="text-3xl font-bold">Report Generator</h1>
           <p className="text-muted-foreground mt-1">
-            Generate and manage professional reports in various formats
+            Generate and download comprehensive reports
           </p>
         </div>
         <div className="mt-4 md:mt-0">
@@ -67,172 +95,153 @@ export default function Reports() {
         </div>
       </div>
 
-      <Tabs defaultValue="generate" className="w-full">
-        <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-          <TabsTrigger value="generate">Generate New Report</TabsTrigger>
-          <TabsTrigger value="manage">Manage Reports</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="generate" className="space-y-4 pt-4">
+      <div className="grid grid-cols-1 gap-6">
+        {!showReportContent ? (
           <Card>
             <CardHeader>
               <CardTitle>Create a New Report</CardTitle>
               <CardDescription>
-                Select a prompt to generate a report from or create a new one
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Search className="w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search prompts..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-
-              <div className="rounded-md border h-[300px] overflow-y-auto">
-                {isLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <LoadingSpinner size={24} />
-                  </div>
-                ) : filteredPrompts?.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <p className="text-muted-foreground mb-2">No prompts found</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLocation('/home')}
-                    >
-                      <Plus className="h-4 w-4 mr-2" /> Create a New Prompt
-                    </Button>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredPrompts?.map((prompt: Prompt) => (
-                        <TableRow 
-                          key={prompt.id}
-                          className={selectedPromptId === prompt.id ? "bg-muted" : ""}
-                          onClick={() => setSelectedPromptId(prompt.id)}
-                        >
-                          <TableCell className="font-medium">{prompt.title}</TableCell>
-                          <TableCell>
-                            {new Date(prompt.createdAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLocation(`/prompt/${prompt.id}`);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-4 border-t">
-                <Button 
-                  onClick={() => setShowGenerator(true)} 
-                  disabled={!selectedPromptId}
-                  className="gap-2"
-                >
-                  <FileText className="h-4 w-4" /> Generate Report
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {showGenerator && selectedPromptId && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Report Generator</CardTitle>
-                <CardDescription>
-                  Generate a report from the selected prompt
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ReportGenerator promptId={selectedPromptId} />
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="manage" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Reports</CardTitle>
-              <CardDescription>
-                Manage and download all your generated reports
+                Ask AI to generate a detailed report on any topic
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <FileText className="h-12 w-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg">PDF Reports</h3>
-                      <p className="text-sm text-muted-foreground mt-1 mb-4">
-                        Professionally formatted PDF documents
-                      </p>
-                      <Button className="w-full mt-auto">
-                        <Download className="h-4 w-4 mr-2" /> Download Latest
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <FileSpreadsheet className="h-12 w-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg">Excel Spreadsheets</h3>
-                      <p className="text-sm text-muted-foreground mt-1 mb-4">
-                        Organized data in Excel format
-                      </p>
-                      <Button className="w-full mt-auto">
-                        <Download className="h-4 w-4 mr-2" /> Download Latest
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <Presentation className="h-12 w-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg">PowerPoint Presentations</h3>
-                      <p className="text-sm text-muted-foreground mt-1 mb-4">
-                        Visual presentations in PowerPoint
-                      </p>
-                      <Button className="w-full mt-auto">
-                        <Download className="h-4 w-4 mr-2" /> Download Latest
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(generateReport)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Report Title</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter a title for your report" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="prompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What would you like the report to cover?</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Describe what you want in your report in detail. For example: Generate a comprehensive report on the history, benefits, and implementation strategies of renewable energy sources, with a focus on solar and wind power."
+                            className="min-h-[200px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <LoadingSpinner size={16} className="mr-2" />
+                        Generating Report...
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="h-5 w-5 mr-2" /> 
+                        Generate AI Report
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        ) : (
+          <>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>{reportTitle}</CardTitle>
+                  <CardDescription>
+                    Generated report content
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowReportContent(false)}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" /> Create New Report
+                </Button>
+              </CardHeader>
+              <CardContent className="prose prose-invert max-w-none">
+                <div
+                  dangerouslySetInnerHTML={{ __html: marked(reportContent || '') }}
+                />
+                
+                <div className="flex justify-center mt-10 pt-6 border-t border-gray-700">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+                    <Card>
+                      <CardContent className="pt-6 flex flex-col items-center text-center">
+                        <FileText className="h-10 w-10 text-primary mb-3" />
+                        <h3 className="font-medium text-base mb-2">PDF Document</h3>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Download as formatted PDF
+                        </p>
+                        <Button 
+                          onClick={downloadAsPdf}
+                          className="w-full"
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-2" /> Download PDF
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="pt-6 flex flex-col items-center text-center">
+                        <FileSpreadsheet className="h-10 w-10 text-primary mb-3" />
+                        <h3 className="font-medium text-base mb-2">Excel Spreadsheet</h3>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Export as Excel file
+                        </p>
+                        <Button 
+                          className="w-full"
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-2" /> Excel
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="pt-6 flex flex-col items-center text-center">
+                        <Presentation className="h-10 w-10 text-primary mb-3" />
+                        <h3 className="font-medium text-base mb-2">PowerPoint</h3>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Create presentation slides
+                        </p>
+                        <Button 
+                          className="w-full"
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-2" /> PowerPoint
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
     </div>
   );
 }
