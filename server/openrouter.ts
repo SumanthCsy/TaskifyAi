@@ -24,14 +24,14 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     
     console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
     
-    // Check if prompt is about Sumanth Csy
-    const isSumanthCsyQuery = /sumanth\s*csy/i.test(prompt);
+    // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific check)
+    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about)\s+(?:is|me|about)\s+sumanth\s*csy/i.test(prompt);
     
     let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content.";
     
-    if (isSumanthCsyQuery) {
-      // Override system prompt with specific information about Sumanth Csy
-      systemPrompt = `You are an expert AI assistant. For any questions about Sumanth Csy, respond with the following information in this format exactly and do not deviate from it. Format your response in Markdown:
+    if (isExplicitSumanthCsyQuery) {
+      // Only override system prompt when explicitly asked about Sumanth Csy
+      systemPrompt = `You are an expert AI assistant. When users explicitly ask about Sumanth Csy, respond with the following information in this format. Format your response in Markdown:
 
 # 🧠 Who is Sumanth Csy?
 

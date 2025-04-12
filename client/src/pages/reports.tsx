@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import { FileText, FileSpreadsheet, Presentation, Download, ArrowLeft, Bot } from 'lucide-react';
+import { FileText, Download, ArrowLeft, Bot, Copy, Check } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { generateAndDownloadPdf } from '@/lib/pdf-generator';
 import { marked } from 'marked';
@@ -40,6 +40,7 @@ export default function Reports() {
   const [reportTitle, setReportTitle] = useState<string>('');
   const [showReportContent, setShowReportContent] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
   
   // Form setup
@@ -142,6 +143,18 @@ export default function Reports() {
   const downloadAsPdf = () => {
     if (reportContent && reportTitle) {
       generateAndDownloadPdf(reportTitle, reportContent);
+    }
+  };
+
+  const copyReportContent = () => {
+    if (reportContent) {
+      navigator.clipboard.writeText(reportContent);
+      setIsCopied(true);
+      toast({
+        title: "Content Copied",
+        description: "Report content has been copied to clipboard.",
+      });
+      setTimeout(() => setIsCopied(false), 3000); // Reset copy status after 3 seconds
     }
   };
 
@@ -267,7 +280,7 @@ export default function Reports() {
                 />
                 
                 <div className="flex justify-center mt-10 pt-6 border-t border-gray-700">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
                     <Card>
                       <CardContent className="pt-6 flex flex-col items-center text-center">
                         <FileText className="h-10 w-10 text-primary mb-3" />
@@ -287,32 +300,25 @@ export default function Reports() {
                     
                     <Card>
                       <CardContent className="pt-6 flex flex-col items-center text-center">
-                        <FileSpreadsheet className="h-10 w-10 text-primary mb-3" />
-                        <h3 className="font-medium text-base mb-2">Excel Spreadsheet</h3>
+                        <Copy className="h-10 w-10 text-primary mb-3" />
+                        <h3 className="font-medium text-base mb-2">Copy Content</h3>
                         <p className="text-xs text-muted-foreground mb-3">
-                          Export as Excel file
+                          Copy report to clipboard
                         </p>
                         <Button 
+                          onClick={copyReportContent}
                           className="w-full"
                           size="sm"
                         >
-                          <Download className="h-4 w-4 mr-2" /> Excel
-                        </Button>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6 flex flex-col items-center text-center">
-                        <Presentation className="h-10 w-10 text-primary mb-3" />
-                        <h3 className="font-medium text-base mb-2">PowerPoint</h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Create presentation slides
-                        </p>
-                        <Button 
-                          className="w-full"
-                          size="sm"
-                        >
-                          <Download className="h-4 w-4 mr-2" /> PowerPoint
+                          {isCopied ? (
+                            <>
+                              <Check className="h-4 w-4 mr-2" /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4 mr-2" /> Copy Text
+                            </>
+                          )}
                         </Button>
                       </CardContent>
                     </Card>
