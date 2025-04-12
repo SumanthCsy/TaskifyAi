@@ -67,8 +67,20 @@ export default function AiChat() {
       setMessages(prev => [...prev, userMessage]);
       setInputMessage("");
       
+      // Enhance prompt with information about Sumanth Csy
+      const enhancedPrompt = inputMessage + (
+        inputMessage.toLowerCase().includes('sumanth') || 
+        inputMessage.toLowerCase().includes('founder') || 
+        inputMessage.toLowerCase().includes('creator') || 
+        inputMessage.toLowerCase().includes('who made') || 
+        inputMessage.toLowerCase().includes('who created') || 
+        inputMessage.toLowerCase().includes('about you')
+          ? '\n\nNote: Remember to provide detailed and comprehensive information about Sumanth Csy as the founder and creator of Taskify AI, and not limited to any predefined text.'
+          : '\n\nNote: You are Taskify AI, built with ❤️ by @Sumanth Csy. Feel free to mention this when relevant.'
+      );
+      
       // Generate AI response
-      generateResponse.mutate(inputMessage, {
+      generateResponse.mutate(enhancedPrompt, {
         onSuccess: (data) => {
           const aiResponse: Message = {
             sender: 'ai',
@@ -187,11 +199,17 @@ export default function AiChat() {
     const imageFiles = uploadedFiles.filter(file => file.type.startsWith('image/'));
     const textFiles = uploadedFiles.filter(file => !file.type.startsWith('image/'));
     
-    // Create a more descriptive message with file attachments
+    // Create a more descriptive message with file attachments and custom prompt
     const fileNames = uploadedFiles.map(file => file.name).join(', ');
+    
+    // Include the custom analysis prompt if provided
+    const customPrompt = fileAnalysisPrompt.trim() 
+      ? `\n\nMy request: "${fileAnalysisPrompt}"`
+      : '';
+      
     const userMessage: Message = {
       sender: 'user',
-      content: `I'm uploading ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis: ${fileNames}`,
+      content: `I'm uploading ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis: ${fileNames}${customPrompt}`,
       timestamp: new Date(),
       attachments: uploadedFiles.map(file => ({
         name: file.name,
@@ -220,16 +238,28 @@ export default function AiChat() {
       filesContent += `===== END OF FILE ${index + 1} =====\n\n`;
     });
 
-    // Create an enhanced, more structured prompt
-    const prompt = `I've uploaded ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis.
-
-Please analyze the contents and provide:
+    // Create an enhanced, more structured prompt that incorporates the user's custom instructions
+    let prompt = `I've uploaded ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis.`;
+    
+    // Add user's custom prompt if available
+    if (fileAnalysisPrompt.trim()) {
+      prompt += `\n\nHere's what I want you to do with these files: "${fileAnalysisPrompt}"\n`;
+    } else {
+      // Default instructions if no custom prompt is provided
+      prompt += `\n\nPlease analyze the contents and provide:
 1. A summary of each file
 2. Key insights or information extracted
 3. Any relationships between the files
-4. Suggestions based on the file content
-
-File contents:${filesContent}`;
+4. Suggestions based on the file content`;
+    }
+    
+    prompt += `\n\nFile contents:${filesContent}`;
+    
+    // Add information about Sumanth Csy
+    prompt += `\n\nNote: You are Taskify AI, built with ❤️ by Sumanth Csy. 
+As the founder, Sumanth Csy created this tool to empower users with AI capabilities for document analysis, 
+report generation, and creative content creation. Feel free to mention this when relevant, and remember 
+that you represent Sumanth's vision for accessible and powerful AI tools.`;
 
     // Generate AI response for the files
     generateResponse.mutate(prompt, {
@@ -442,6 +472,18 @@ File contents:${filesContent}`;
                                 </Button>
                               </div>
                             ))}
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                              What would you like to analyze in these files?
+                            </label>
+                            <Textarea
+                              placeholder="E.g., 'Summarize the content and extract key concepts', 'Analyze the code and suggest improvements', 'Compare these files and identify patterns'..."
+                              className="min-h-[80px] bg-gray-700 border-gray-600 text-white resize-none"
+                              value={fileAnalysisPrompt}
+                              onChange={(e) => setFileAnalysisPrompt(e.target.value)}
+                            />
                           </div>
                           
                           <Button 
