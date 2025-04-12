@@ -1,16 +1,30 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ArrowLeft, Send, Bot, User } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
 
 interface Message {
   sender: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  attachments?: Array<{
+    name: string;
+    type: string;
+    content: string;
+  }>;
+}
+
+interface FileAttachment {
+  name: string;
+  type: string;
+  content: string;
+  size: number;
 }
 
 export default function AiChat() {
@@ -18,11 +32,15 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      content: 'Hello! I\'m your AI assistant. How can I help you today?',
+      content: 'Hello! I\'m your AI assistant. How can I help you today?\nYou can also upload files for analysis by using the file upload tab.',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("text");
+  const [uploadedFiles, setUploadedFiles] = useState<FileAttachment[]>([]);
+  const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const generateResponse = useGenerateResponse();
 
@@ -68,6 +86,104 @@ export default function AiChat() {
 
   const formatTimestamp = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Process each file
+    Array.from(files).forEach(file => {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setUploadedFiles(prev => [
+          ...prev,
+          {
+            name: file.name,
+            type: file.type,
+            content: content,
+            size: file.size
+          }
+        ]);
+      };
+
+      if (file.type.startsWith('text/') || 
+          file.type === 'application/json' || 
+          file.type === 'application/xml' ||
+          file.type === 'application/javascript') {
+        reader.readAsText(file);
+      } else {
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Reset the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const analyzeFiles = () => {
+    if (uploadedFiles.length === 0) return;
+
+    setIsAnalyzingFile(true);
+
+    // Create a message with file attachments
+    const fileNames = uploadedFiles.map(file => file.name).join(', ');
+    const userMessage: Message = {
+      sender: 'user',
+      content: `Please analyze these files: ${fileNames}`,
+      timestamp: new Date(),
+      attachments: uploadedFiles.map(file => ({
+        name: file.name,
+        type: file.type,
+        content: file.content
+      }))
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+
+    // Extract text content from files to send to API
+    const textContents = uploadedFiles
+      .filter(file => 
+        file.type.startsWith('text/') || 
+        file.type === 'application/json' || 
+        file.type === 'application/xml' ||
+        file.type === 'application/javascript'
+      )
+      .map(file => `File: ${file.name}\nContent: ${file.content}`)
+      .join('\n\n');
+
+    const prompt = `Please analyze these files and provide insights:\n${textContents}`;
+
+    // Generate AI response for the files
+    generateResponse.mutate(prompt, {
+      onSuccess: (data) => {
+        const aiResponse: Message = {
+          sender: 'ai',
+          content: data.content,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setIsAnalyzingFile(false);
+        setUploadedFiles([]);
+        setActiveTab("text");
+      },
+      onError: () => {
+        setIsAnalyzingFile(false);
+      }
+    });
   };
 
   return (
@@ -138,25 +254,27 @@ export default function AiChat() {
           </CardContent>
           
           <CardFooter className="border-t border-gray-800 p-4">
-            <div className="flex w-full gap-2">
+            <div className="flex flex-col w-full gap-2">
               <Textarea 
                 placeholder="Type your message here..." 
-                className="flex-1 min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white"
+                className="flex-1 min-h-[100px] md:min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={generateResponse.isPending}
               />
-              <Button
-                className="bg-purple-600 hover:bg-purple-700 self-end h-10 w-10 p-2"
-                disabled={!inputMessage.trim() || generateResponse.isPending}
-                onClick={handleSendMessage}
-              >
-                <Send className="h-5 w-5" />
-              </Button>
-            </div>
-            <div className="w-full text-xs text-right mt-1 text-gray-500">
-              Press Ctrl+Enter to send
+              <div className="flex justify-between items-center w-full">
+                <div className="text-xs text-gray-500">
+                  Press Ctrl+Enter to send
+                </div>
+                <Button
+                  className="bg-purple-600 hover:bg-purple-700 h-10 px-4 py-2"
+                  disabled={!inputMessage.trim() || generateResponse.isPending}
+                  onClick={handleSendMessage}
+                >
+                  <Send className="h-5 w-5 mr-2" /> Send
+                </Button>
+              </div>
             </div>
           </CardFooter>
         </Card>
