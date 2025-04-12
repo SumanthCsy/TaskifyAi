@@ -16,6 +16,10 @@ import PromptView from "@/pages/prompt-view";
 import FavoritesPage from "@/pages/favorites";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
+import PDFAssignment from "@/pages/pdf-assignment";
+import PowerPointPresentation from "@/pages/powerpoint-presentation";
+import ExcelSpreadsheet from "@/pages/excel-spreadsheet";
+import AiChat from "@/pages/ai-chat";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -70,11 +74,44 @@ function Router() {
         )}
       </Route>
       
+      {/* Task-specific pages with dark layout */}
+      <Route path="/pdf-assignment">
+        {() => (
+          <DarkLayout>
+            <PDFAssignment />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      <Route path="/powerpoint-presentation">
+        {() => (
+          <DarkLayout>
+            <PowerPointPresentation />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      <Route path="/excel-spreadsheet">
+        {() => (
+          <DarkLayout>
+            <ExcelSpreadsheet />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      <Route path="/ai-chat">
+        {() => (
+          <DarkLayout>
+            <AiChat />
+          </DarkLayout>
+        )}
+      </Route>
+      
       {/* Keep the existing routes with standard layout */}
       <Route path="/home">
         {() => (
           <Layout>
-            <Home />
+            <Home generatorType={undefined} />
           </Layout>
         )}
       </Route>
@@ -83,14 +120,6 @@ function Router() {
         {(params) => (
           <Layout>
             <PromptView id={parseInt(params.id)} />
-          </Layout>
-        )}
-      </Route>
-      
-      <Route path="/prompt-view/:type?">
-        {(params) => (
-          <Layout>
-            <Home generatorType={params.type} />
           </Layout>
         )}
       </Route>

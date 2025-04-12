@@ -43,37 +43,31 @@ export default function Dashboard() {
       icon: <FileText strokeWidth={1.5} />,
       title: "PDF Assignment",
       description: "Generate complete PDF assignments with AI assistance",
-      link: "/prompt-view" 
+      link: "/pdf-assignment" 
     },
     {
       icon: <Presentation strokeWidth={1.5} />,
       title: "PowerPoint",
       description: "Create engaging presentations automatically",
-      link: "/prompt-view/ppt"
+      link: "/powerpoint-presentation"
     },
     {
       icon: <FileSpreadsheet strokeWidth={1.5} />,
       title: "Excel Sheets",
       description: "Generate data-rich Excel spreadsheets",
-      link: "/prompt-view/excel"
-    },
-    {
-      icon: <Image strokeWidth={1.5} />,
-      title: "Image Generation",
-      description: "Create custom images from text descriptions",
-      link: "/prompt-view/image"
+      link: "/excel-spreadsheet"
     },
     {
       icon: <Code strokeWidth={1.5} />,
       title: "Code Generation",
       description: "Generate code snippets and solutions",
-      link: "/prompt-view/code"
+      link: "/code-generation"
     },
     {
       icon: <MessageSquare strokeWidth={1.5} />,
       title: "AI Chat",
       description: "Chat with our AI assistant for help",
-      link: "/chat"
+      link: "/ai-chat"
     }
   ];
 
