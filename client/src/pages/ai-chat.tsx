@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check, Sparkles, Square } from "lucide-react";
+import CameraCapture from "@/components/ui/camera-capture";
+import { ArrowLeft, Send, Bot, User, Upload, FileText, X, File, Copy, Check, Sparkles, Square, Camera } from "lucide-react";
 import { useGenerateResponse } from "@/hooks/use-prompts";
 import { marked } from "marked";
 import { useToast } from "@/hooks/use-toast";
@@ -46,10 +47,39 @@ export default function AiChat() {
   const [fileAnalysisPrompt, setFileAnalysisPrompt] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const generateResponse = useGenerateResponse();
   const { toast } = useToast();
+  
+  // Handle camera capture
+  const handleCameraCapture = (imageDataUrl: string) => {
+    // Generate a random filename with timestamp
+    const timestamp = new Date().getTime();
+    const filename = `camera_capture_${timestamp}.png`;
+    
+    // Add the captured image to uploaded files
+    setUploadedFiles(prev => [
+      ...prev,
+      {
+        name: filename,
+        type: 'image/png',
+        content: imageDataUrl,
+        size: Math.round(imageDataUrl.length * 0.75) // Approximate size in bytes
+      }
+    ]);
+    
+    // Close camera
+    setIsCameraOpen(false);
+    
+    // Show success message
+    toast({
+      title: "Photo Captured",
+      description: "Camera photo ready for AI analysis",
+      variant: "default",
+    });
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -522,14 +552,23 @@ export default function AiChat() {
                       {uploadedFiles.length === 0 ? (
                         <div className="text-center">
                           <Upload className="h-12 w-12 mb-2 mx-auto text-gray-500" />
-                          <p className="text-sm text-gray-400 mb-4">Upload files for AI analysis</p>
-                          <Button 
-                            variant="outline" 
-                            className="bg-gray-700 hover:bg-gray-600"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <Upload className="h-4 w-4 mr-2" /> Select Files
-                          </Button>
+                          <p className="text-sm text-gray-400 mb-4">Upload files or take a photo for AI analysis</p>
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button 
+                              variant="outline" 
+                              className="bg-gray-700 hover:bg-gray-600"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <Upload className="h-4 w-4 mr-2" /> Select Files
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              className="bg-gray-700 hover:bg-gray-600"
+                              onClick={() => setIsCameraOpen(true)}
+                            >
+                              <Camera className="h-4 w-4 mr-2" /> Take Photo
+                            </Button>
+                          </div>
                           <p className="text-xs text-gray-500 mt-2">
                             Supported formats: Text files (.txt, .js, .json, .csv, .html, etc.) and images (.jpg, .png, .gif)
                           </p>
@@ -621,6 +660,16 @@ export default function AiChat() {
           </CardFooter>
         </Card>
       </div>
+      
+      {/* Camera capture modal */}
+      <AnimatePresence>
+        {isCameraOpen && (
+          <CameraCapture 
+            onCapture={handleCameraCapture}
+            onClose={() => setIsCameraOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
