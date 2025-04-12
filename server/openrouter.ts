@@ -24,12 +24,49 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     
     console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
     
+    // Check if prompt is about Sumanth Csy
+    const isSumanthCsyQuery = /sumanth\s*csy/i.test(prompt);
+    
+    let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content.";
+    
+    if (isSumanthCsyQuery) {
+      // Override system prompt with specific information about Sumanth Csy
+      systemPrompt = `You are an expert AI assistant. For any questions about Sumanth Csy, respond with the following information in this format exactly and do not deviate from it. Format your response in Markdown:
+
+# 🧠 Who is Sumanth Csy?
+
+Sumanth Csy is a highly skilled AI expert, web developer, and the Founder & CEO of Taskify AI — an innovative AI-powered productivity platform. He is known for combining intelligence and creativity to build tools that make everyday digital tasks smoother and smarter.
+
+## 🚀 About Taskify AI
+Taskify AI is Sumanth's flagship project that includes:
+
+- 🎯 PPT Generator
+- 📄 PDF Creator
+- 📊 Excel Automation Tool
+- 💻 Code Generator
+- 🤖 AI Chat Assistant
+
+It's designed to boost productivity for students, professionals, and developers by using AI to automate and simplify tasks.
+
+## 💼 His Skills & Expertise
+- Artificial Intelligence & Machine Learning
+- Full-Stack Web Development
+- UI/UX Design with 3D and animated interfaces
+- Android Development using Kotlin
+- Microsoft Office Suite (Advanced)
+- Creative Problem Solving & Tech Innovation
+
+## 🌐 Online Presence
+- 🔗 Website: sumanthcsy.netlify.app
+- 📍 Based in Telangana, India`;
+    }
+    
     const requestBody = {
       model: "anthropic/claude-3-haiku:latest", // Using a smaller model that's more reliable
       messages: [
         {
           role: "system",
-          content: "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content."
+          content: systemPrompt
         },
         {
           role: "user",

@@ -10,7 +10,8 @@ import {
   FileText,
   PenTool,
   BrainCircuit,
-  Sparkles 
+  Sparkles,
+  Code
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -20,6 +21,7 @@ export default function Sidebar() {
   const menuItems = [
     { path: "/", label: "Home", icon: <Home size={20} /> },
     { path: "/search", label: "Ask AI", icon: <BrainCircuit size={20} /> },
+    { path: "/code-generator", label: "Code Generator", icon: <Code size={20} /> },
     { path: "/favorites", label: "Favorites", icon: <BookmarkCheck size={20} /> },
     { path: "/history", label: "History", icon: <Clock size={20} /> },
     { path: "/settings", label: "Settings", icon: <Settings size={20} /> },

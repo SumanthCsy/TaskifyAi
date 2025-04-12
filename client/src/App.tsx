@@ -20,6 +20,7 @@ import PDFAssignment from "@/pages/pdf-assignment";
 import PowerPointPresentation from "@/pages/powerpoint-presentation";
 import ExcelSpreadsheet from "@/pages/excel-spreadsheet";
 import AiChat from "@/pages/ai-chat";
+import CodeGenerator from "@/pages/code-generator";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -103,6 +104,14 @@ function Router() {
         {() => (
           <DarkLayout>
             <AiChat />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      <Route path="/code-generator">
+        {() => (
+          <DarkLayout>
+            <CodeGenerator />
           </DarkLayout>
         )}
       </Route>
