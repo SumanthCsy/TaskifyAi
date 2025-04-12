@@ -21,41 +21,67 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     if (!process.env.OPENROUTER_API_KEY) {
       throw new Error("OpenRouter API key is not set");
     }
+    
+    console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
+    
+    const requestBody = {
+      model: "anthropic/claude-3-haiku:latest", // Using a smaller model that's more reliable
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 2000
+    };
+    
+    console.log("OpenRouter request:", JSON.stringify(requestBody, null, 2));
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://taskify-ai.replit.app", // In production, replace with your actual domain
-        "X-Title": "Taskify AI"
+        "HTTP-Referer": "https://replit.com",
+        "X-Title": "Replit AI App"
       },
-      body: JSON.stringify({
-        model: "anthropic/claude-3-opus:beta", // Using Claude-3 Opus, can be changed to other models
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert AI assistant for Taskify AI. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 4000
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log("OpenRouter response status:", response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
+      console.error("OpenRouter error response:", errorData);
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json() as OpenRouterResponse;
+    const rawResponse = await response.text();
+    console.log("OpenRouter raw response:", rawResponse);
     
-    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
-      throw new Error("Invalid response format from OpenRouter API");
+    let data;
+    try {
+      data = JSON.parse(rawResponse) as OpenRouterResponse;
+    } catch (err) {
+      console.error("Failed to parse OpenRouter response as JSON:", err);
+      throw new Error("Failed to parse OpenRouter response as JSON");
+    }
+    
+    console.log("Parsed response structure:", Object.keys(data));
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error("Invalid response format. Missing choices array:", data);
+      throw new Error("Invalid response format from OpenRouter API: Missing choices array");
+    }
+    
+    if (!data.choices[0].message) {
+      console.error("Invalid response format. Missing message in first choice:", data.choices[0]);
+      throw new Error("Invalid response format from OpenRouter API: Missing message");
     }
     
     const content = data.choices[0].message.content;
