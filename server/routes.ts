@@ -9,6 +9,35 @@ import { generatePptFromPrompt, generatePptFromReport } from "./ppt-generator";
 import { generateImage, generateImageForTopic } from "./image-generator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add API endpoint for code generation
+  app.post("/api/generate/code", async (req, res) => {
+    try {
+      const querySchema = z.object({
+        prompt: z.string().min(1),
+        language: z.string().min(1),
+        codeType: z.string()
+      });
+      
+      const validatedData = querySchema.parse(req.body);
+      const { prompt, language, codeType } = validatedData;
+      
+      // Format the prompt for code generation
+      const fullPrompt = `Generate ${codeType} in ${language} for: ${prompt}. 
+      Format your response with the following sections:
+      1. CODE: Place the fully documented code here
+      2. EXPLANATION: Detailed explanation of how the code works
+      
+      The code should be well-documented with comments and follow best practices for ${language}.`;
+      
+      // Generate content using OpenRouter AI
+      const aiResponse = await generateAiResponse(fullPrompt);
+      
+      res.json(aiResponse);
+    } catch (error: any) {
+      console.error("Code generation error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
   // Get all prompts
   app.get("/api/prompts", async (req, res) => {
     try {

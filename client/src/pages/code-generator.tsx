@@ -53,14 +53,14 @@ export default function CodeGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      // Format the prompt for code generation
-      const fullPrompt = `Generate ${values.codeType} in ${values.language} for: ${values.prompt}. 
-      Format your response with code and explanation separately. 
-      The code should be well-documented with comments and follow best practices for ${values.language}.`;
-      
-      const response = await apiRequest('/api/generate', {
+      // Send to the code-specific API endpoint
+      const response = await apiRequest('/api/generate/code', {
         method: 'POST',
-        body: JSON.stringify({ prompt: fullPrompt }),
+        body: JSON.stringify({ 
+          prompt: values.prompt,
+          language: values.language,
+          codeType: values.codeType
+        }),
       });
       
       // Extract code and explanation from the generated response
