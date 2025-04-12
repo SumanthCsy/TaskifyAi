@@ -11,9 +11,11 @@ import Home from "@/pages/home";
 import Settings from "@/pages/settings";
 import { motion } from "framer-motion";
 
-// New page imports for our restructured app
+// Page imports
 import PromptView from "@/pages/prompt-view";
 import FavoritesPage from "@/pages/favorites";
+import Landing from "@/pages/landing";
+import Dashboard from "@/pages/dashboard";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -38,16 +40,45 @@ function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// For dark layout pages without header/sidebar (landing and dashboard)
+function DarkLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-black">
+      {children}
+    </div>
+  );
+}
+
 function Router() {
   return (
     <Switch>
+      {/* Landing page */}
       <Route path="/">
+        {() => (
+          <DarkLayout>
+            <Landing />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      {/* Dashboard */}
+      <Route path="/dashboard">
+        {() => (
+          <DarkLayout>
+            <Dashboard />
+          </DarkLayout>
+        )}
+      </Route>
+      
+      {/* Keep the existing routes with standard layout */}
+      <Route path="/home">
         {() => (
           <Layout>
             <Home />
           </Layout>
         )}
       </Route>
+      
       <Route path="/prompt/:id">
         {(params) => (
           <Layout>
@@ -55,6 +86,15 @@ function Router() {
           </Layout>
         )}
       </Route>
+      
+      <Route path="/prompt-view/:type?">
+        {(params) => (
+          <Layout>
+            <Home generatorType={params.type} />
+          </Layout>
+        )}
+      </Route>
+      
       <Route path="/favorites">
         {() => (
           <Layout>
@@ -62,6 +102,7 @@ function Router() {
           </Layout>
         )}
       </Route>
+      
       <Route path="/settings">
         {() => (
           <Layout>
@@ -69,6 +110,7 @@ function Router() {
           </Layout>
         )}
       </Route>
+      
       <Route>
         <NotFound />
       </Route>

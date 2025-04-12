@@ -10,7 +10,11 @@ import { FileText, Star, Clock, ArrowRight, Send, Sparkles, File, FileSpreadshee
 import { motion } from "framer-motion";
 import { Prompt } from "@shared/schema";
 
-export default function Home() {
+interface HomeProps {
+  generatorType?: string;
+}
+
+export default function Home({ generatorType }: HomeProps) {
   const [_, setLocation] = useLocation();
   const [promptInput, setPromptInput] = useState("");
   const { data: recentPrompts, isLoading: isLoadingPrompts } = usePrompts();
