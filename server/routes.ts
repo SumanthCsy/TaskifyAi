@@ -14,12 +14,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const querySchema = z.object({
         prompt: z.string().min(1),
-        language: z.string().min(1),
-        codeType: z.string()
+        language: z.string().default("code"),
+        codeType: z.string().default("complete code solution")
       });
       
+      // Parse and validate the input with defaults for missing values
       const validatedData = querySchema.parse(req.body);
       const { prompt, language, codeType } = validatedData;
+      
+      console.log(`Generating ${codeType} in ${language} for prompt: "${prompt.substring(0, 50)}..."`);
       
       // Format the prompt for code generation
       const fullPrompt = `Generate ${codeType} in ${language} for: ${prompt}. 
@@ -35,7 +38,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(aiResponse);
     } catch (error: any) {
       console.error("Code generation error:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        message: error.message,
+        stack: process.env.NODE_ENV === 'production' ? undefined : error.stack 
+      });
     }
   });
   // Get all prompts

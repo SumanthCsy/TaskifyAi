@@ -180,11 +180,15 @@ export default function AiChat() {
 
     setIsAnalyzingFile(true);
 
-    // Create a message with file attachments
+    // Count different file types for better prompt creation
+    const imageFiles = uploadedFiles.filter(file => file.type.startsWith('image/'));
+    const textFiles = uploadedFiles.filter(file => !file.type.startsWith('image/'));
+    
+    // Create a more descriptive message with file attachments
     const fileNames = uploadedFiles.map(file => file.name).join(', ');
     const userMessage: Message = {
       sender: 'user',
-      content: `Please analyze these files: ${fileNames}`,
+      content: `I'm uploading ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis: ${fileNames}`,
       timestamp: new Date(),
       attachments: uploadedFiles.map(file => ({
         name: file.name,
@@ -195,21 +199,34 @@ export default function AiChat() {
 
     setMessages(prev => [...prev, userMessage]);
 
-    // Prepare content from all files (both text and images)
+    // Prepare content from all files with better formatting
     let filesContent = "";
     
-    // Process each file based on type
-    uploadedFiles.forEach(file => {
+    // Process each file based on type with better formatting
+    uploadedFiles.forEach((file, index) => {
+      filesContent += `\n===== FILE ${index + 1}: ${file.name} =====\n`;
+      
       if (file.type.startsWith('image/')) {
         // For images, just mention the file but don't include the base64 data
-        filesContent += `File: ${file.name} (Image file)\n`;
+        filesContent += `[This is an image file of type ${file.type}]\n`;
       } else {
-        // For text files, include the content
-        filesContent += `File: ${file.name}\nContent: ${file.content}\n\n`;
+        // For text files, include the content with clear boundaries
+        filesContent += `${file.content}\n`;
       }
+      
+      filesContent += `===== END OF FILE ${index + 1} =====\n\n`;
     });
 
-    const prompt = `Please analyze these ${uploadedFiles.length} files and provide insights:\n${filesContent}`;
+    // Create an enhanced, more structured prompt
+    const prompt = `I've uploaded ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} (${textFiles.length} text file${textFiles.length !== 1 ? 's' : ''} and ${imageFiles.length} image file${imageFiles.length !== 1 ? 's' : ''}) for analysis.
+
+Please analyze the contents and provide:
+1. A summary of each file
+2. Key insights or information extracted
+3. Any relationships between the files
+4. Suggestions based on the file content
+
+File contents:${filesContent}`;
 
     // Generate AI response for the files
     generateResponse.mutate(prompt, {
@@ -224,7 +241,15 @@ export default function AiChat() {
         setUploadedFiles([]);
         setActiveTab("text");
       },
-      onError: () => {
+      onError: (error) => {
+        console.error("Error analyzing files:", error);
+        // Add error message to the chat
+        const errorMessage: Message = {
+          sender: 'ai',
+          content: "Sorry, I encountered an error while analyzing your files. Please try again with smaller or different files.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
         setIsAnalyzingFile(false);
       }
     });
