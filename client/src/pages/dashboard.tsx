@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, BrainCircuit, Code, ArrowRight, Github, Sparkles } from "lucide-react";
+import { FileText, BrainCircuit, Code, ArrowRight, Globe, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface TaskCardProps {
