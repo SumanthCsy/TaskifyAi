@@ -41,6 +41,8 @@ export default function AiChat() {
   const [activeTab, setActiveTab] = useState<string>("text");
   const [uploadedFiles, setUploadedFiles] = useState<FileAttachment[]>([]);
   const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
+  const [fileAnalysisPrompt, setFileAnalysisPrompt] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const generateResponse = useGenerateResponse();

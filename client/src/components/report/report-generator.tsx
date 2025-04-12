@@ -260,43 +260,18 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
                   </div>
                   <div className="flex space-x-2 mt-4">
                     <Button 
-                      variant="secondary" 
+                      variant="default" 
                       size="sm"
                       onClick={() => handleDownload(report, 'pdf')}
                       disabled={downloading === 'pdf'}
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-md shadow-sm transition-all hover:shadow-md"
                     >
                       {downloading === 'pdf' ? (
                         <Clock className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
                         <FileText className="w-4 h-4 mr-2" />
                       )}
-                      PDF
-                    </Button>
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={() => handleDownload(report, 'excel')}
-                      disabled={downloading === 'excel'}
-                    >
-                      {downloading === 'excel' ? (
-                        <Clock className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <FileSpreadsheet className="w-4 h-4 mr-2" />
-                      )}
-                      Excel
-                    </Button>
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={() => handleDownload(report, 'ppt')}
-                      disabled={downloading === 'ppt'}
-                    >
-                      {downloading === 'ppt' ? (
-                        <Clock className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Presentation className="w-4 h-4 mr-2" />
-                      )}
-                      PowerPoint
+                      Download PDF
                     </Button>
                   </div>
                 </CardContent>
@@ -332,55 +307,36 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
               </TabsContent>
               
               <TabsContent value="download" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-                  <Card>
+                <div className="grid grid-cols-1 gap-4 p-4">
+                  <Card className="border-purple-200 shadow-md">
                     <CardContent className="pt-6 flex flex-col items-center">
-                      <FileText className="w-12 h-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg mb-2">PDF Document</h3>
-                      <p className="text-sm text-center text-muted-foreground mb-4">
-                        Download a professionally formatted PDF document
+                      <div className="bg-purple-100 p-4 rounded-full mb-4">
+                        <FileText className="w-16 h-16 text-purple-600" />
+                      </div>
+                      <h3 className="font-medium text-xl mb-2">PDF Document</h3>
+                      <p className="text-sm text-center text-muted-foreground mb-6 max-w-md">
+                        Download this report as a professionally formatted PDF document that you can easily save, print, or share with others.
                       </p>
                       <Button 
                         onClick={() => handleDownload(selectedReport, 'pdf')}
                         disabled={downloading === 'pdf'}
-                        className="w-full"
+                        className="w-3/4 bg-purple-600 hover:bg-purple-700 text-white py-2 px-6 rounded-md shadow-sm hover:shadow-md transition-all"
                       >
-                        {downloading === 'pdf' ? 'Downloading...' : 'Download PDF'}
+                        {downloading === 'pdf' ? (
+                          <span className="flex items-center">
+                            <Clock className="w-5 h-5 mr-2 animate-spin" />
+                            Preparing PDF...
+                          </span>
+                        ) : (
+                          <span className="flex items-center">
+                            <Download className="w-5 h-5 mr-2" />
+                            Download PDF
+                          </span>
+                        )}
                       </Button>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardContent className="pt-6 flex flex-col items-center">
-                      <FileSpreadsheet className="w-12 h-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg mb-2">Excel Spreadsheet</h3>
-                      <p className="text-sm text-center text-muted-foreground mb-4">
-                        Download data as an Excel spreadsheet
+                      <p className="text-xs text-gray-500 mt-4 italic">
+                        Built with ❤️ by @Sumanth Csy
                       </p>
-                      <Button 
-                        onClick={() => handleDownload(selectedReport, 'excel')}
-                        disabled={downloading === 'excel'}
-                        className="w-full"
-                      >
-                        {downloading === 'excel' ? 'Downloading...' : 'Download Excel'}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardContent className="pt-6 flex flex-col items-center">
-                      <Presentation className="w-12 h-12 text-primary mb-4" />
-                      <h3 className="font-medium text-lg mb-2">PowerPoint</h3>
-                      <p className="text-sm text-center text-muted-foreground mb-4">
-                        Download as a PowerPoint presentation
-                      </p>
-                      <Button 
-                        onClick={() => handleDownload(selectedReport, 'ppt')}
-                        disabled={downloading === 'ppt'}
-                        className="w-full"
-                      >
-                        {downloading === 'ppt' ? 'Downloading...' : 'Download PPT'}
-                      </Button>
                     </CardContent>
                   </Card>
                 </div>
