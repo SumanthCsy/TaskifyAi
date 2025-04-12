@@ -52,7 +52,12 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as OpenRouterResponse;
+    
+    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
+      throw new Error("Invalid response format from OpenRouter API");
+    }
+    
     const content = data.choices[0].message.content;
 
     // Extract title from markdown (assuming first line is a markdown heading)
@@ -115,7 +120,12 @@ export async function generateReportContent(prompt: string, title: string): Prom
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as OpenRouterResponse;
+    
+    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
+      throw new Error("Invalid response format from OpenRouter API");
+    }
+    
     return data.choices[0].message.content;
   } catch (error: any) {
     console.error("Error generating report content:", error);
@@ -162,13 +172,18 @@ export async function getSuggestedPrompts(): Promise<string[]> {
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as OpenRouterResponse;
+    
+    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
+      throw new Error("Invalid response format from OpenRouter API");
+    }
+    
     const content = data.choices[0].message.content;
     
     // Parse the numbered list into an array of prompts
     const promptRegex = /\d+\.\s*(?:"|")(.*?)(?:"|")/g;
     const matches = content.matchAll(promptRegex);
-    const prompts = Array.from(matches).map((match: RegExpMatchArray) => match[1]);
+    const prompts = Array.from(matches).map((match) => match[1] as string);
     
     // Ensure we have at least some prompts even if regex parsing fails
     if (prompts.length === 0) {
@@ -180,7 +195,7 @@ export async function getSuggestedPrompts(): Promise<string[]> {
     }
     
     return prompts;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating suggested prompts:", error);
     // Return some default prompts if the API call fails
     return [
