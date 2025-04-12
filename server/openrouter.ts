@@ -115,41 +115,67 @@ export async function generateReportContent(prompt: string, title: string): Prom
     if (!process.env.OPENROUTER_API_KEY) {
       throw new Error("OpenRouter API key is not set");
     }
+    
+    console.log("Using OpenRouter API key for report:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
+    
+    const requestBody = {
+      model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert report generator. Generate comprehensive, well-structured reports in response to user queries. Format your response in Markdown with clear sections, subsections, bullet points, and numbered lists where appropriate. Include an introduction and conclusion. The report should be detailed enough to be useful as a standalone PDF document."
+        },
+        {
+          role: "user",
+          content: `Generate a comprehensive report titled "${title}" about the following topic: ${prompt}`
+        }
+      ],
+      temperature: 0.5,
+      max_tokens: 4000
+    };
+    
+    console.log("OpenRouter report request:", JSON.stringify(requestBody, null, 2));
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://taskify-ai.replit.app", // In production, replace with your actual domain
-        "X-Title": "Taskify AI"
+        "HTTP-Referer": "https://replit.com",
+        "X-Title": "Replit AI App"
       },
-      body: JSON.stringify({
-        model: "anthropic/claude-3-opus:beta", // Using Claude-3 Opus for detailed reports
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert report generator for Taskify AI. Generate comprehensive, well-structured reports in response to user queries. Format your response in Markdown with clear sections, subsections, bullet points, and numbered lists where appropriate. Include an introduction and conclusion. The report should be detailed enough to be useful as a standalone PDF document."
-          },
-          {
-            role: "user",
-            content: `Generate a comprehensive report titled "${title}" about the following topic: ${prompt}`
-          }
-        ],
-        temperature: 0.5,
-        max_tokens: 6000
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log("OpenRouter report response status:", response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
+      console.error("OpenRouter report error response:", errorData);
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json() as OpenRouterResponse;
+    const rawResponse = await response.text();
+    console.log("OpenRouter report raw response:", rawResponse.substring(0, 200) + "...");
     
-    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
-      throw new Error("Invalid response format from OpenRouter API");
+    let data;
+    try {
+      data = JSON.parse(rawResponse) as OpenRouterResponse;
+    } catch (err) {
+      console.error("Failed to parse OpenRouter report response as JSON:", err);
+      throw new Error("Failed to parse OpenRouter report response as JSON");
+    }
+    
+    console.log("Parsed report response structure:", Object.keys(data));
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error("Invalid report response format. Missing choices array:", data);
+      throw new Error("Invalid response format from OpenRouter API: Missing choices array");
+    }
+    
+    if (!data.choices[0].message) {
+      console.error("Invalid report response format. Missing message in first choice:", data.choices[0]);
+      throw new Error("Invalid response format from OpenRouter API: Missing message");
     }
     
     return data.choices[0].message.content;
@@ -167,41 +193,67 @@ export async function getSuggestedPrompts(): Promise<string[]> {
     if (!process.env.OPENROUTER_API_KEY) {
       throw new Error("OpenRouter API key is not set");
     }
+    
+    console.log("Using OpenRouter API key for suggested prompts:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
+    
+    const requestBody = {
+      model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant. Generate 10 interesting prompts that users might want to ask. These should be diverse across different domains like science, technology, health, business, arts, etc. Format them as a numbered list."
+        },
+        {
+          role: "user",
+          content: "Generate 10 interesting prompts for an AI information tool."
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 1000
+    };
+    
+    console.log("OpenRouter suggested prompts request:", JSON.stringify(requestBody, null, 2));
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://taskify-ai.replit.app", // In production, replace with your actual domain
-        "X-Title": "Taskify AI"
+        "HTTP-Referer": "https://replit.com",
+        "X-Title": "Replit AI App"
       },
-      body: JSON.stringify({
-        model: "anthropic/claude-3-haiku:beta", // Using a smaller model for this simpler task
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful assistant for Taskify AI. Generate 10 interesting prompts that users might want to ask. These should be diverse across different domains like science, technology, health, business, arts, etc. Format them as a numbered list."
-          },
-          {
-            role: "user",
-            content: "Generate 10 interesting prompts for an AI information tool."
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 1000
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log("OpenRouter suggested prompts response status:", response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
+      console.error("OpenRouter suggested prompts error response:", errorData);
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
-    const data = await response.json() as OpenRouterResponse;
+    const rawResponse = await response.text();
+    console.log("OpenRouter suggested prompts raw response:", rawResponse.substring(0, 200) + "...");
     
-    if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
-      throw new Error("Invalid response format from OpenRouter API");
+    let data;
+    try {
+      data = JSON.parse(rawResponse) as OpenRouterResponse;
+    } catch (err) {
+      console.error("Failed to parse OpenRouter suggested prompts response as JSON:", err);
+      throw new Error("Failed to parse OpenRouter suggested prompts response as JSON");
+    }
+    
+    console.log("Parsed suggested prompts response structure:", Object.keys(data));
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error("Invalid suggested prompts response format. Missing choices array:", data);
+      throw new Error("Invalid response format from OpenRouter API: Missing choices array");
+    }
+    
+    if (!data.choices[0].message) {
+      console.error("Invalid suggested prompts response format. Missing message in first choice:", data.choices[0]);
+      throw new Error("Invalid response format from OpenRouter API: Missing message");
     }
     
     const content = data.choices[0].message.content;
