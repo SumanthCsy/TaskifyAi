@@ -92,6 +92,22 @@ export default function AiChat() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Define allowed text file types
+    const allowedTypes = [
+      'text/plain', 'text/html', 'text/css', 'text/javascript',
+      'text/markdown', 'text/csv', 'text/xml',
+      'application/json', 'application/xml', 'application/javascript',
+      'application/typescript', 'application/x-javascript',
+      'application/x-typescript'
+    ];
+    
+    // Define allowed extensions
+    const allowedExtensions = [
+      '.txt', '.js', '.jsx', '.ts', '.tsx', '.json', '.csv', '.xml', 
+      '.html', '.css', '.md', '.py', '.java', '.c', '.cpp', '.h', 
+      '.cs', '.php', '.rb', '.go'
+    ];
+    
     // Process each file
     Array.from(files).forEach(file => {
       // Check file size (limit to 5MB)
@@ -100,28 +116,37 @@ export default function AiChat() {
         return;
       }
 
+      // Check if file is a text file by extension
+      const fileExt = '.' + file.name.split('.').pop()?.toLowerCase();
+      if (!allowedExtensions.includes(fileExt)) {
+        alert(`File type not supported: ${file.name}. Only text-based files are supported.`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setUploadedFiles(prev => [
-          ...prev,
-          {
-            name: file.name,
-            type: file.type,
-            content: content,
-            size: file.size
+        try {
+          const content = e.target?.result as string;
+          // Only add if it looks like text content
+          if (typeof content === 'string') {
+            setUploadedFiles(prev => [
+              ...prev,
+              {
+                name: file.name,
+                type: file.type,
+                content: content,
+                size: file.size
+              }
+            ]);
           }
-        ]);
+        } catch (err) {
+          console.error("Error processing file:", err);
+          alert(`Could not read ${file.name} as text. Only text files are supported.`);
+        }
       };
 
-      if (file.type.startsWith('text/') || 
-          file.type === 'application/json' || 
-          file.type === 'application/xml' ||
-          file.type === 'application/javascript') {
-        reader.readAsText(file);
-      } else {
-        reader.readAsDataURL(file);
-      }
+      // Only try to read as text
+      reader.readAsText(file);
     });
 
     // Reset the input
