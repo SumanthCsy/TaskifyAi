@@ -446,14 +446,7 @@ export default function AiChat() {
               <div ref={messagesEndRef} />
             </div>
             
-            {generateResponse.isPending && (
-              <div className="flex justify-start mt-4">
-                <div className="bg-gray-800 rounded-lg px-4 py-3 flex items-center">
-                  <LoadingSpinner size={16} />
-                  <span className="ml-2 text-sm text-gray-400">Taskify AI is thinking...</span>
-                </div>
-              </div>
-            )}
+            {/* No additional thinking indicator needed as we already have the sparkle animation */}
           </CardContent>
           
           <CardFooter className="border-t border-gray-800 p-4">
