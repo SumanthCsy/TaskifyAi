@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGenerateReport, usePromptReports } from '@/hooks/use-reports';
+import { usePromptById } from '@/hooks/use-prompts';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,9 +17,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Download, Clock } from 'lucide-react';
+import { Download, Clock, Eye, FileText, FileSpreadsheet, Presentation } from 'lucide-react';
 import { generateAndDownloadPdf } from '@/lib/pdf-generator';
 import { Report } from '@shared/schema';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import PDFViewer from './pdf-viewer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiRequest } from '@/lib/queryClient';
+import { marked } from 'marked';
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -33,7 +39,12 @@ interface ReportGeneratorProps {
 export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
   const generateReport = useGenerateReport();
   const { data: reports, isLoading } = usePromptReports(promptId);
+  const { data: prompt } = usePromptById(promptId);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('pdf');
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,8 +69,53 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
     );
   }
 
-  function handleDownload(report: Report) {
-    generateAndDownloadPdf(report.title, report.content);
+  function handleDownload(report: Report, format: 'pdf' | 'excel' | 'ppt') {
+    setDownloading(format);
+    if (format === 'pdf') {
+      generateAndDownloadPdf(report.title, report.content);
+      setDownloading(null);
+    } else if (format === 'excel') {
+      // Download Excel file
+      apiRequest(`/api/reports/${report.id}/excel`, { method: 'GET', responseType: 'blob' })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${report.title.replace(/\s+/g, '_')}.xlsx`);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+          setDownloading(null);
+        })
+        .catch(err => {
+          console.error("Failed to download Excel:", err);
+          setDownloading(null);
+        });
+    } else if (format === 'ppt') {
+      // Download PowerPoint file
+      apiRequest(`/api/reports/${report.id}/powerpoint`, { method: 'GET', responseType: 'blob' })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${report.title.replace(/\s+/g, '_')}.pptx`);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+          setDownloading(null);
+        })
+        .catch(err => {
+          console.error("Failed to download PowerPoint:", err);
+          setDownloading(null);
+        });
+    }
+  }
+
+  function handlePreview(report: Report) {
+    setSelectedReport(report);
+    setPreviewOpen(true);
   }
 
   return (
@@ -76,7 +132,7 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
                   <Input placeholder="Enter a title for your report" {...field} />
                 </FormControl>
                 <FormDescription>
-                  This will be used as the title of your PDF report.
+                  This will be used as the title of your report.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -89,7 +145,7 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
             {generateReport.isPending || generatingReport ? (
               <>Generating Report...</>
             ) : (
-              <>Generate PDF Report</>
+              <>Generate Comprehensive Report</>
             )}
           </Button>
         </form>
@@ -102,28 +158,155 @@ export default function ReportGenerator({ promptId }: ReportGeneratorProps) {
           <div className="space-y-4">
             {reports.map((report: Report) => (
               <Card key={report.id}>
-                <CardContent className="p-4 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium">{report.title}</h4>
-                    <p className="text-sm text-muted-foreground flex items-center mt-1">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {new Date(report.createdAt).toLocaleString()}
-                    </p>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h4 className="font-medium">{report.title}</h4>
+                      <p className="text-sm text-muted-foreground flex items-center mt-1">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {new Date(report.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handlePreview(report)}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview
+                    </Button>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDownload(report)}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
+                  <div className="flex space-x-2 mt-4">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleDownload(report, 'pdf')}
+                      disabled={downloading === 'pdf'}
+                    >
+                      {downloading === 'pdf' ? (
+                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileText className="w-4 h-4 mr-2" />
+                      )}
+                      PDF
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleDownload(report, 'excel')}
+                      disabled={downloading === 'excel'}
+                    >
+                      {downloading === 'excel' ? (
+                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileSpreadsheet className="w-4 h-4 mr-2" />
+                      )}
+                      Excel
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleDownload(report, 'ppt')}
+                      disabled={downloading === 'ppt'}
+                    >
+                      {downloading === 'ppt' ? (
+                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Presentation className="w-4 h-4 mr-2" />
+                      )}
+                      PowerPoint
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       )}
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedReport?.title}</DialogTitle>
+          </DialogHeader>
+          
+          {selectedReport && (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="pdf">PDF Preview</TabsTrigger>
+                <TabsTrigger value="content">Content</TabsTrigger>
+                <TabsTrigger value="download">Download Options</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="pdf" className="mt-4">
+                <PDFViewer content={selectedReport.content} title={selectedReport.title} />
+              </TabsContent>
+              
+              <TabsContent value="content" className="mt-4">
+                <div className="border rounded-md p-4 h-[500px] overflow-y-auto">
+                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked(selectedReport.content) }} />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="download" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+                  <Card>
+                    <CardContent className="pt-6 flex flex-col items-center">
+                      <FileText className="w-12 h-12 text-primary mb-4" />
+                      <h3 className="font-medium text-lg mb-2">PDF Document</h3>
+                      <p className="text-sm text-center text-muted-foreground mb-4">
+                        Download a professionally formatted PDF document
+                      </p>
+                      <Button 
+                        onClick={() => handleDownload(selectedReport, 'pdf')}
+                        disabled={downloading === 'pdf'}
+                        className="w-full"
+                      >
+                        {downloading === 'pdf' ? 'Downloading...' : 'Download PDF'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="pt-6 flex flex-col items-center">
+                      <FileSpreadsheet className="w-12 h-12 text-primary mb-4" />
+                      <h3 className="font-medium text-lg mb-2">Excel Spreadsheet</h3>
+                      <p className="text-sm text-center text-muted-foreground mb-4">
+                        Download data as an Excel spreadsheet
+                      </p>
+                      <Button 
+                        onClick={() => handleDownload(selectedReport, 'excel')}
+                        disabled={downloading === 'excel'}
+                        className="w-full"
+                      >
+                        {downloading === 'excel' ? 'Downloading...' : 'Download Excel'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="pt-6 flex flex-col items-center">
+                      <Presentation className="w-12 h-12 text-primary mb-4" />
+                      <h3 className="font-medium text-lg mb-2">PowerPoint</h3>
+                      <p className="text-sm text-center text-muted-foreground mb-4">
+                        Download as a PowerPoint presentation
+                      </p>
+                      <Button 
+                        onClick={() => handleDownload(selectedReport, 'ppt')}
+                        disabled={downloading === 'ppt'}
+                        className="w-full"
+                      >
+                        {downloading === 'ppt' ? 'Downloading...' : 'Download PPT'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
