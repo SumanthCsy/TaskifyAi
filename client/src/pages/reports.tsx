@@ -22,6 +22,7 @@ import { FileText, Download, ArrowLeft, Bot, Copy, Check, FileOutput } from 'luc
 import { apiRequest } from '@/lib/queryClient';
 import { generateAndDownloadPdf } from '@/lib/pdf-generator';
 import { marked } from 'marked';
+import { motion } from 'framer-motion';
 
 // Form schema for direct AI report generation
 const reportFormSchema = z.object({
@@ -295,23 +296,41 @@ export default function Reports() {
                     </div>
                   )}
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <LoadingSpinner size={16} className="mr-2" />
-                        Generating Report...
-                      </>
-                    ) : (
-                      <>
-                        <Bot className="h-5 w-5 mr-2" /> 
-                        Generate AI Report
-                      </>
-                    )}
-                  </Button>
+                  {isGenerating ? (
+                    <div className="border border-primary/20 rounded-lg bg-primary/5 p-6">
+                      <LoadingSpinner 
+                        type="sparkles" 
+                        size={48} 
+                        text="Generating your comprehensive report..." 
+                        className="py-12" 
+                      />
+                      <motion.div 
+                        className="w-full bg-primary/10 h-2 mt-6 rounded-full overflow-hidden"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <motion.div 
+                          className="h-full bg-primary"
+                          initial={{ width: "0%" }}
+                          animate={{ width: "100%" }}
+                          transition={{ 
+                            duration: 15, 
+                            ease: "easeInOut" 
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+                  ) : (
+                    <Button 
+                      type="submit" 
+                      className="w-full"
+                      disabled={isGenerating}
+                    >
+                      <Bot className="h-5 w-5 mr-2" /> 
+                      Generate AI Report
+                    </Button>
+                  )}
                 </form>
               </Form>
             </CardContent>

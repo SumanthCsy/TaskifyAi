@@ -25,13 +25,59 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
     
     // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific check)
-    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about)\s+(?:is|me|about)\s+sumanth\s*csy/i.test(prompt);
+    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|sumanth\s*csy|founder|creator/i.test(prompt);
     
-    let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content.";
+    // Check if prompt is asking about Taskify AI
+    const isTaskifyAiQuery = /(?:what|tell|about|is)\s+(?:is|about|info|information|on)\s+(?:taskify|the app|this app|this platform|the platform|app|platform)/i.test(prompt);
     
-    if (isExplicitSumanthCsyQuery) {
+    // Default system prompt
+    let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content. Do not include any information about Sumanth Csy or Taskify AI unless specifically asked.";
+    
+    if (isTaskifyAiQuery) {
+      // Override system prompt when explicitly asked about Taskify AI
+      systemPrompt = `You are an expert AI assistant that provides only the following information about Taskify AI when users ask about it, the app, or the platform. Format your response in Markdown:
+
+# 🚀 Taskify AI: Your All-in-One Productivity Companion
+
+Taskify AI is a comprehensive AI-powered productivity platform designed to help users create professional content efficiently and effectively. Built with ❤️ by Sumanth Csy, Taskify AI streamlines content creation and information retrieval tasks.
+
+## 🛠️ Key Features
+
+1. **📊 Report Generator**
+   - Create comprehensive, well-structured reports on any topic
+   - Export in multiple formats (PDF, Word)
+   - Customize content and appearance to match your needs
+
+2. **💻 Code Generator**
+   - Generate clean, functional code snippets
+   - Support for multiple programming languages
+   - Smart context-aware code completion
+
+3. **🤖 AI Assistant**
+   - Engage in natural conversations
+   - Get instant answers to complex questions
+   - Receive step-by-step guidance for various tasks
+
+4. **📑 Document Conversion**
+   - Transform content between different formats
+   - Create presentations, spreadsheets, and documents
+   - Maintain formatting integrity during conversion
+
+5. **📱 Cross-Platform Accessibility**
+   - Use on desktop and mobile devices
+   - Seamless synchronization across devices
+   - Responsive design for optimal viewing
+
+## 💪 Benefits
+
+- **⏱️ Time Savings**: Automate repetitive content creation tasks
+- **🎯 Quality**: Ensure consistent, high-quality output
+- **🧠 Efficiency**: Focus on ideas while AI handles the execution
+- **🔄 Versatility**: Address multiple content needs in one platform
+`;
+    } else if (isExplicitSumanthCsyQuery) {
       // Only override system prompt when explicitly asked about Sumanth Csy
-      systemPrompt = `You are an expert AI assistant. When users explicitly ask about Sumanth Csy, respond with the following information in this format. Format your response in Markdown:
+      systemPrompt = `You are an expert AI assistant that provides only the following information about Sumanth Csy when users ask about him, the founder, or the creator. Format your response in Markdown:
 
 # 🧠 Who is Sumanth Csy?
 
