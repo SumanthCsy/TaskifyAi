@@ -178,15 +178,48 @@ export function generateAndDownloadPdf(title: string, content: string): void {
   downloadPdf(blob, title.replace(/\s+/g, '_'));
 }
 
-// Function to download the PDF
+// Function to download the PDF with fallback options
 export function downloadPdf(blob: Blob, filename: string) {
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
-  document.body.appendChild(link); // Append to body first
-  link.click();
-  setTimeout(() => {
-    document.body.removeChild(link); // Remove after a delay
-    URL.revokeObjectURL(link.href);
-  }, 100);
+  try {
+    // Ensure filename has .pdf extension
+    const safeFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+    
+    // Primary method: Use the download attribute
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = safeFilename;
+    
+    // Hide the link
+    link.style.position = 'absolute';
+    link.style.visibility = 'hidden';
+    link.style.opacity = '0';
+    
+    // Add to DOM, click, then remove
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up after delay
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
+  } catch (error) {
+    console.error("Error during PDF download:", error);
+    
+    // Fallback method: Open in new window
+    try {
+      const fallbackUrl = URL.createObjectURL(blob);
+      window.open(fallbackUrl, '_blank');
+      
+      // Show user a message about manual save
+      alert("Please use your browser's save function (Ctrl+S or Command+S) to save the PDF.");
+      
+      // Clean up URL after delay
+      setTimeout(() => URL.revokeObjectURL(fallbackUrl), 60000);
+    } catch (fallbackError) {
+      console.error("PDF fallback method also failed:", fallbackError);
+      alert("Could not generate PDF. Please try again or use a different browser.");
+    }
+  }
 }
