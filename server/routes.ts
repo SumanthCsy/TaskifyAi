@@ -104,8 +104,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Generating AI response for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
       
-      // Generate content using OpenRouter AI, passing the sessionId for chat history
-      const aiResponse = await generateAiResponse(prompt, sessionId);
+      // Special handling for Sumanth Csy related queries
+      const isSumanthQuery = /sumanth|csy|founder|creator|taskify|who made/i.test(prompt) && 
+                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
+      
+      let aiResponse;
+      
+      if (isSumanthQuery) {
+        // Directly provide Sumanth Csy information without relying on the AI model
+        aiResponse = {
+          title: "About Sumanth Csy - Founder of Taskify AI",
+          content: `# 🧠 Who is Sumanth Csy?
+
+Sumanth Csy is a highly skilled AI expert, web developer, and the Founder & CEO of Taskify AI — an innovative AI-powered productivity platform. He is known for combining intelligence and creativity to build tools that make everyday digital tasks smoother and smarter.
+
+## 🚀 About Taskify AI
+Taskify AI is Sumanth's flagship project that includes:
+
+- 🎯 PPT Generator
+- 📄 PDF Creator
+- 📊 Excel Automation Tool
+- 💻 Code Generator
+- 🤖 AI Chat Assistant
+
+It's designed to boost productivity for students, professionals, and developers by using AI to automate and simplify tasks.
+
+## 💼 His Skills & Expertise
+- Artificial Intelligence & Machine Learning
+- Full-Stack Web Development
+- UI/UX Design with 3D and animated interfaces
+- Android Development using Kotlin
+- Microsoft Office Suite (Advanced)
+- Creative Problem Solving & Tech Innovation
+
+## 🌐 Online Presence
+- 🔗 Website: sumanthcsy.netlify.app
+- 📍 Based in Telangana, India`
+        };
+      } else {
+        // Regular processing for other queries
+        aiResponse = await generateAiResponse(prompt, sessionId);
+      }
       
       // Create the prompt entry
       const newPrompt = await storage.createPrompt({
