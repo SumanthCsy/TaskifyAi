@@ -269,8 +269,54 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     // Detect if the prompt is asking for code
     const isCodeQuery = /(?:write|generate|create|show|give|provide)\s+(?:me|us|a|an|the|some)?\s+(?:code|script|program|function|method|class|implementation|algorithm)\s+(?:for|to|that|which|in|using|with)/i.test(prompt);
     
+    // Detect language of the prompt for multilingual support
+    const detectLanguage = (text: string): string => {
+      // Check for common non-English languages 
+      
+      // Check for Telugu
+      if (/[ఆఇఈఉఊఎఏఐఒఓఔాిీుూృౄెేైొోౌ్]/.test(text)) {
+        return "Telugu";
+      }
+      
+      // Check for Hindi
+      if (/[अआइईउऊऋएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसह]/.test(text)) {
+        return "Hindi";
+      }
+      
+      // Check for Spanish
+      if (/[áéíóúüñ¿¡]/.test(text) && /(?:hola|gracias|buenos días|cómo estás|qué|por favor)/i.test(text)) {
+        return "Spanish";
+      }
+      
+      // Check for French
+      if (/[àâçéèêëîïôùûüÿ]/.test(text) && /(?:bonjour|merci|comment|salut|paris|français)/i.test(text)) {
+        return "French";
+      }
+      
+      // Check for Chinese
+      if (/[\u4e00-\u9fa5]/.test(text)) {
+        return "Chinese";
+      }
+      
+      // Check for Japanese
+      if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) {
+        return "Japanese";
+      }
+      
+      // Default to English if no specific language is detected
+      return "English";
+    };
+    
+    const detectedLanguage = detectLanguage(prompt);
+    console.log(`Detected language: ${detectedLanguage}`);
+    
     // Default system prompt
     let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content. Do not include any information about Sumanth Csy or Taskify AI unless specifically asked.";
+    
+    // Add language instruction for non-English queries
+    if (detectedLanguage !== "English") {
+      systemPrompt += `\n\nIMPORTANT: The user's query is in ${detectedLanguage}. Please respond in ${detectedLanguage}. Ensure your entire response, including the title and all content, is in ${detectedLanguage}.`;
+    }
     
     // Add code formatting instructions if it's a code query
     if (isCodeQuery) {
@@ -476,8 +522,54 @@ export async function generateReportContent(prompt: string, title: string): Prom
     // Detect if the prompt is asking for code
     const isCodeReport = /(?:code|programming|development|software|app|application|website|web|mobile|script|function|algorithm)/i.test(prompt);
     
+    // Detect language of the prompt for multilingual support
+    const detectLanguage = (text: string): string => {
+      // Check for common non-English languages 
+      
+      // Check for Telugu
+      if (/[ఆఇఈఉఊఎఏఐఒఓఔాిీుూృౄెేైొోౌ్]/.test(text)) {
+        return "Telugu";
+      }
+      
+      // Check for Hindi
+      if (/[अआइईउऊऋएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसह]/.test(text)) {
+        return "Hindi";
+      }
+      
+      // Check for Spanish
+      if (/[áéíóúüñ¿¡]/.test(text) && /(?:hola|gracias|buenos días|cómo estás|qué|por favor)/i.test(text)) {
+        return "Spanish";
+      }
+      
+      // Check for French
+      if (/[àâçéèêëîïôùûüÿ]/.test(text) && /(?:bonjour|merci|comment|salut|paris|français)/i.test(text)) {
+        return "French";
+      }
+      
+      // Check for Chinese
+      if (/[\u4e00-\u9fa5]/.test(text)) {
+        return "Chinese";
+      }
+      
+      // Check for Japanese
+      if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) {
+        return "Japanese";
+      }
+      
+      // Default to English if no specific language is detected
+      return "English";
+    };
+    
+    const detectedLanguage = detectLanguage(prompt + " " + title);
+    console.log(`Detected language for report: ${detectedLanguage}`);
+    
     // Define system prompt based on report type
     let systemPrompt = "You are an expert report generator. Generate comprehensive, well-structured reports in response to user queries. Format your response in Markdown with clear sections, subsections, bullet points, and numbered lists where appropriate. Include an introduction and conclusion. The report should be detailed enough to be useful as a standalone PDF document.";
+    
+    // Add language instruction for non-English queries
+    if (detectedLanguage !== "English") {
+      systemPrompt += `\n\nIMPORTANT: The user's prompt is in ${detectedLanguage}. Please generate the entire report in ${detectedLanguage}. Ensure all content, including the title, headings, and body text, is completely in ${detectedLanguage}.`;
+    }
     
     // Add code formatting instructions if it's a code-related report
     if (isCodeReport) {
