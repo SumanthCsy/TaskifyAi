@@ -59,7 +59,13 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
           
           if (videoRef.current) {
             videoRef.current.srcObject = mobileStream;
-            await videoRef.current.play();
+            try {
+              await videoRef.current.play();
+            } catch (playError) {
+              console.error("Error playing video:", playError);
+              // Don't throw the error - just log it and continue
+              // This way we at least have the stream even if the play() fails
+            }
           }
           
           return; // Success! Exit early
@@ -78,10 +84,13 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
       
       if (videoRef.current) {
         videoRef.current.srcObject = basicStream;
-        videoRef.current.play().catch(e => {
-          console.error("Error playing video:", e);
-          throw e;
-        });
+        try {
+          await videoRef.current.play();
+        } catch (playError) {
+          console.error("Error playing video:", playError);
+          // Just log the error and continue - don't throw it
+          // The stream is set up, even if autoplay fails
+        }
       }
     } catch (err: any) {
       console.error("Camera access error:", err);
@@ -109,7 +118,11 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
           
           if (videoRef.current) {
             videoRef.current.srcObject = simpleStream;
-            videoRef.current.play();
+            // Handle play error gracefully without throwing
+            videoRef.current.play().catch(playError => {
+              console.error("Error playing video with minimal constraints:", playError);
+              // We already have the stream, just log the play error
+            });
           }
         } catch (finalError) {
           setError("Unable to access your camera with compatible settings.");
