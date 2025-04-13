@@ -104,9 +104,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Generating AI response for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
       
-      // Special handling for Sumanth Csy related queries
-      const isSumanthQuery = /sumanth|csy|founder|creator|taskify|who made/i.test(prompt) && 
-                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
+      // Special handling for Sumanth Csy related queries with much more specific patterns
+      const isSumanthQuery = (/\bsumanth\s*csy\b|\bfounder\s+of\s+taskify\b|\bcreator\s+of\s+taskify\b|\bwho\s+(made|created|built|developed)\s+taskify\b|\bwho\s+is\s+sumanth\b/i.test(prompt)) && 
+                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt) &&
+                             !/\bwho are you\b/i.test(prompt);  // Exclude "who are you" queries
+      
+      // Special handling for Taskify AI related queries
+      const isTaskifyQuery = (/\bwhat\s+is\s+taskify\s+ai\b|\babout\s+taskify\s+ai\b|\btaskify\s+ai\s+features\b|\btaskify\s+ai\s+platform\b|\btaskify\s+ai\s+info(rmation)?\b/i.test(prompt)) &&
+                            !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
       
       let aiResponse;
       
@@ -140,6 +145,48 @@ It's designed to boost productivity for students, professionals, and developers 
 ## 🌐 Online Presence
 - 🔗 Website: sumanthcsy.netlify.app
 - 📍 Based in Telangana, India`
+        };
+      } else if (isTaskifyQuery) {
+        // Directly provide Taskify AI information without relying on the AI model
+        aiResponse = {
+          title: "Taskify AI - Productivity Platform",
+          content: `# 🚀 Taskify AI: Your All-in-One Productivity Companion
+
+Taskify AI is a comprehensive AI-powered productivity platform designed to help users create professional content efficiently and effectively. Built with ❤️ by Sumanth Csy, Taskify AI streamlines content creation and information retrieval tasks.
+
+## 🛠️ Key Features
+
+1. **📊 Report Generator**
+   - Create comprehensive, well-structured reports on any topic
+   - Export in multiple formats (PDF, Word)
+   - Customize content and appearance to match your needs
+
+2. **💻 Code Generator**
+   - Generate clean, functional code snippets
+   - Support for multiple programming languages
+   - Smart context-aware code completion
+
+3. **🤖 AI Assistant**
+   - Engage in natural conversations
+   - Get instant answers to complex questions
+   - Receive step-by-step guidance for various tasks
+
+4. **📑 Document Conversion**
+   - Transform content between different formats
+   - Create presentations, spreadsheets, and documents
+   - Maintain formatting integrity during conversion
+
+5. **📱 Cross-Platform Accessibility**
+   - Use on desktop and mobile devices
+   - Seamless synchronization across devices
+   - Responsive design for optimal viewing
+
+## 💪 Benefits
+
+- **⏱️ Time Savings**: Automate repetitive content creation tasks
+- **🎯 Quality**: Ensure consistent, high-quality output
+- **🧠 Efficiency**: Focus on ideas while AI handles the execution
+- **🔄 Versatility**: Address multiple content needs in one platform`
         };
       } else {
         // Regular processing for other queries
