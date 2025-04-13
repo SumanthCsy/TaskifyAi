@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { performWebSearch, formatSearchResults, shouldPerformWebSearch } from "./web-search";
 import { getOrCreateSession, addUserMessage, addAssistantMessage, getSessionMessages, updateSystemPrompt } from "./chat-history";
+import { config } from "./config";
 
 interface AiResponse {
   title: string;
@@ -256,11 +257,14 @@ async function detectAndFetchRealTimeData(prompt: string): Promise<string | null
  */
 export async function generateAiResponse(prompt: string, sessionId: string = 'default'): Promise<AiResponse> {
   try {
-    if (!process.env.OPENROUTER_API_KEY) {
-      throw new Error("OpenRouter API key is not set");
+    // Check if API key is available in config or environment
+    const apiKey = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
     }
     
-    console.log("Using OpenRouter API key:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
+    console.log("Using OpenRouter API key:", apiKey ? "Key is set" : "No key found");
     
     // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific and strict check)
     const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|(?:who|who's)\s+(?:is|made|created|developed|built)\s+(?:this|taskify)|who's\s+the\s+(?:creator|founder|developer|maker)|tell\s+(?:me|us)\s+about\s+(?:the\s+creator|the\s+founder|sumanth|the\s+developer)/i.test(prompt);

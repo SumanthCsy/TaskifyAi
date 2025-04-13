@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { config, ensureEnvFile, checkRequiredApiKeys } from "./config";
 
 const app = express();
 app.use(express.json());
@@ -37,6 +38,62 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Ensure .env file exists with API keys for local development
+  ensureEnvFile();
+  
+  // Check if all required API keys are available
+  const apiKeysAvailable = checkRequiredApiKeys();
+  if (!apiKeysAvailable) {
+    log("WARNING: Some required API keys are missing. Functionality may be limited.");
+  } else {
+    log("All API keys are configured properly.");
+  }
+  
+  // Create API endpoint to check API key status
+  app.get("/api/config/status", (req, res) => {
+    const status = {
+      openRouter: {
+        configured: !!config.openRouter.apiKey,
+        // Don't send the actual key for security reasons
+        masked: config.openRouter.apiKey ? 
+          config.openRouter.apiKey.substring(0, 3) + '...' + 
+          config.openRouter.apiKey.substring(config.openRouter.apiKey.length - 3) : 
+          null
+      },
+      environment: config.server.environment
+    };
+    res.json(status);
+  });
+  
+  // Create API endpoint to update API keys during runtime (for external environments)
+  app.post("/api/config/update-key", express.json(), (req, res) => {
+    const { key, value } = req.body;
+    
+    if (!key || !value || typeof key !== 'string' || typeof value !== 'string') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid request. Both 'key' and 'value' are required." 
+      });
+    }
+    
+    try {
+      // Update config and .env file
+      import("./config").then(configModule => {
+        configModule.initializeApiKey(key, value);
+        res.json({ 
+          success: true, 
+          message: `Successfully updated ${key}` 
+        });
+      });
+    } catch (error) {
+      console.error("Failed to update API key:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to update API key" 
+      });
+    }
+  });
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
