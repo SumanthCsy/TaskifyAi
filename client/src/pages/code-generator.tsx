@@ -97,9 +97,11 @@ export default function CodeGenerator() {
       const codeBlockRegex = /```([a-zA-Z0-9]*)\n([\s\S]*?)```/g;
       let match;
       let code = '';
+      let detectedLangFromCode = '';
       
       // Extract the first code block found
       if ((match = codeBlockRegex.exec(content)) !== null) {
+        detectedLangFromCode = match[1] || ''; // The language specifier if present
         code = match[2]; // The second capturing group contains the code
       }
       
@@ -135,14 +137,26 @@ export default function CodeGenerator() {
         code = content.trim();
       }
       
-      // Set the result with code only
-      setResult({ 
-        code: code || 'No code block detected in the response.'
-      });
+      // Use language from code block if detected, otherwise use prompt detection
+      const finalLanguage = detectedLangFromCode || detectedLanguage;
+      
+      // Create a title from the prompt
+      const titleMatch = prompt.match(/^.{0,30}/);
+      const title = titleMatch ? titleMatch[0] + (prompt.length > 30 ? '...' : '') : 'Generated Code';
+      
+      // Store data in localStorage for the results page
+      localStorage.setItem('generatedCode', JSON.stringify({
+        code: code || 'No code block detected in the response.',
+        language: finalLanguage,
+        title: title
+      }));
+      
+      // Redirect to the results page
+      setLocation('/code-result');
       
       toast({
         title: 'Code Generated',
-        description: 'Your code has been successfully generated.',
+        description: 'Redirecting to your generated code...',
       });
     } catch (error) {
       console.error("Code generation error:", error);
@@ -151,7 +165,6 @@ export default function CodeGenerator() {
         description: 'Failed to generate code. Please try again.',
         variant: 'destructive',
       });
-    } finally {
       setIsLoading(false);
     }
   }
