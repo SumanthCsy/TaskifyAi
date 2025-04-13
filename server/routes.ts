@@ -565,15 +565,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const sessionId = req.params.id;
       
-      // Import the function directly here to avoid circular dependencies
-      const { clearSessionHistory } = require('./chat-history');
-      
-      // Clear the session memory
-      clearSessionHistory(sessionId);
-      
-      res.json({ 
-        success: true, 
-        message: `Chat memory cleared for session: ${sessionId}` 
+      // Import the function directly to avoid circular dependencies
+      import('./chat-history').then(({ clearSessionHistory }) => {
+        // Clear the session memory
+        clearSessionHistory(sessionId);
+        
+        res.json({ 
+          success: true, 
+          message: `Chat memory cleared for session: ${sessionId}` 
+        });
+      }).catch(error => {
+        console.error("Error importing chat-history module:", error);
+        res.status(500).json({ message: "Error importing chat-history module" });
       });
     } catch (error: any) {
       console.error("Error clearing chat memory:", error);
@@ -584,15 +587,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add API endpoint to get all active chat memory sessions (for debugging)
   app.get("/api/chat-memory/sessions", async (req, res) => {
     try {
-      // Import the function directly here to avoid circular dependencies
-      const { getAllSessions } = require('./chat-history');
-      
-      // Get all active sessions
-      const sessions = getAllSessions();
-      
-      res.json({ 
-        sessions,
-        count: sessions.length 
+      // Import the function directly to avoid circular dependencies
+      import('./chat-history').then(({ getAllSessions }) => {
+        // Get all active sessions
+        const sessions = getAllSessions();
+        
+        res.json({ 
+          sessions,
+          count: sessions.length 
+        });
+      }).catch(error => {
+        console.error("Error importing chat-history module:", error);
+        res.status(500).json({ message: "Error importing chat-history module" });
       });
     } catch (error: any) {
       console.error("Error getting chat memory sessions:", error);
