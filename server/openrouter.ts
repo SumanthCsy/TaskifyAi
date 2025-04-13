@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { performWebSearch, formatSearchResults, shouldPerformWebSearch } from "./web-search";
+import { getOrCreateSession, addUserMessage, addAssistantMessage, getSessionMessages, updateSystemPrompt } from "./chat-history";
 
 interface AiResponse {
   title: string;
@@ -253,7 +254,7 @@ async function detectAndFetchRealTimeData(prompt: string): Promise<string | null
 /**
  * API client for OpenRouter to generate text responses
  */
-export async function generateAiResponse(prompt: string): Promise<AiResponse> {
+export async function generateAiResponse(prompt: string, sessionId: string = 'default'): Promise<AiResponse> {
   try {
     if (!process.env.OPENROUTER_API_KEY) {
       throw new Error("OpenRouter API key is not set");
@@ -401,18 +402,22 @@ It's designed to boost productivity for students, professionals, and developers 
 - 📍 Based in Telangana, India`;
     }
     
+    // Get or create chat session and add user message
+    addUserMessage(sessionId, prompt);
+    
+    // Get all messages from the session history
+    const chatHistory = getSessionMessages(sessionId);
+    
+    // Update system prompt if needed
+    if (isTaskifyAiQuery || isExplicitSumanthCsyQuery) {
+      updateSystemPrompt(sessionId, systemPrompt);
+    }
+    
+    console.log(`Using chat history for session ${sessionId} with ${chatHistory.length} messages`);
+    
     const requestBody = {
       model: "anthropic/claude-3-haiku:latest", // Using a smaller model that's more reliable
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
+      messages: chatHistory,
       temperature: 0.7,
       max_tokens: 2000
     };
@@ -522,6 +527,9 @@ It's designed to boost productivity for students, professionals, and developers 
       }
     }
 
+    // Save the assistant's response to chat history
+    addAssistantMessage(sessionId, content);
+    
     return {
       title,
       content
