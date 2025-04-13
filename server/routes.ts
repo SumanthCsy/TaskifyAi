@@ -104,20 +104,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Generating AI response for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
       
-      // Special handling for Sumanth Csy related queries with much more specific patterns
-      // Only match when Sumanth Csy is the main focus of the query
-      const isSumanthQuery = (/^\s*sumanth\s*csy\s*$|\bwho\s+is\s+sumanth\s*csy\b|\btell\s+(me|us)\s+about\s+sumanth\s*csy\b|\bfounder\s+of\s+taskify\b|\bcreator\s+of\s+taskify\b|\bwho\s+(made|created|built|developed)\s+taskify\b/i.test(prompt)) && 
-                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
-      
-      // Special handling for Taskify AI related queries
-      // Only match when Taskify AI is the main focus of the query
-      const isTaskifyQuery = (/^taskify\s*ai$|\bwhat\s+is\s+taskify\s*ai\b|\btell\s+(me|us)\s+about\s+taskify\s*ai\b|\babout\s+taskify\s*ai\b|\btaskify\s*ai\s+features\b|\btaskify\s*ai\s+platform\b|\btaskify\s*ai\s+info(rmation)?\b/i.test(prompt)) &&
-                            !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt) &&
-                            !(/^ai$|^artificial intelligence$/i.test(prompt));
-      
       let aiResponse;
       
-      if (isSumanthQuery) {
+      // Super simple, direct check for Sumanth Csy
+      if (prompt.toLowerCase().includes('sumanth') || 
+          prompt.toLowerCase().includes('csy') || 
+          prompt.toLowerCase().includes('founder') || 
+          prompt.toLowerCase().includes('creator')) {
+        
+        console.log("Matching Sumanth Csy query, providing direct response");
+        
         // Directly provide Sumanth Csy information without relying on the AI model
         aiResponse = {
           title: "About Sumanth Csy - Founder of Taskify AI",
@@ -148,7 +144,13 @@ It's designed to boost productivity for students, professionals, and developers 
 - 🔗 Website: sumanthcsy.netlify.app
 - 📍 Based in Telangana, India`
         };
-      } else if (isTaskifyQuery) {
+      } 
+      // Simple check for Taskify AI queries
+      else if (prompt.toLowerCase().includes('taskify') || 
+               (prompt.toLowerCase().includes('this platform') && !prompt.toLowerCase().includes('who are'))) {
+               
+        console.log("Matching Taskify AI query, providing direct response");
+        
         // Directly provide Taskify AI information without relying on the AI model
         aiResponse = {
           title: "Taskify AI - Productivity Platform",
@@ -625,8 +627,99 @@ Taskify AI is a comprehensive AI-powered productivity platform designed to help 
       let assistantMessage = null;
       if (role === "user") {
         try {
-          // Pass chat ID as session ID to maintain conversation context
-          const aiResponse = await generateAiResponse(content, chatId);
+          // Check for direct Sumanth Csy or Taskify AI queries first
+          let aiResponse: { title: string, content: string };
+          
+          // Super simple, direct check for Sumanth Csy
+          if (content.toLowerCase().includes('sumanth') || 
+              content.toLowerCase().includes('csy') || 
+              content.toLowerCase().includes('founder') || 
+              content.toLowerCase().includes('creator')) {
+            
+            console.log("Chat: Matching Sumanth Csy query, providing direct response");
+            
+            // Directly provide Sumanth Csy information without relying on the AI model
+            aiResponse = {
+              title: "About Sumanth Csy - Founder of Taskify AI",
+              content: `# 🧠 Who is Sumanth Csy?
+
+Sumanth Csy is a highly skilled AI expert, web developer, and the Founder & CEO of Taskify AI — an innovative AI-powered productivity platform. He is known for combining intelligence and creativity to build tools that make everyday digital tasks smoother and smarter.
+
+## 🚀 About Taskify AI
+Taskify AI is Sumanth's flagship project that includes:
+
+- 🎯 PPT Generator
+- 📄 PDF Creator
+- 📊 Excel Automation Tool
+- 💻 Code Generator
+- 🤖 AI Chat Assistant
+
+It's designed to boost productivity for students, professionals, and developers by using AI to automate and simplify tasks.
+
+## 💼 His Skills & Expertise
+- Artificial Intelligence & Machine Learning
+- Full-Stack Web Development
+- UI/UX Design with 3D and animated interfaces
+- Android Development using Kotlin
+- Microsoft Office Suite (Advanced)
+- Creative Problem Solving & Tech Innovation
+
+## 🌐 Online Presence
+- 🔗 Website: sumanthcsy.netlify.app
+- 📍 Based in Telangana, India`
+            };
+          } 
+          // Simple check for Taskify AI queries
+          else if (content.toLowerCase().includes('taskify') || 
+                  (content.toLowerCase().includes('this platform') && !content.toLowerCase().includes('who are'))) {
+                  
+            console.log("Chat: Matching Taskify AI query, providing direct response");
+            
+            // Directly provide Taskify AI information without relying on the AI model
+            aiResponse = {
+              title: "Taskify AI - Productivity Platform",
+              content: `# 🚀 Taskify AI: Your All-in-One Productivity Companion
+
+Taskify AI is a comprehensive AI-powered productivity platform designed to help users create professional content efficiently and effectively. Built with ❤️ by Sumanth Csy, Taskify AI streamlines content creation and information retrieval tasks.
+
+## 🛠️ Key Features
+
+1. **📊 Report Generator**
+   - Create comprehensive, well-structured reports on any topic
+   - Export in multiple formats (PDF, Word)
+   - Customize content and appearance to match your needs
+
+2. **💻 Code Generator**
+   - Generate clean, functional code snippets
+   - Support for multiple programming languages
+   - Smart context-aware code completion
+
+3. **🤖 AI Assistant**
+   - Engage in natural conversations
+   - Get instant answers to complex questions
+   - Receive step-by-step guidance for various tasks
+
+4. **📑 Document Conversion**
+   - Transform content between different formats
+   - Create presentations, spreadsheets, and documents
+   - Maintain formatting integrity during conversion
+
+5. **📱 Cross-Platform Accessibility**
+   - Use on desktop and mobile devices
+   - Seamless synchronization across devices
+   - Responsive design for optimal viewing
+
+## 💪 Benefits
+
+- **⏱️ Time Savings**: Automate repetitive content creation tasks
+- **🎯 Quality**: Ensure consistent, high-quality output
+- **🧠 Efficiency**: Focus on ideas while AI handles the execution
+- **🔄 Versatility**: Address multiple content needs in one platform`
+            };
+          } else {
+            // Pass chat ID as session ID to maintain conversation context for regular queries
+            aiResponse = await generateAiResponse(content, chatId);
+          }
           
           assistantMessage = await storage.addChatMessage({
             chatId,
