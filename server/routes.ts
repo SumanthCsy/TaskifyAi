@@ -15,14 +15,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const querySchema = z.object({
         prompt: z.string().min(1),
         language: z.string().default("code"),
-        codeType: z.string().default("complete code solution")
+        codeType: z.string().default("complete code solution"),
+        sessionId: z.string().default('default') // Use 'default' if not provided
       });
       
       // Parse and validate the input with defaults for missing values
       const validatedData = querySchema.parse(req.body);
-      const { prompt, language, codeType } = validatedData;
+      const { prompt, language, codeType, sessionId } = validatedData;
       
-      console.log(`Generating ${codeType} in ${language} for prompt: "${prompt.substring(0, 50)}..."`);
+      console.log(`Generating ${codeType} in ${language} for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
       
       // Format the prompt for code generation
       const fullPrompt = `Generate ${codeType} in ${language} for: ${prompt}. 
@@ -32,8 +33,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       The code should be well-documented with comments and follow best practices for ${language}.`;
       
-      // Generate content using OpenRouter AI
-      const aiResponse = await generateAiResponse(fullPrompt);
+      // Generate content using OpenRouter AI with session context
+      const aiResponse = await generateAiResponse(fullPrompt, sessionId);
       
       res.json(aiResponse);
     } catch (error: any) {
@@ -95,13 +96,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const querySchema = z.object({
         prompt: z.string().min(1),
+        sessionId: z.string().default('default') // Use 'default' if not provided
       });
       
       const validatedData = querySchema.parse(req.body);
-      const { prompt } = validatedData;
+      const { prompt, sessionId } = validatedData;
       
-      // Generate content using OpenRouter AI
-      const aiResponse = await generateAiResponse(prompt);
+      console.log(`Generating AI response for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
+      
+      // Generate content using OpenRouter AI, passing the sessionId for chat history
+      const aiResponse = await generateAiResponse(prompt, sessionId);
       
       // Create the prompt entry
       const newPrompt = await storage.createPrompt({
@@ -528,11 +532,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content
       });
       
-      // If this is a user message, generate an AI response
+      // If this is a user message, generate an AI response using the chat session ID
+      // to maintain conversation history
       let assistantMessage = null;
       if (role === "user") {
         try {
-          const aiResponse = await generateAiResponse(content);
+          // Pass chat ID as session ID to maintain conversation context
+          const aiResponse = await generateAiResponse(content, chatId);
           
           assistantMessage = await storage.addChatMessage({
             chatId,
@@ -550,6 +556,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         assistantMessage
       });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Add API endpoint to clear chat history memory
+  app.post("/api/chat/:id/clear-memory", async (req, res) => {
+    try {
+      const sessionId = req.params.id;
+      
+      // Import the function directly here to avoid circular dependencies
+      const { clearSessionHistory } = require('./chat-history');
+      
+      // Clear the session memory
+      clearSessionHistory(sessionId);
+      
+      res.json({ 
+        success: true, 
+        message: `Chat memory cleared for session: ${sessionId}` 
+      });
+    } catch (error: any) {
+      console.error("Error clearing chat memory:", error);
       res.status(500).json({ message: error.message });
     }
   });
