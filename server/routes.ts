@@ -106,11 +106,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let aiResponse;
       
-      // Super simple, direct check for Sumanth Csy
-      if (prompt.toLowerCase().includes('sumanth') || 
-          prompt.toLowerCase().includes('csy') || 
-          prompt.toLowerCase().includes('founder') || 
-          prompt.toLowerCase().includes('creator')) {
+      // More precise checks for exact Sumanth Csy queries
+      if ((prompt.toLowerCase().includes('sumanth') && prompt.toLowerCase().includes('csy')) || 
+          (prompt.toLowerCase().includes('founder') && prompt.toLowerCase().includes('taskify')) || 
+          (prompt.toLowerCase().includes('creator') && prompt.toLowerCase().includes('taskify')) ||
+          (prompt.toLowerCase().includes('who') && prompt.toLowerCase().includes('made') && prompt.toLowerCase().includes('taskify'))) {
         
         console.log("Matching Sumanth Csy query, providing direct response");
         
@@ -145,9 +145,11 @@ It's designed to boost productivity for students, professionals, and developers 
 - 📍 Based in Telangana, India`
         };
       } 
-      // Simple check for Taskify AI queries
-      else if (prompt.toLowerCase().includes('taskify') || 
-               (prompt.toLowerCase().includes('this platform') && !prompt.toLowerCase().includes('who are'))) {
+      // More precise check for Taskify AI queries (only exact matches)
+      else if ((prompt.toLowerCase().includes('what is') && prompt.toLowerCase().includes('taskify')) || 
+              (prompt.toLowerCase().includes('tell me about') && prompt.toLowerCase().includes('taskify')) || 
+              (prompt.toLowerCase() === 'taskify ai') || 
+              (prompt.toLowerCase().includes('about') && prompt.toLowerCase().includes('taskify ai') && prompt.toLowerCase().split(' ').length < 5)) {
                
         console.log("Matching Taskify AI query, providing direct response");
         
@@ -630,11 +632,11 @@ Taskify AI is a comprehensive AI-powered productivity platform designed to help 
           // Check for direct Sumanth Csy or Taskify AI queries first
           let aiResponse: { title: string, content: string };
           
-          // Super simple, direct check for Sumanth Csy
-          if (content.toLowerCase().includes('sumanth') || 
-              content.toLowerCase().includes('csy') || 
-              content.toLowerCase().includes('founder') || 
-              content.toLowerCase().includes('creator')) {
+          // More precise checks for exact Sumanth Csy queries
+          if ((content.toLowerCase().includes('sumanth') && content.toLowerCase().includes('csy')) || 
+              (content.toLowerCase().includes('founder') && content.toLowerCase().includes('taskify')) || 
+              (content.toLowerCase().includes('creator') && content.toLowerCase().includes('taskify')) ||
+              (content.toLowerCase().includes('who') && content.toLowerCase().includes('made') && content.toLowerCase().includes('taskify'))) {
             
             console.log("Chat: Matching Sumanth Csy query, providing direct response");
             
@@ -669,9 +671,11 @@ It's designed to boost productivity for students, professionals, and developers 
 - 📍 Based in Telangana, India`
             };
           } 
-          // Simple check for Taskify AI queries
-          else if (content.toLowerCase().includes('taskify') || 
-                  (content.toLowerCase().includes('this platform') && !content.toLowerCase().includes('who are'))) {
+          // More precise check for Taskify AI queries (only exact matches)
+          else if ((content.toLowerCase().includes('what is') && content.toLowerCase().includes('taskify')) || 
+                  (content.toLowerCase().includes('tell me about') && content.toLowerCase().includes('taskify')) || 
+                  (content.toLowerCase() === 'taskify ai') || 
+                  (content.toLowerCase().includes('about') && content.toLowerCase().includes('taskify ai') && content.toLowerCase().split(' ').length < 5)) {
                   
             console.log("Chat: Matching Taskify AI query, providing direct response");
             
