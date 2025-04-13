@@ -258,13 +258,13 @@ async function detectAndFetchRealTimeData(prompt: string): Promise<string | null
 export async function generateAiResponse(prompt: string, sessionId: string = 'default'): Promise<AiResponse> {
   try {
     // Check if API key is available in config or environment
-    const apiKey = config.openRouter.apiKey || apiKey;
+    const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
-    if (!apiKey) {
+    if (!apiKeyToUse) {
       throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
     }
     
-    console.log("Using OpenRouter API key:", apiKey ? "Key is set" : "No key found");
+    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
     
     // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific and strict check)
     const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|(?:who|who's)\s+(?:is|made|created|developed|built)\s+(?:this|taskify)|who's\s+the\s+(?:creator|founder|developer|maker)|tell\s+(?:me|us)\s+about\s+(?:the\s+creator|the\s+founder|sumanth|the\s+developer)/i.test(prompt);
@@ -432,7 +432,7 @@ It's designed to boost productivity for students, professionals, and developers 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKeyToUse}`,
         "HTTP-Referer": "https://replit.com",
         "X-Title": "Replit AI App"
       },
@@ -550,13 +550,13 @@ It's designed to boost productivity for students, professionals, and developers 
 export async function generateReportContent(prompt: string, title: string): Promise<string> {
   try {
     // Check if API key is available in config or environment
-    const apiKey = config.openRouter.apiKey || apiKey;
+    const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
-    if (!apiKey) {
+    if (!apiKeyToUse) {
       throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
     }
     
-    console.log("Using OpenRouter API key for report:", apiKey ? "Key is set" : "No key found");
+    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
     
     // Detect if the prompt is asking for code
     const isCodeReport = /(?:code|programming|development|software|app|application|website|web|mobile|script|function|algorithm)/i.test(prompt);
@@ -640,7 +640,7 @@ export async function generateReportContent(prompt: string, title: string): Prom
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKeyToUse}`,
         "HTTP-Referer": "https://replit.com",
         "X-Title": "Replit AI App"
       },
@@ -730,13 +730,13 @@ export async function generateReportContent(prompt: string, title: string): Prom
 export async function getSuggestedPrompts(): Promise<string[]> {
   try {
     // Check if API key is available in config or environment
-    const apiKey = config.openRouter.apiKey || apiKey;
+    const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
-    if (!apiKey) {
+    if (!apiKeyToUse) {
       throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
     }
     
-    console.log("Using OpenRouter API key for suggested prompts:", apiKey ? "Key is set" : "No key found");
+    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
     
     const requestBody = {
       model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
@@ -760,7 +760,7 @@ export async function getSuggestedPrompts(): Promise<string[]> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKeyToUse}`,
         "HTTP-Referer": "https://replit.com",
         "X-Title": "Replit AI App"
       },

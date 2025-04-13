@@ -580,6 +580,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+  
+  // Add API endpoint to get all active chat memory sessions (for debugging)
+  app.get("/api/chat-memory/sessions", async (req, res) => {
+    try {
+      // Import the function directly here to avoid circular dependencies
+      const { getAllSessions } = require('./chat-history');
+      
+      // Get all active sessions
+      const sessions = getAllSessions();
+      
+      res.json({ 
+        sessions,
+        count: sessions.length 
+      });
+    } catch (error: any) {
+      console.error("Error getting chat memory sessions:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
