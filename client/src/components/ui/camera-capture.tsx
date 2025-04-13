@@ -94,13 +94,18 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
           
           if (videoRef.current) {
             videoRef.current.srcObject = mobileStream;
-            try {
-              await videoRef.current.play();
-            } catch (playError) {
-              console.error("Error playing video:", playError);
-              // Don't throw the error - just log it and continue
-              // This way we at least have the stream even if the play() fails
-            }
+            // Add a small delay before attempting to play
+            setTimeout(() => {
+              if (videoRef.current && isMounted) {
+                videoRef.current.play()
+                  .then(() => console.log("Video playing successfully"))
+                  .catch(playError => {
+                    console.error("Error playing video:", playError);
+                    // Don't throw the error - just log it and continue
+                    // This way we at least have the stream even if the play() fails
+                  });
+              }
+            }, 300);
           }
           
           return; // Success! Exit early
@@ -126,13 +131,18 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
       
       if (videoRef.current) {
         videoRef.current.srcObject = basicStream;
-        try {
-          await videoRef.current.play();
-        } catch (playError) {
-          console.error("Error playing video:", playError);
-          // Just log the error and continue - don't throw it
-          // The stream is set up, even if autoplay fails
-        }
+        // Add a small delay before attempting to play
+        setTimeout(() => {
+          if (videoRef.current && isMounted) {
+            videoRef.current.play()
+              .then(() => console.log("Video playing successfully"))
+              .catch(playError => {
+                console.error("Error playing video:", playError);
+                // Just log the error and continue - don't throw it
+                // The stream is set up, even if autoplay fails
+              });
+          }
+        }, 300);
       }
     } catch (err: any) {
       console.error("Camera access error:", err);
@@ -170,11 +180,17 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
           
           if (videoRef.current) {
             videoRef.current.srcObject = simpleStream;
-            // Handle play error gracefully without throwing
-            videoRef.current.play().catch(playError => {
-              console.error("Error playing video with minimal constraints:", playError);
-              // We already have the stream, just log the play error
-            });
+            // Add a small delay before attempting to play
+            setTimeout(() => {
+              if (videoRef.current && isMounted) {
+                videoRef.current.play()
+                  .then(() => console.log("Video playing successfully with minimal constraints"))
+                  .catch(playError => {
+                    console.error("Error playing video with minimal constraints:", playError);
+                    // We already have the stream, just log the play error
+                  });
+              }
+            }, 300);
           }
         } catch (finalError) {
           setError("Unable to access your camera with compatible settings.");
@@ -256,7 +272,7 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
             variant="ghost" 
             size="icon" 
             className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
