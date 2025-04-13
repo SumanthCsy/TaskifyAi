@@ -300,17 +300,17 @@ export default function CodeGenerator() {
             </CardContent>
           </Card>
           
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
-              <CardTitle className="text-white text-lg sm:text-xl">Generated Code</CardTitle>
-              <CardDescription className="text-gray-400 text-xs sm:text-sm">
-                View, copy, and download your code
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6 pb-4">
-              {isLoading ? (
+          {isLoading && (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+                <CardTitle className="text-white text-lg sm:text-xl">Generated Code</CardTitle>
+                <CardDescription className="text-gray-400 text-xs sm:text-sm">
+                  View, copy, and download your code
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-6 pb-4">
                 <motion.div 
-                  className="p-12 flex flex-col items-center justify-center text-center"
+                  className="p-6 sm:p-12 flex flex-col items-center justify-center text-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
@@ -356,74 +356,9 @@ export default function CodeGenerator() {
                     ))}
                   </div>
                 </motion.div>
-              ) : result ? (
-                <AnimatePresence mode="wait">
-                  <motion.div 
-                    className="space-y-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                    key="result"
-                  >
-                    <div className="relative">
-                      <pre className="rounded-md bg-black p-4 overflow-x-auto text-gray-100 max-h-[500px] overflow-y-auto">
-                        <code>{result.code || 'No code generated yet.'}</code>
-                      </pre>
-                      
-                      <div className="absolute top-2 right-2 flex gap-2">
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button 
-                            variant="secondary" 
-                            size="icon"
-                            onClick={copyToClipboard}
-                            disabled={!result.code}
-                            className="bg-gray-800"
-                          >
-                            {copied ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Copy className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </motion.div>
-                        
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button 
-                            variant="secondary" 
-                            size="icon"
-                            onClick={downloadCode}
-                            disabled={!result.code}
-                            className="bg-gray-800"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              ) : (
-                <motion.div 
-                  className="p-12 text-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Code className="h-16 w-16 mb-4 mx-auto text-gray-500" />
-                  <h3 className="text-lg font-medium text-white">No Code Generated</h3>
-                  <p className="text-sm text-gray-400 mt-2 max-w-md mx-auto">
-                    Fill out the form on the left with your code requirements and hit "Generate Code" to see your code appear here.
-                  </p>
-                </motion.div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
