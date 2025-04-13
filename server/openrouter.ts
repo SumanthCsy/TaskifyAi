@@ -13,6 +13,114 @@ interface OpenRouterResponse {
   }[];
 }
 
+interface CricketScore {
+  match: string;
+  teams: string[];
+  scores: string[];
+  status: string;
+  matchType: string;
+}
+
+/**
+ * Function to fetch real-time cricket scores from an API
+ */
+async function fetchCricketScores(): Promise<CricketScore[] | null> {
+  try {
+    // Using CricAPI to fetch live cricket scores
+    const response = await fetch('https://cricapi.com/api/matches', {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      console.log("Failed to fetch cricket scores");
+      return null;
+    }
+    
+    const data = await response.json();
+    if (!data.matches) {
+      return null;
+    }
+    
+    // Format the data
+    return data.matches.slice(0, 5).map((match: any) => ({
+      match: match.unique_id,
+      teams: [match.team-1, match.team-2],
+      scores: [match['score-1'] || 'N/A', match['score-2'] || 'N/A'],
+      status: match.matchStatus,
+      matchType: match.type
+    }));
+  } catch (error) {
+    console.error("Error fetching cricket scores:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch latest news or information about a topic
+ */
+async function fetchLatestInformation(topic: string): Promise<string | null> {
+  try {
+    // This is a simplified example - in a real implementation, you would use a proper news API
+    const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&sortBy=publishedAt&language=en&pageSize=3`);
+    
+    if (!response.ok) {
+      console.log(`Failed to fetch information about ${topic}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    if (!data.articles || data.articles.length === 0) {
+      return null;
+    }
+    
+    // Format the data
+    return data.articles.map((article: any) => 
+      `- **${article.title}** (${new Date(article.publishedAt).toLocaleDateString()}): ${article.description}`
+    ).join('\n\n');
+  } catch (error) {
+    console.error(`Error fetching information about ${topic}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Detect what kind of real-time data might be needed based on the prompt
+ */
+async function detectAndFetchRealTimeData(prompt: string): Promise<string | null> {
+  // Check if the prompt is asking about cricket scores or matches
+  const cricketRegex = /cricket\s+(scores?|matches?|results?|updates?|status|live|current|today)/i;
+  if (cricketRegex.test(prompt)) {
+    const scores = await fetchCricketScores();
+    if (scores) {
+      let formattedScores = "## 🏏 Live Cricket Scores\n\n";
+      formattedScores += "| Match | Teams | Scores | Status |\n";
+      formattedScores += "|-------|-------|--------|--------|\n";
+      
+      scores.forEach(match => {
+        formattedScores += `| ${match.matchType} | ${match.teams.join(' vs ')} | ${match.scores.join(' / ')} | ${match.status} |\n`;
+      });
+      
+      formattedScores += "\n*Data updated as of " + new Date().toLocaleString() + "*\n\n";
+      return formattedScores;
+    }
+  }
+  
+  // Check if the prompt is asking for latest news or information
+  const newsRegex = /(latest|recent|current|today'?s?)\s+(news|updates|information|developments|events|happenings)\s+(about|on|regarding)\s+([a-z0-9\s]+)/i;
+  const newsMatch = prompt.match(newsRegex);
+  if (newsMatch && newsMatch[4]) {
+    const topic = newsMatch[4].trim();
+    const latestInfo = await fetchLatestInformation(topic);
+    if (latestInfo) {
+      return `## 📰 Latest Updates on ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n\n${latestInfo}\n\n*Information retrieved as of ${new Date().toLocaleString()}*\n\n`;
+    }
+  }
+  
+  return null;
+}
+
 /**
  * API client for OpenRouter to generate text responses
  */
@@ -30,8 +138,19 @@ export async function generateAiResponse(prompt: string): Promise<AiResponse> {
     // Check if prompt is asking about Taskify AI (more specific check)
     const isTaskifyAiQuery = /(?:what|tell|about|is)\s+(?:is|about|info|information|on)\s+(?:taskify|this\s+app|the\s+app|this\s+platform|the\s+platform)|what\s+can\s+taskify\s+do|how\s+does\s+taskify\s+work|features\s+of\s+taskify/i.test(prompt);
     
+    // Detect if the prompt is asking for code
+    const isCodeQuery = /(?:write|generate|create|show|give|provide)\s+(?:me|us|a|an|the|some)?\s+(?:code|script|program|function|method|class|implementation|algorithm)\s+(?:for|to|that|which|in|using|with)/i.test(prompt);
+    
     // Default system prompt
     let systemPrompt = "You are an expert AI assistant. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content. Do not include any information about Sumanth Csy or Taskify AI unless specifically asked.";
+    
+    // Add code formatting instructions if it's a code query
+    if (isCodeQuery) {
+      systemPrompt += "\n\nWhen providing code examples:\n1. Always use proper syntax highlighting with markdown triple backticks and language name (e.g. ```python, ```javascript)\n2. Include detailed comments explaining the code\n3. Structure the code with proper indentation and formatting\n4. Follow best practices for the specific programming language\n5. Provide clear explanations before and after the code blocks";
+    }
+    
+    // Add table formatting instructions for data presentation
+    systemPrompt += "\n\nWhen presenting data or comparisons:\n1. Use markdown tables with clear headers and aligned columns\n2. For numerical comparisons, consider using visual indicators (like ✅, ⚠️, ❌) when appropriate\n3. Structure complex information in a hierarchical manner\n4. Include summaries or key takeaways after tables\n5. Ensure all data is well-organized and easy to understand";
     
     if (isTaskifyAiQuery) {
       // Override system prompt when explicitly asked about Taskify AI
@@ -167,7 +286,32 @@ It's designed to boost productivity for students, professionals, and developers 
       throw new Error("Invalid response format from OpenRouter API: Missing message");
     }
     
-    const content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+
+    // Try to fetch real-time data based on the prompt
+    try {
+      const realTimeData = await detectAndFetchRealTimeData(prompt);
+      if (realTimeData) {
+        // Insert the real-time data at the beginning of the content, after the title
+        const contentLines = content.split('\n');
+        let titleLine = 0;
+        
+        // Find the title line
+        for (let i = 0; i < contentLines.length; i++) {
+          if (contentLines[i].startsWith('# ')) {
+            titleLine = i;
+            break;
+          }
+        }
+        
+        // Insert real-time data after the title
+        contentLines.splice(titleLine + 1, 0, '\n' + realTimeData);
+        content = contentLines.join('\n');
+      }
+    } catch (error) {
+      console.error("Error fetching real-time data:", error);
+      // Continue without real-time data if there's an error
+    }
 
     // Extract title from markdown (assuming first line is a markdown heading)
     let title = "AI-Generated Response";
@@ -201,12 +345,26 @@ export async function generateReportContent(prompt: string, title: string): Prom
     
     console.log("Using OpenRouter API key for report:", process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found");
     
+    // Detect if the prompt is asking for code
+    const isCodeReport = /(?:code|programming|development|software|app|application|website|web|mobile|script|function|algorithm)/i.test(prompt);
+    
+    // Define system prompt based on report type
+    let systemPrompt = "You are an expert report generator. Generate comprehensive, well-structured reports in response to user queries. Format your response in Markdown with clear sections, subsections, bullet points, and numbered lists where appropriate. Include an introduction and conclusion. The report should be detailed enough to be useful as a standalone PDF document.";
+    
+    // Add code formatting instructions if it's a code-related report
+    if (isCodeReport) {
+      systemPrompt += "\n\nWhen providing code examples:\n1. Always use proper syntax highlighting with markdown triple backticks and language name (e.g. ```python, ```javascript)\n2. Include detailed comments explaining the code\n3. Structure the code with proper indentation and formatting\n4. Follow best practices for the specific programming language\n5. Provide clear explanations before and after the code blocks";
+    }
+    
+    // Add table formatting instructions for data presentation
+    systemPrompt += "\n\nFor data presentation:\n1. Use markdown tables with clear headers and aligned columns\n2. For numerical comparisons, use visual indicators (like ✅, ⚠️, ❌) when appropriate\n3. Structure complex information in a hierarchical manner\n4. Include summaries or key takeaways after tables\n5. Ensure all data is well-organized and visually appealing\n6. Use emojis as bullet points where appropriate to make key sections stand out";
+    
     const requestBody = {
       model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
       messages: [
         {
           role: "system",
-          content: "You are an expert report generator. Generate comprehensive, well-structured reports in response to user queries. Format your response in Markdown with clear sections, subsections, bullet points, and numbered lists where appropriate. Include an introduction and conclusion. The report should be detailed enough to be useful as a standalone PDF document."
+          content: systemPrompt
         },
         {
           role: "user",
