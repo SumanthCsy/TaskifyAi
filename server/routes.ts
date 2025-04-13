@@ -148,7 +148,7 @@ It's designed to boost productivity for students, professionals, and developers 
       // More precise check for Taskify AI queries (only exact matches)
       else if ((prompt.toLowerCase().includes('what is') && prompt.toLowerCase().includes('taskify')) || 
               (prompt.toLowerCase().includes('tell me about') && prompt.toLowerCase().includes('taskify')) || 
-              (prompt.toLowerCase() === 'taskify ai') || 
+              (prompt.toLowerCase().includes('taskify ai') && prompt.toLowerCase().split(' ').length <= 3) || 
               (prompt.toLowerCase().includes('about') && prompt.toLowerCase().includes('taskify ai') && prompt.toLowerCase().split(' ').length < 5)) {
                
         console.log("Matching Taskify AI query, providing direct response");
@@ -674,7 +674,7 @@ It's designed to boost productivity for students, professionals, and developers 
           // More precise check for Taskify AI queries (only exact matches)
           else if ((content.toLowerCase().includes('what is') && content.toLowerCase().includes('taskify')) || 
                   (content.toLowerCase().includes('tell me about') && content.toLowerCase().includes('taskify')) || 
-                  (content.toLowerCase() === 'taskify ai') || 
+                  (content.toLowerCase().includes('taskify ai') && content.toLowerCase().split(' ').length <= 3) || 
                   (content.toLowerCase().includes('about') && content.toLowerCase().includes('taskify ai') && content.toLowerCase().split(' ').length < 5)) {
                   
             console.log("Chat: Matching Taskify AI query, providing direct response");
