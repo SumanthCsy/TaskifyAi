@@ -142,19 +142,20 @@ export default function CodeResult() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white px-2 sm:px-4 py-4 sm:py-6">
       <div className="max-w-6xl mx-auto">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/code-generator')}
-          className="mb-6 hover:bg-gray-800"
+          className="mb-4 sm:mb-6 hover:bg-gray-800 text-sm sm:text-base"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Generator
+          <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" /> Back to Generator
         </Button>
         
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
           <motion.h1 
-            className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-500"
+            className="text-2xl sm:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-500"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -162,7 +163,7 @@ export default function CodeResult() {
             {codeData.title || 'Generated Code'}
           </motion.h1>
           <motion.p 
-            className="text-gray-400"
+            className="text-gray-400 text-sm sm:text-base"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -173,8 +174,8 @@ export default function CodeResult() {
         
         <Card className="bg-gray-900 border-gray-800 overflow-hidden">
           {!animationComplete ? (
-            <div className="p-8">
-              <div className="h-8 w-full max-w-full mx-auto relative overflow-hidden rounded-full bg-gray-800 mb-8">
+            <div className="p-4 sm:p-8">
+              <div className="h-6 sm:h-8 w-full max-w-full mx-auto relative overflow-hidden rounded-full bg-gray-800 mb-6 sm:mb-8">
                 <motion.div 
                   className="h-full bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 shimmer"
                   initial={{ width: "0%" }}
@@ -185,14 +186,14 @@ export default function CodeResult() {
               </div>
               
               <motion.div 
-                className="flex flex-wrap gap-2 mb-8 justify-center"
+                className="flex flex-wrap gap-1 sm:gap-2 mb-6 sm:mb-8 justify-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 {['import', 'function', 'const', 'return', 'class', 'interface', 'async', 'await', 'try', 'export'].map((keyword, index) => (
                   <motion.div
                     key={keyword}
-                    className="px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300 inline-block"
+                    className="px-2 sm:px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300 inline-block"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ 
                       opacity: 1, 
@@ -209,7 +210,7 @@ export default function CodeResult() {
                 ))}
               </motion.div>
               
-              <div className="text-center mb-4">
+              <div className="text-center mb-3 sm:mb-4">
                 <motion.div 
                   className="relative inline-block"
                   animate={{
@@ -222,9 +223,9 @@ export default function CodeResult() {
                     repeatType: "reverse"
                   }}
                 >
-                  <Code className="h-12 w-12 text-purple-500" />
+                  <Code className="h-10 w-10 sm:h-12 sm:w-12 text-purple-500" />
                   <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-blue-500"
+                    className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500"
                     animate={{
                       scale: [1, 1.5, 1],
                       opacity: [0.7, 1, 0.7],
@@ -235,7 +236,7 @@ export default function CodeResult() {
               </div>
               
               <motion.h3 
-                className="text-xl font-medium text-center text-white mb-2"
+                className="text-lg sm:text-xl font-medium text-center text-white mb-1 sm:mb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -244,7 +245,7 @@ export default function CodeResult() {
               </motion.h3>
               
               <motion.p
-                className="text-sm text-center text-gray-400"
+                className="text-xs sm:text-sm text-center text-gray-400"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
@@ -259,52 +260,52 @@ export default function CodeResult() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", damping: 15 }}
               >
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-6 gap-3">
                   <div>
-                    <CardTitle className="text-white text-2xl">Code Result</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-white text-lg sm:text-2xl">Code Result</CardTitle>
+                    <CardDescription className="text-gray-400 text-xs sm:text-sm">
                       Language: {codeData.language || 'Auto-detected'}
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-1/2 sm:w-auto">
                       <Button 
                         variant="secondary" 
                         size="sm"
                         onClick={copyToClipboard}
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="bg-gray-800 hover:bg-gray-700 text-xs sm:text-sm w-full sm:w-auto"
                       >
                         {copied ? (
                           <>
-                            <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-green-500" />
                             Copied
                           </>
                         ) : (
                           <>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Copy Code
+                            <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            Copy
                           </>
                         )}
                       </Button>
                     </motion.div>
                     
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-1/2 sm:w-auto">
                       <Button 
                         variant="secondary" 
                         size="sm"
                         onClick={downloadCode}
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="bg-gray-800 hover:bg-gray-700 text-xs sm:text-sm w-full sm:w-auto"
                       >
-                        <Download className="h-4 w-4 mr-2" />
+                        <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Download
                       </Button>
                     </motion.div>
                     
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
                       <Button 
                         variant="secondary" 
                         size="sm"
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="bg-gray-800 hover:bg-gray-700 text-xs sm:text-sm w-full sm:w-auto"
                         onClick={() => {
                           const url = `${window.location.origin}/code-generator?share=${btoa(JSON.stringify(codeData))}`;
                           navigator.clipboard.writeText(url);
@@ -314,47 +315,47 @@ export default function CodeResult() {
                           });
                         }}
                       >
-                        <Share className="h-4 w-4 mr-2" />
+                        <Share className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Share
                       </Button>
                     </motion.div>
                   </div>
                 </CardHeader>
                 
-                <CardContent>
+                <CardContent className="p-2 sm:p-6">
                   <motion.div 
                     className="rounded-lg overflow-hidden border border-gray-800 shadow-lg"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
+                    <div className="bg-gray-800 px-2 sm:px-4 py-1 sm:py-2 flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="flex gap-1.5 mr-3">
-                          <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                          <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                          <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                        <div className="flex gap-1 sm:gap-1.5 mr-2 sm:mr-3">
+                          <div className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-red-500"></div>
+                          <div className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-yellow-500"></div>
+                          <div className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-green-500"></div>
                         </div>
-                        <span className="text-sm text-gray-400">
+                        <span className="text-xs sm:text-sm text-gray-400">
                           {codeData.language || 'code'}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 hidden sm:block">
                         {new Date().toLocaleDateString()}
                       </div>
                     </div>
                     
-                    <div className="overflow-auto max-h-[600px] bg-[#1e1e1e]">
+                    <div className="overflow-auto max-h-[300px] sm:max-h-[600px] bg-[#1e1e1e]">
                       <Highlight
                         theme={themes.vsDark}
                         code={codeData.code}
                         language={getLanguageForHighlight(codeData.language)}
                       >
                         {({ className, style, tokens, getLineProps, getTokenProps }) => (
-                          <pre className="p-4 overflow-auto" style={style}>
+                          <pre className="p-2 sm:p-4 overflow-auto text-xs sm:text-sm" style={style}>
                             {tokens.map((line, i) => (
                               <div key={i} {...getLineProps({ line })}>
-                                <span className="inline-block w-8 text-right pr-3 select-none opacity-50 text-xs">
+                                <span className="inline-block w-6 sm:w-8 text-right pr-2 sm:pr-3 select-none opacity-50 text-xs">
                                   {i + 1}
                                 </span>
                                 {line.map((token, key) => (
@@ -368,19 +369,29 @@ export default function CodeResult() {
                     </div>
                   </motion.div>
                   
-                  <div className="mt-8 flex flex-wrap justify-center gap-2">
-                    <Button variant="outline" onClick={() => navigate('/code-generator')}>
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Generate More Code
+                  <div className="mt-4 sm:mt-8 flex flex-wrap justify-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate('/code-generator')}
+                      size="sm"
+                      className="text-xs sm:text-sm"
+                    >
+                      <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      Generate More
                     </Button>
                     
-                    <Button variant="default" className="bg-purple-600 hover:bg-purple-700" onClick={() => {
-                      toast({
-                        title: 'Great choice!',
-                        description: 'Code has been saved to your account.',
-                      });
-                    }}>
-                      <Code className="h-4 w-4 mr-2" />
+                    <Button 
+                      variant="default" 
+                      className="bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm"
+                      size="sm"
+                      onClick={() => {
+                        toast({
+                          title: 'Great choice!',
+                          description: 'Code has been saved to your account.',
+                        });
+                      }}
+                    >
+                      <Code className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       Save Code
                     </Button>
                   </div>

@@ -223,53 +223,54 @@ export default function CodeGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-6">
+    <div className="min-h-screen bg-black text-white px-2 sm:px-4 py-4 sm:py-6">
       <div className="max-w-5xl mx-auto">
         <Button 
           variant="ghost" 
           onClick={() => setLocation('/dashboard')}
-          className="mb-6 hover:bg-gray-800"
+          className="mb-4 sm:mb-6 hover:bg-gray-800 text-sm sm:text-base"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+          <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" /> Back to Dashboard
         </Button>
         
-        <h1 className="text-3xl font-bold mb-6">AI Code Generator</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">AI Code Generator</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-1 bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white">Code Requirements</CardTitle>
-              <CardDescription className="text-gray-400">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6">
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+              <CardTitle className="text-white text-lg sm:text-xl">Code Requirements</CardTitle>
+              <CardDescription className="text-gray-400 text-xs sm:text-sm">
                 Describe what you need and get production-ready code
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-4">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                   <FormField
                     control={form.control}
                     name="prompt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200">What code do you need?</FormLabel>
+                        <FormLabel className="text-gray-200 text-sm sm:text-base">What code do you need?</FormLabel>
                         <FormControl>
                           <Textarea 
                             placeholder="Describe the code you need. For example: Create a Python function that sorts an array of objects by a specific property"
-                            className="min-h-[200px] bg-gray-800 border-gray-700 text-white"
+                            className="min-h-[120px] sm:min-h-[200px] bg-gray-800 border-gray-700 text-white text-sm sm:text-base"
                             {...field} 
                           />
                         </FormControl>
-                        <FormDescription className="text-gray-400">
+                        <FormDescription className="text-gray-400 text-xs sm:text-sm">
                           Be specific about language, inputs, outputs, and functionality.
                         </FormDescription>
-                        <FormMessage />
+                        <FormMessage className="text-xs sm:text-sm" />
                       </FormItem>
                     )}
                   />
                   
-                  <div className="rounded-md bg-gray-800 p-4 text-sm text-gray-300">
-                    <p className="font-medium mb-2">Tips for better results:</p>
-                    <ul className="space-y-1 list-disc pl-5">
+                  <div className="rounded-md bg-gray-800 p-2 sm:p-4 text-xs sm:text-sm text-gray-300">
+                    <p className="font-medium mb-1 sm:mb-2">Tips for better results:</p>
+                    <ul className="space-y-1 list-disc pl-4 sm:pl-5">
                       <li>Specify the programming language (Python, JavaScript, etc.)</li>
                       <li>Include details about inputs and outputs</li>
                       <li>Mention required features or functionality</li>
@@ -279,17 +280,17 @@ export default function CodeGenerator() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <Sparkles className="mr-2 h-4 w-4 text-yellow-300" />
+                        <Sparkles className="mr-1 sm:mr-2 h-4 w-4 text-yellow-300" />
                         Generating Code...
                       </>
                     ) : (
                       <>
-                        <Code className="mr-2 h-4 w-4" />
+                        <Code className="mr-1 sm:mr-2 h-4 w-4" />
                         Generate Code
                       </>
                     )}
@@ -299,14 +300,14 @@ export default function CodeGenerator() {
             </CardContent>
           </Card>
           
-          <Card className="md:col-span-2 bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white">Generated Code</CardTitle>
-              <CardDescription className="text-gray-400">
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+              <CardTitle className="text-white text-lg sm:text-xl">Generated Code</CardTitle>
+              <CardDescription className="text-gray-400 text-xs sm:text-sm">
                 View, copy, and download your code
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-4">
               {isLoading ? (
                 <motion.div 
                   className="p-12 flex flex-col items-center justify-center text-center"
