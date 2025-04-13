@@ -219,50 +219,52 @@ export default function Reports() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
-          <h1 className="text-3xl font-bold">Report Generator</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-xl sm:text-3xl font-bold">Report Generator</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Generate and download comprehensive reports
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-3 sm:mt-4 md:mt-0">
           <Button 
             onClick={() => setLocation('/dashboard')}
             variant="outline"
-            className="gap-2"
+            className="gap-1 sm:gap-2 text-xs sm:text-sm"
+            size="sm"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" /> Back to Dashboard
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
         {!showReportContent ? (
           <Card>
-            <CardHeader>
-              <CardTitle>Create a New Report</CardTitle>
-              <CardDescription>
+            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+              <CardTitle className="text-lg sm:text-xl">Create a New Report</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 Ask AI to generate a detailed report on any topic
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-4">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(generateReport)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(generateReport)} className="space-y-4 sm:space-y-6">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Report Title</FormLabel>
+                        <FormLabel className="text-sm sm:text-base">Report Title</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="Enter a title for your report" 
+                            className="text-sm sm:text-base"
                             {...field} 
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs sm:text-sm" />
                       </FormItem>
                     )}
                   />
@@ -272,23 +274,23 @@ export default function Reports() {
                     name="prompt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>What would you like the report to cover?</FormLabel>
+                        <FormLabel className="text-sm sm:text-base">What would you like the report to cover?</FormLabel>
                         <FormControl>
                           <Textarea 
-                            placeholder="Describe what you want in your report in detail. For example: Generate a comprehensive report on the history, benefits, and implementation strategies of renewable energy sources, with a focus on solar and wind power."
-                            className="min-h-[200px]"
+                            placeholder="Describe what you want in your report in detail. For example: Generate a comprehensive report on renewable energy sources."
+                            className="min-h-[150px] sm:min-h-[200px] text-sm sm:text-base"
                             {...field} 
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs sm:text-sm" />
                       </FormItem>
                     )}
                   />
                   
                   {errorMessage && (
-                    <div className="bg-red-900/20 border border-red-900 text-red-100 px-4 py-3 rounded-md mb-4">
-                      <p className="flex items-center text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-red-900/20 border border-red-900 text-red-100 px-3 py-2 sm:px-4 sm:py-3 rounded-md mb-3 sm:mb-4">
+                      <p className="flex items-center text-xs sm:text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         {errorMessage}
@@ -297,15 +299,15 @@ export default function Reports() {
                   )}
                   
                   {isGenerating ? (
-                    <div className="border border-primary/20 rounded-lg bg-primary/5 p-6">
+                    <div className="border border-primary/20 rounded-lg bg-primary/5 p-3 sm:p-6">
                       <LoadingSpinner 
                         type="sparkles" 
-                        size={48} 
+                        size={36} 
                         text="Generating your comprehensive report..." 
-                        className="py-12" 
+                        className="py-8 sm:py-12 text-sm sm:text-base" 
                       />
                       <motion.div 
-                        className="w-full bg-primary/10 h-2 mt-6 rounded-full overflow-hidden"
+                        className="w-full bg-primary/10 h-1.5 sm:h-2 mt-4 sm:mt-6 rounded-full overflow-hidden"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 }}
@@ -324,10 +326,11 @@ export default function Reports() {
                   ) : (
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full text-xs sm:text-sm"
+                      size="sm"
                       disabled={isGenerating}
                     >
-                      <Bot className="h-5 w-5 mr-2" /> 
+                      <Bot className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> 
                       Generate AI Report
                     </Button>
                   )}
@@ -338,80 +341,82 @@ export default function Reports() {
         ) : (
           <>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-3 sm:px-6 sm:py-4">
                 <div>
-                  <CardTitle>{reportTitle}</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-lg sm:text-xl">{reportTitle}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
                     Generated report content
                   </CardDescription>
                 </div>
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setShowReportContent(false)}
+                  className="mt-2 sm:mt-0 text-xs sm:text-sm"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" /> Create New Report
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Create New Report
                 </Button>
               </CardHeader>
-              <CardContent className="prose prose-invert max-w-none">
+              <CardContent className="prose prose-invert max-w-none px-3 sm:px-6 text-sm sm:text-base prose-headings:text-base sm:prose-headings:text-lg">
                 <div
                   dangerouslySetInnerHTML={{ __html: marked(reportContent || '') }}
                 />
                 
-                <div className="flex justify-center mt-10 pt-6 border-t border-gray-700">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-                    <Card>
-                      <CardContent className="pt-6 flex flex-col items-center text-center">
-                        <FileText className="h-10 w-10 text-primary mb-3" />
-                        <h3 className="font-medium text-base mb-2">PDF Document</h3>
-                        <p className="text-xs text-muted-foreground mb-3">
+                <div className="flex justify-center mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-gray-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 w-full">
+                    <Card className="border border-gray-800">
+                      <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 flex flex-col items-center text-center">
+                        <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2 sm:mb-3" />
+                        <h3 className="font-medium text-sm sm:text-base mb-1 sm:mb-2">PDF Document</h3>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 sm:mb-3">
                           Download as formatted PDF
                         </p>
                         <Button 
                           onClick={downloadAsPdf}
-                          className="w-full"
+                          className="w-full text-xs sm:text-sm"
                           size="sm"
                         >
-                          <Download className="h-4 w-4 mr-2" /> Download PDF
+                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Download PDF
                         </Button>
                       </CardContent>
                     </Card>
                     
-                    <Card>
-                      <CardContent className="pt-6 flex flex-col items-center text-center">
-                        <FileOutput className="h-10 w-10 text-primary mb-3" />
-                        <h3 className="font-medium text-base mb-2">Word Document</h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Download as editable Word doc
+                    <Card className="border border-gray-800">
+                      <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 flex flex-col items-center text-center">
+                        <FileOutput className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2 sm:mb-3" />
+                        <h3 className="font-medium text-sm sm:text-base mb-1 sm:mb-2">Word Document</h3>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 sm:mb-3">
+                          Download as editable Word
                         </p>
                         <Button 
                           onClick={downloadAsWord}
-                          className="w-full"
+                          className="w-full text-xs sm:text-sm"
                           size="sm"
                         >
-                          <Download className="h-4 w-4 mr-2" /> Download Word
+                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Download Word
                         </Button>
                       </CardContent>
                     </Card>
                     
-                    <Card>
-                      <CardContent className="pt-6 flex flex-col items-center text-center">
-                        <Copy className="h-10 w-10 text-primary mb-3" />
-                        <h3 className="font-medium text-base mb-2">Copy Content</h3>
-                        <p className="text-xs text-muted-foreground mb-3">
+                    <Card className="border border-gray-800 sm:col-span-2 md:col-span-1">
+                      <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 flex flex-col items-center text-center">
+                        <Copy className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2 sm:mb-3" />
+                        <h3 className="font-medium text-sm sm:text-base mb-1 sm:mb-2">Copy Content</h3>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 sm:mb-3">
                           Copy report to clipboard
                         </p>
                         <Button 
                           onClick={copyReportContent}
-                          className="w-full"
+                          className="w-full text-xs sm:text-sm"
                           size="sm"
                         >
                           {isCopied ? (
                             <>
-                              <Check className="h-4 w-4 mr-2" /> Copied!
+                              <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Copied!
                             </>
                           ) : (
                             <>
-                              <Copy className="h-4 w-4 mr-2" /> Copy Text
+                              <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Copy Text
                             </>
                           )}
                         </Button>

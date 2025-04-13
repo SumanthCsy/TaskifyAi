@@ -370,48 +370,49 @@ export default function AiChat() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-6">
-      <div className="max-w-4xl mx-auto h-[calc(100vh-6rem)] flex flex-col">
+    <div className="min-h-screen bg-black text-white px-2 sm:px-4 py-3 sm:py-6">
+      <div className="max-w-4xl mx-auto h-[calc(100vh-5rem)] flex flex-col">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/dashboard")}
-          className="mb-6 hover:bg-gray-800"
+          className="mb-3 sm:mb-6 hover:bg-gray-800 text-xs sm:text-sm"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Back to Dashboard
         </Button>
         
-        <h1 className="text-3xl font-bold mb-6 flex items-center">
-          <Bot className="h-8 w-8 mr-3 text-purple-400" />
+        <h1 className="text-xl sm:text-3xl font-bold mb-3 sm:mb-6 flex items-center">
+          <Bot className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-purple-400" />
           AI Assistant Chat
         </h1>
         
         <Card className="bg-gray-900 border-gray-800 shadow-xl flex-1 flex flex-col">
-          <CardHeader className="border-b border-gray-800">
-            <CardTitle className="text-xl text-white">Chat with Taskify AI</CardTitle>
+          <CardHeader className="border-b border-gray-800 py-2 px-3 sm:p-4">
+            <CardTitle className="text-base sm:text-xl text-white">Chat with Taskify AI</CardTitle>
           </CardHeader>
           
-          <CardContent className="flex-1 overflow-y-auto py-4 px-6">
-            <div className="space-y-6">
+          <CardContent className="flex-1 overflow-y-auto py-2 sm:py-4 px-2 sm:px-6">
+            <div className="space-y-3 sm:space-y-6">
               {messages.map((message, index) => (
                 <div 
                   key={index} 
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                    className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 sm:px-4 sm:py-3 ${
                       message.sender === 'user' 
                         ? 'bg-purple-600 text-white' 
                         : 'bg-gray-800 text-white'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 mb-1">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         {message.sender === 'ai' ? (
-                          <Bot className="h-4 w-4" />
+                          <Bot className="h-3 w-3 sm:h-4 sm:w-4" />
                         ) : (
-                          <User className="h-4 w-4" />
+                          <User className="h-3 w-3 sm:h-4 sm:w-4" />
                         )}
-                        <span className="text-xs opacity-70">
+                        <span className="text-[10px] sm:text-xs opacity-70">
                           {message.sender === 'ai' ? 'Taskify AI' : 'You'} • {formatTimestamp(message.timestamp)}
                         </span>
                       </div>
@@ -420,7 +421,7 @@ export default function AiChat() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 rounded-full hover:bg-gray-700"
+                          className="h-5 w-5 sm:h-6 sm:w-6 rounded-full hover:bg-gray-700"
                           onClick={() => {
                             navigator.clipboard.writeText(message.content);
                             setCopiedMessageId(index);
@@ -433,38 +434,40 @@ export default function AiChat() {
                           }}
                         >
                           {copiedMessageId === index ? (
-                            <Check className="h-3 w-3 text-green-400" />
+                            <Check className="h-2 w-2 sm:h-3 sm:w-3 text-green-400" />
                           ) : (
-                            <Copy className="h-3 w-3 text-gray-400" />
+                            <Copy className="h-2 w-2 sm:h-3 sm:w-3 text-gray-400" />
                           )}
                         </Button>
                       )}
                     </div>
                     {message.sender === 'ai' ? (
                       <div 
-                        className="prose prose-invert max-w-none prose-sm"
+                        className="prose prose-invert max-w-none prose-xs sm:prose-sm text-xs sm:text-sm"
                         dangerouslySetInnerHTML={{ 
                           __html: marked(message.content) 
                         }} 
                       />
                     ) : (
-                      <div className="whitespace-pre-wrap">
+                      <div className="whitespace-pre-wrap text-xs sm:text-sm">
                         {message.content}
                       </div>
                     )}
                     
                     {/* Display file attachments if any */}
                     {message.attachments && message.attachments.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-gray-700">
-                        <p className="text-xs text-gray-400 mb-1">Attachments:</p>
-                        <div className="flex flex-wrap gap-2">
+                      <div className="mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-gray-700">
+                        <p className="text-[10px] sm:text-xs text-gray-400 mb-1">Attachments:</p>
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
                           {message.attachments.map((file, idx) => (
                             <div 
                               key={idx} 
-                              className="flex items-center bg-gray-700 rounded-md px-2 py-1"
+                              className="flex items-center bg-gray-700 rounded-md px-1 py-0.5 sm:px-2 sm:py-1"
                             >
-                              <File className="h-3 w-3 mr-1 text-gray-400" />
-                              <span className="text-xs">{file.name}</span>
+                              <File className="h-2 w-2 sm:h-3 sm:w-3 mr-1 text-gray-400" />
+                              <span className="text-[10px] sm:text-xs truncate max-w-[100px] sm:max-w-none">
+                                {file.name.length > 15 ? file.name.substring(0, 13) + '...' : file.name}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -475,38 +478,37 @@ export default function AiChat() {
               ))}
               <div ref={messagesEndRef} />
             </div>
-            
-            {/* No additional thinking indicator needed as we already have the sparkle animation */}
           </CardContent>
           
-          <CardFooter className="border-t border-gray-800 p-4">
-            <div className="flex flex-col w-full gap-2">
+          <CardFooter className="border-t border-gray-800 p-2 sm:p-4">
+            <div className="flex flex-col w-full gap-1 sm:gap-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-2 mb-2 bg-gray-800">
-                  <TabsTrigger value="text" className="data-[state=active]:bg-gray-700">
-                    <User className="h-4 w-4 mr-2" /> Text
+                  <TabsTrigger value="text" className="data-[state=active]:bg-gray-700 py-1 sm:py-2 text-xs sm:text-sm">
+                    <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Text
                   </TabsTrigger>
-                  <TabsTrigger value="files" className="data-[state=active]:bg-gray-700">
-                    <FileText className="h-4 w-4 mr-2" /> Files
+                  <TabsTrigger value="files" className="data-[state=active]:bg-gray-700 py-1 sm:py-2 text-xs sm:text-sm">
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Files
                   </TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="text" className="mt-0">
                   <Textarea 
                     placeholder="Type your message here..." 
-                    className="flex-1 min-h-[100px] md:min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-40"
+                    className="flex-1 min-h-[80px] sm:min-h-[100px] resize-none bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-40 text-xs sm:text-sm"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     disabled={generateResponse.isPending}
                   />
                   <div className="flex justify-between items-center w-full mt-2">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-[10px] sm:text-xs text-gray-500">
                       Press Ctrl+Enter to send
                     </div>
                     {generateResponse.isPending ? (
                       <Button
-                        className="bg-red-600 hover:bg-red-700 h-10 px-4 py-2"
+                        className="bg-red-600 hover:bg-red-700 h-8 sm:h-10 px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm"
+                        size="sm"
                         onClick={() => {
                           // Cancel the current response
                           generateResponse.reset();
@@ -523,22 +525,23 @@ export default function AiChat() {
                           });
                         }}
                       >
-                        <Square className="h-5 w-5 mr-2" /> Stop
+                        <Square className="h-3 w-3 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> Stop
                       </Button>
                     ) : (
                       <Button
-                        className="bg-purple-600 hover:bg-purple-700 h-10 px-4 py-2"
+                        className="bg-purple-600 hover:bg-purple-700 h-8 sm:h-10 px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm"
+                        size="sm"
                         disabled={!inputMessage.trim() || generateResponse.isPending}
                         onClick={handleSendMessage}
                       >
-                        <Send className="h-5 w-5 mr-2" /> Send
+                        <Send className="h-3 w-3 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> Send
                       </Button>
                     )}
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="files" className="mt-0">
-                  <div className="bg-gray-800 border border-gray-700 rounded-md p-4">
+                  <div className="bg-gray-800 border border-gray-700 rounded-md p-2 sm:p-4">
                     <div className="flex flex-col items-center justify-center">
                       <input
                         type="file"
@@ -551,68 +554,72 @@ export default function AiChat() {
                       
                       {uploadedFiles.length === 0 ? (
                         <div className="text-center">
-                          <Upload className="h-12 w-12 mb-2 mx-auto text-gray-500" />
-                          <p className="text-sm text-gray-400 mb-4">Upload files or take a photo for AI analysis</p>
-                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                          <Upload className="h-8 w-8 sm:h-12 sm:w-12 mb-2 mx-auto text-gray-500" />
+                          <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-4">Upload files or take a photo for AI analysis</p>
+                          <div className="flex flex-col gap-2 justify-center">
                             <Button 
                               variant="outline" 
-                              className="bg-gray-700 hover:bg-gray-600"
+                              size="sm"
+                              className="bg-gray-700 hover:bg-gray-600 text-xs sm:text-sm"
                               onClick={() => fileInputRef.current?.click()}
                             >
-                              <Upload className="h-4 w-4 mr-2" /> Select Files
+                              <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Select Files
                             </Button>
                             <Button 
                               variant="outline" 
-                              className="bg-gray-700 hover:bg-gray-600"
+                              size="sm"
+                              className="bg-gray-700 hover:bg-gray-600 text-xs sm:text-sm"
                               onClick={() => setIsCameraOpen(true)}
                             >
-                              <Camera className="h-4 w-4 mr-2" /> Take Photo
+                              <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Take Photo
                             </Button>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">
-                            Supported formats: Text files (.txt, .js, .json, .csv, .html, etc.) and images (.jpg, .png, .gif)
+                          <p className="text-[10px] sm:text-xs text-gray-500 mt-2">
+                            Supported: Text files and images
                           </p>
                         </div>
                       ) : (
                         <div className="w-full">
-                          <div className="flex items-center justify-between mb-4">
-                            <p className="text-sm font-medium">{uploadedFiles.length} file(s) selected</p>
+                          <div className="flex items-center justify-between mb-2 sm:mb-4">
+                            <p className="text-xs sm:text-sm font-medium">{uploadedFiles.length} file(s) selected</p>
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 px-2 text-xs"
+                              className="h-6 sm:h-8 px-1 sm:px-2 text-[10px] sm:text-xs"
                               onClick={() => fileInputRef.current?.click()}
                             >
-                              <Upload className="h-3 w-3 mr-1" /> Add More
+                              <Upload className="h-2 w-2 sm:h-3 sm:w-3 mr-1" /> Add More
                             </Button>
                           </div>
                           
-                          <div className="space-y-2 max-h-[150px] overflow-y-auto mb-4">
+                          <div className="space-y-1 sm:space-y-2 max-h-[100px] sm:max-h-[150px] overflow-y-auto mb-2 sm:mb-4">
                             {uploadedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between bg-gray-700 rounded p-2">
+                              <div key={index} className="flex items-center justify-between bg-gray-700 rounded p-1 sm:p-2">
                                 <div className="flex items-center">
-                                  <File className="h-4 w-4 mr-2 text-gray-400" />
-                                  <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                                  <File className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-gray-400" />
+                                  <span className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[200px]">
+                                    {file.name.length > 20 ? file.name.substring(0, 18) + '...' : file.name}
+                                  </span>
                                 </div>
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-gray-600 rounded-full"
+                                  className="h-5 w-5 sm:h-6 sm:w-6 p-0 text-gray-400 hover:text-white hover:bg-gray-600 rounded-full"
                                   onClick={() => removeFile(index)}
                                 >
-                                  <X className="h-4 w-4" />
+                                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                               </div>
                             ))}
                           </div>
 
-                          <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                          <div className="mb-2 sm:mb-4">
+                            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">
                               What would you like to analyze in these files?
                             </label>
                             <Textarea
-                              placeholder="E.g., 'Summarize the content and extract key concepts', 'Analyze the code and suggest improvements', 'Compare these files and identify patterns'..."
-                              className="min-h-[80px] bg-gray-700 border-gray-600 text-white resize-none placeholder:text-gray-500 placeholder:opacity-40"
+                              placeholder="E.g., 'Summarize the content' or 'Analyze the code'..."
+                              className="min-h-[60px] sm:min-h-[80px] bg-gray-700 border-gray-600 text-white resize-none placeholder:text-gray-500 placeholder:opacity-40 text-xs sm:text-sm"
                               value={fileAnalysisPrompt}
                               onChange={(e) => setFileAnalysisPrompt(e.target.value)}
                             />
@@ -620,7 +627,8 @@ export default function AiChat() {
                           
                           {isAnalyzingFile ? (
                             <Button 
-                              className="w-full bg-red-600 hover:bg-red-700"
+                              className="w-full bg-red-600 hover:bg-red-700 text-xs sm:text-sm"
+                              size="sm"
                               onClick={() => {
                                 // Cancel the current response
                                 generateResponse.reset();
@@ -637,16 +645,17 @@ export default function AiChat() {
                                 });
                               }}
                             >
-                              <Square className="h-5 w-5 mr-2" />
+                              <Square className="h-3 w-3 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                               Stop Analysis
                             </Button>
                           ) : (
                             <Button 
-                              className="w-full bg-purple-600 hover:bg-purple-700"
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm"
+                              size="sm"
                               disabled={isAnalyzingFile || generateResponse.isPending}
                               onClick={analyzeFiles}
                             >
-                              <FileText className="h-5 w-5 mr-2" /> 
+                              <FileText className="h-3 w-3 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> 
                               Analyze Files
                             </Button>
                           )}
