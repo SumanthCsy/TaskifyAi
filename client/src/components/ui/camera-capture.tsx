@@ -16,8 +16,35 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [isMounted, setIsMounted] = useState(true); // Track component mount state
 
+  // Create a cleanup function to properly stop camera streams
+  const cleanupCamera = useCallback(() => {
+    if (stream) {
+      console.log("Cleaning up camera stream manually");
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Track ${track.id} stopped`);
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      
+      setStream(null);
+    }
+  }, [stream]);
+
+  // Custom close function that ensures camera is properly closed
+  const handleClose = useCallback(() => {
+    cleanupCamera();
+    onClose();
+  }, [cleanupCamera, onClose]);
+  
   const startCamera = useCallback(async () => {
+    // Skip if component unmounted
+    if (!isMounted) return;
+    
     try {
       // Stop any existing stream first
       if (stream) {
@@ -26,7 +53,9 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
       
       // Step 1: Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setError("Your browser doesn't support camera access. Please try using Chrome, Safari, or Firefox.");
+        if (isMounted) {
+          setError("Your browser doesn't support camera access. Please try using Chrome, Safari, or Firefox.");
+        }
         return;
       }
       
@@ -53,6 +82,12 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
           };
           
           const mobileStream = await navigator.mediaDevices.getUserMedia(mobileConstraints);
+          if (!isMounted) {
+            // Component unmounted during async operation
+            mobileStream.getTracks().forEach(track => track.stop());
+            return;
+          }
+          
           setStream(mobileStream);
           setError(null);
           setPermissionDenied(false);
@@ -78,6 +113,13 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
       // Generic attempt with basic constraints
       console.log("Attempting to access camera with basic constraints");
       const basicStream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (!isMounted) {
+        // Component unmounted during async operation
+        basicStream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      
       setStream(basicStream);
       setError(null);
       setPermissionDenied(false);
@@ -94,6 +136,9 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
       }
     } catch (err: any) {
       console.error("Camera access error:", err);
+      
+      // Skip error handling if component unmounted
+      if (!isMounted) return;
       
       // More user-friendly error handling
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
@@ -112,6 +157,13 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
         // Try one more time with absolutely minimal constraints
         try {
           const simpleStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          
+          if (!isMounted) {
+            // Component unmounted during async operation
+            simpleStream.getTracks().forEach(track => track.stop());
+            return;
+          }
+          
           setStream(simpleStream);
           setError(null);
           setPermissionDenied(false);
@@ -131,17 +183,30 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
         setError(`Camera error: ${err.message || "Please check camera permissions in your browser settings."}`);
       }
     }
-  }, [facingMode, stream]);
+  }, [facingMode, stream, isMounted]);
 
   useEffect(() => {
+    setIsMounted(true);
     startCamera();
     
     return () => {
+      setIsMounted(false);
+      
+      // Ensure all tracks are properly stopped when component unmounts
       if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        console.log("Cleaning up camera stream on unmount");
+        stream.getTracks().forEach(track => {
+          track.stop();
+          console.log(`Track ${track.id} stopped`);
+        });
+      }
+      
+      // Clear video source
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
     };
-  }, [facingMode, startCamera]);
+  }, [facingMode, startCamera, stream]);
 
   const takePhoto = () => {
     if (videoRef.current && canvasRef.current) {
