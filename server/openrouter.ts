@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { performWebSearch, formatSearchResults, shouldPerformWebSearch } from "./web-search";
 
 interface AiResponse {
   title: string;
@@ -462,11 +463,25 @@ It's designed to boost productivity for students, professionals, and developers 
     
     let content = data.choices[0].message.content;
 
-    // Try to fetch real-time data based on the prompt
+    // Try to fetch real-time data and web search results based on the prompt
     try {
+      // First check for real-time data (cricket scores, etc.)
       const realTimeData = await detectAndFetchRealTimeData(prompt);
-      if (realTimeData) {
-        // Insert the real-time data at the beginning of the content, after the title
+      
+      // Then check if we should perform a web search
+      let webSearchResults = null;
+      if (shouldPerformWebSearch(prompt)) {
+        console.log("Performing web search for enhanced accuracy");
+        const searchResults = await performWebSearch(prompt);
+        if (searchResults && searchResults.length > 0) {
+          webSearchResults = formatSearchResults(searchResults);
+          console.log("Web search completed successfully");
+        }
+      }
+      
+      // If we have data to insert, process it
+      if (realTimeData || webSearchResults) {
+        // Insert the data at the beginning of the content, after the title
         const contentLines = content.split('\n');
         let titleLine = 0;
         
@@ -478,13 +493,22 @@ It's designed to boost productivity for students, professionals, and developers 
           }
         }
         
-        // Insert real-time data after the title
-        contentLines.splice(titleLine + 1, 0, '\n' + realTimeData);
+        // Prepare the data to insert
+        let dataToInsert = '';
+        if (realTimeData) {
+          dataToInsert += '\n' + realTimeData;
+        }
+        if (webSearchResults) {
+          dataToInsert += '\n' + webSearchResults;
+        }
+        
+        // Insert data after the title
+        contentLines.splice(titleLine + 1, 0, dataToInsert);
         content = contentLines.join('\n');
       }
     } catch (error) {
-      console.error("Error fetching real-time data:", error);
-      // Continue without real-time data if there's an error
+      console.error("Error fetching additional data:", error);
+      // Continue without additional data if there's an error
     }
 
     // Extract title from markdown (assuming first line is a markdown heading)
@@ -639,7 +663,46 @@ export async function generateReportContent(prompt: string, title: string): Prom
       throw new Error("Invalid response format from OpenRouter API: Missing message");
     }
     
-    return data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+    
+    // Try to enhance report with web search results if appropriate
+    try {
+      if (shouldPerformWebSearch(prompt)) {
+        console.log("Performing web search to enhance report accuracy");
+        const searchResults = await performWebSearch(prompt + " " + title);
+        if (searchResults && searchResults.length > 0) {
+          const searchContent = formatSearchResults(searchResults);
+          
+          // Find an appropriate place to insert the search results
+          // Typically after the introduction but before the main content
+          const contentLines = content.split('\n');
+          let insertPoint = 0;
+          
+          // Find the first major heading after the title
+          for (let i = 1; i < contentLines.length; i++) {
+            if (contentLines[i].startsWith('## ')) {
+              insertPoint = i;
+              break;
+            }
+          }
+          
+          // If we found a good insert point, add the web search results there
+          if (insertPoint > 0) {
+            contentLines.splice(insertPoint, 0, '\n' + searchContent);
+            content = contentLines.join('\n');
+            console.log("Enhanced report with web search results");
+          } else {
+            // Otherwise just append to the end of the content
+            content += '\n\n' + searchContent;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error enhancing report with web search:", error);
+      // Continue without web search results if there's an error
+    }
+    
+    return content;
   } catch (error: any) {
     console.error("Error generating report content:", error);
     throw new Error(`Failed to generate report: ${error.message}`);
