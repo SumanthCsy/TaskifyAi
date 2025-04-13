@@ -105,13 +105,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Generating AI response for prompt: "${prompt.substring(0, 50)}..." with sessionId: ${sessionId}`);
       
       // Special handling for Sumanth Csy related queries with much more specific patterns
-      const isSumanthQuery = (/\bsumanth\s*csy\b|\bfounder\s+of\s+taskify\b|\bcreator\s+of\s+taskify\b|\bwho\s+(made|created|built|developed)\s+taskify\b|\bwho\s+is\s+sumanth\b/i.test(prompt)) && 
-                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt) &&
-                             !/\bwho are you\b/i.test(prompt);  // Exclude "who are you" queries
+      // Only match when Sumanth Csy is the main focus of the query
+      const isSumanthQuery = (/^\s*sumanth\s*csy\s*$|\bwho\s+is\s+sumanth\s*csy\b|\btell\s+(me|us)\s+about\s+sumanth\s*csy\b|\bfounder\s+of\s+taskify\b|\bcreator\s+of\s+taskify\b|\bwho\s+(made|created|built|developed)\s+taskify\b/i.test(prompt)) && 
+                             !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
       
       // Special handling for Taskify AI related queries
-      const isTaskifyQuery = (/\bwhat\s+is\s+taskify\s+ai\b|\babout\s+taskify\s+ai\b|\btaskify\s+ai\s+features\b|\btaskify\s+ai\s+platform\b|\btaskify\s+ai\s+info(rmation)?\b/i.test(prompt)) &&
-                            !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt);
+      // Only match when Taskify AI is the main focus of the query
+      const isTaskifyQuery = (/^taskify\s*ai$|\bwhat\s+is\s+taskify\s*ai\b|\btell\s+(me|us)\s+about\s+taskify\s*ai\b|\babout\s+taskify\s*ai\b|\btaskify\s*ai\s+features\b|\btaskify\s*ai\s+platform\b|\btaskify\s*ai\s+info(rmation)?\b/i.test(prompt)) &&
+                            !/(don't|do not|please don't) (tell|show|give|provide)/i.test(prompt) &&
+                            !(/^ai$|^artificial intelligence$/i.test(prompt));
       
       let aiResponse;
       
