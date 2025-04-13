@@ -300,25 +300,6 @@ export default function CodeResult() {
                         Download
                       </Button>
                     </motion.div>
-                    
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-                      <Button 
-                        variant="secondary" 
-                        size="sm"
-                        className="bg-gray-800 hover:bg-gray-700 text-xs sm:text-sm w-full sm:w-auto"
-                        onClick={() => {
-                          const url = `${window.location.origin}/code-generator?share=${btoa(JSON.stringify(codeData))}`;
-                          navigator.clipboard.writeText(url);
-                          toast({
-                            title: 'Share link copied!',
-                            description: 'You can now paste and share the link.',
-                          });
-                        }}
-                      >
-                        <Share className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        Share
-                      </Button>
-                    </motion.div>
                   </div>
                 </CardHeader>
                 

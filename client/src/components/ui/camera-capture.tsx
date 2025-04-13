@@ -19,12 +19,19 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
 
   const startCamera = useCallback(async () => {
     try {
+      // Stop any existing stream first
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
       
-      // Try catch specifically for iOS Safari issues
-      const constraints = {
+      // Step 1: Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError("Your browser doesn't support camera access. Please try a different browser.");
+        return;
+      }
+      
+      // Step 2: Set initial constraints
+      let constraints: MediaStreamConstraints = {
         video: { 
           facingMode: facingMode,
           width: { ideal: 1280 },
@@ -33,51 +40,21 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
         audio: false
       };
       
-      // Force low quality for mobile devices to improve performance
+      // Step 3: Set lower quality for mobile devices
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if (isMobile) {
-        constraints.video.width = { ideal: 640 };
-        constraints.video.height = { ideal: 480 };
+      if (isMobile && typeof constraints.video === 'object') {
+        constraints.video = {
+          facingMode: facingMode,
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        };
       }
       
       console.log("Starting camera with constraints:", JSON.stringify(constraints));
       
-      // Special handling for iOS Safari
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        console.log("iOS device detected, using special camera handling");
-        // Try with exact constraints first
-        try {
-          const newStream = await navigator.mediaDevices.getUserMedia(constraints);
-          setStream(newStream);
-          setError(null);
-          setPermissionDenied(false);
-          
-          if (videoRef.current) {
-            videoRef.current.srcObject = newStream;
-            videoRef.current.play().catch(e => console.error("Error playing video:", e));
-          }
-        } catch (firstTryErr) {
-          console.warn("First camera attempt failed, trying with minimal constraints", firstTryErr);
-          // If that fails, try with minimal constraints
-          try {
-            const basicStream = await navigator.mediaDevices.getUserMedia({ 
-              video: true, 
-              audio: false 
-            });
-            setStream(basicStream);
-            setError(null);
-            setPermissionDenied(false);
-            
-            if (videoRef.current) {
-              videoRef.current.srcObject = basicStream;
-              videoRef.current.play().catch(e => console.error("Error playing video:", e));
-            }
-          } catch (secondTryErr: any) {
-            throw secondTryErr; // Still failed, throw to be caught by outer catch
-          }
-        }
-      } else {
-        // Normal flow for other browsers
+      // Step 4: Device-specific handling
+      try {
+        // First attempt with specified constraints
         const newStream = await navigator.mediaDevices.getUserMedia(constraints);
         setStream(newStream);
         setError(null);
@@ -85,37 +62,58 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
         
         if (videoRef.current) {
           videoRef.current.srcObject = newStream;
-          videoRef.current.play().catch(e => console.error("Error playing video:", e));
+          await videoRef.current.play().catch(e => {
+            console.error("Error playing video:", e);
+            throw e; // Propagate error
+          });
         }
-      }
-    } catch (err: any) {
-      console.error("Error accessing camera:", err);
-      if (err.name === "NotAllowedError") {
-        setPermissionDenied(true);
-        setError("Camera access denied. Please allow camera access to use this feature.");
-      } else if (err.name === "NotFoundError") {
-        setError("No camera found on your device.");
-      } else if (err.name === "NotReadableError" || err.name === "AbortError") {
-        setError("Camera is already in use by another application. Please close other apps using the camera.");
-      } else if (err.name === "OverconstrainedError") {
-        // Fall back to basic constraints
+      } catch (firstAttemptError: any) {
+        console.warn("First camera attempt failed:", firstAttemptError);
+        
+        // Step 5: Fallback to basic constraints
         try {
-          const basicStream = await navigator.mediaDevices.getUserMedia({ 
+          const basicConstraints: MediaStreamConstraints = { 
             video: true, 
             audio: false 
-          });
+          };
+          
+          console.log("Trying with basic constraints:", JSON.stringify(basicConstraints));
+          const basicStream = await navigator.mediaDevices.getUserMedia(basicConstraints);
           setStream(basicStream);
           setError(null);
           setPermissionDenied(false);
           
           if (videoRef.current) {
             videoRef.current.srcObject = basicStream;
+            await videoRef.current.play().catch(e => {
+              console.error("Error playing video with basic constraints:", e);
+              throw e;
+            });
           }
-        } catch (fallbackErr) {
-          setError("Could not access any camera on your device.");
+        } catch (fallbackError: any) {
+          // If even the fallback fails, handle based on error type
+          throw fallbackError;
         }
+      }
+    } catch (err: any) {
+      console.error("Camera access error:", err);
+      
+      // Step 6: Detailed error handling
+      if (err.name === "NotAllowedError") {
+        setPermissionDenied(true);
+        setError("Camera access denied. Please allow camera access in your browser settings and try again.");
+      } else if (err.name === "NotFoundError") {
+        setError("No camera found on your device. Please connect a camera and try again.");
+      } else if (err.name === "NotReadableError" || err.name === "AbortError") {
+        setError("Cannot access camera. It may be in use by another application. Please close other apps using the camera.");
+      } else if (err.name === "OverconstrainedError") {
+        setError("Camera doesn't support the required settings. Try using a different camera if available.");
+      } else if (err.name === "SecurityError") {
+        setError("Camera access blocked due to security restrictions in your browser.");
+      } else if (err.name === "TypeError") {
+        setError("Invalid camera constraints. This is likely a browser compatibility issue.");
       } else {
-        setError("Error accessing camera: " + err.message);
+        setError(`Camera error: ${err.message || "Unknown error occurred"}`);
       }
     }
   }, [facingMode, stream]);
