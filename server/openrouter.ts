@@ -253,7 +253,7 @@ async function detectAndFetchRealTimeData(prompt: string): Promise<string | null
 }
 
 /**
- * API client for OpenRouter to generate text responses
+ * Generate an AI response using the OpenRouter API
  */
 export async function generateAiResponse(prompt: string, sessionId: string = 'default'): Promise<AiResponse> {
   try {
@@ -261,150 +261,16 @@ export async function generateAiResponse(prompt: string, sessionId: string = 'de
     const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
     if (!apiKeyToUse) {
-      throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
+      console.error("OpenRouter API key is not set. Please set it through API or environment variables.");
+      throw new Error("OpenRouter API key is not configured. Please contact support.");
     }
     
     console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
-    
-    // Check if prompt is EXPLICITLY asking about Sumanth Csy (more specific and strict check)
-    const isExplicitSumanthCsyQuery = /(?:who|what|tell|about|is)\s+(?:is|about|info|information|on)\s+sumanth\s*csy|(?:who|who's)\s+(?:is|made|created|developed|built)\s+(?:this|taskify)|who's\s+the\s+(?:creator|founder|developer|maker)|tell\s+(?:me|us)\s+about\s+(?:the\s+creator|the\s+founder|sumanth|the\s+developer)|^sumanth\s*csy$|founder\s+of\s+taskify/i.test(prompt);
-    
-    // Check if prompt is asking about Taskify AI (more specific check)
-    const isTaskifyAiQuery = /(?:what|tell|about|is)\s+(?:is|about|info|information|on)\s+(?:taskify|this\s+app|the\s+app|this\s+platform|the\s+platform)|what\s+can\s+taskify\s+do|how\s+does\s+taskify\s+work|features\s+of\s+taskify/i.test(prompt);
-    
-    // Detect if the prompt is asking for code
-    const isCodeQuery = /(?:write|generate|create|show|give|provide)\s+(?:me|us|a|an|the|some)?\s+(?:code|script|program|function|method|class|implementation|algorithm)\s+(?:for|to|that|which|in|using|with)/i.test(prompt);
-    
-    // Detect language of the prompt for multilingual support
-    const detectLanguage = (text: string): string => {
-      // Check for common non-English languages 
-      
-      // Check for Telugu
-      if (/[ఆఇఈఉఊఎఏఐఒఓఔాిీుూృౄెేైొోౌ్]/.test(text)) {
-        return "Telugu";
-      }
-      
-      // Check for Hindi
-      if (/[अआइईउऊऋएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसह]/.test(text)) {
-        return "Hindi";
-      }
-      
-      // Check for Spanish
-      if (/[áéíóúüñ¿¡]/.test(text) && /(?:hola|gracias|buenos días|cómo estás|qué|por favor)/i.test(text)) {
-        return "Spanish";
-      }
-      
-      // Check for French
-      if (/[àâçéèêëîïôùûüÿ]/.test(text) && /(?:bonjour|merci|comment|salut|paris|français)/i.test(text)) {
-        return "French";
-      }
-      
-      // Check for Chinese
-      if (/[\u4e00-\u9fa5]/.test(text)) {
-        return "Chinese";
-      }
-      
-      // Check for Japanese
-      if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) {
-        return "Japanese";
-      }
-      
-      // Default to English if no specific language is detected
-      return "English";
-    };
-    
-    const detectedLanguage = detectLanguage(prompt);
-    console.log(`Detected language: ${detectedLanguage}`);
-    
-    // Default system prompt
-    let systemPrompt = "You are Taskify AI, an expert AI assistant created by Sumanth Csy. Generate comprehensive, accurate, and informative responses to user queries. Format your response in Markdown with clear sections, lists, and proper formatting. Always include a title for the response that summarizes the content. When asked about Sumanth Csy or Taskify AI, provide informative and positive information.";
-    
-    // Add language instruction for non-English queries
-    if (detectedLanguage !== "English") {
-      systemPrompt += `\n\nIMPORTANT: The user's query is in ${detectedLanguage}. Please respond in ${detectedLanguage}. Ensure your entire response, including the title and all content, is in ${detectedLanguage}.`;
-    }
-    
-    // Add code formatting instructions if it's a code query
-    if (isCodeQuery) {
-      systemPrompt += "\n\nWhen providing code examples:\n1. Always use proper syntax highlighting with markdown triple backticks and language name (e.g. ```python, ```javascript)\n2. Include detailed comments explaining the code\n3. Structure the code with proper indentation and formatting\n4. Follow best practices for the specific programming language\n5. Provide clear explanations before and after the code blocks";
-    }
-    
-    // Add table formatting instructions for data presentation
-    systemPrompt += "\n\nWhen presenting data or comparisons:\n1. Use markdown tables with clear headers and aligned columns\n2. For numerical comparisons, consider using visual indicators (like ✅, ⚠️, ❌) when appropriate\n3. Structure complex information in a hierarchical manner\n4. Include summaries or key takeaways after tables\n5. Ensure all data is well-organized and easy to understand";
-    
-    if (isTaskifyAiQuery) {
-      // Override system prompt when explicitly asked about Taskify AI
-      systemPrompt = `You are an expert AI assistant that provides only the following information about Taskify AI when users ask about it, the app, or the platform. Format your response in Markdown:
-
-# 🚀 Taskify AI: Your All-in-One Productivity Companion
-
-Taskify AI is a comprehensive AI-powered productivity platform designed to help users create professional content efficiently and effectively. Built with ❤️ by Sumanth Csy, Taskify AI streamlines content creation and information retrieval tasks.
-
-## 🛠️ Key Features
-
-1. **📊 Report Generator**
-   - Create comprehensive, well-structured reports on any topic
-   - Export in multiple formats (PDF, Word)
-   - Customize content and appearance to match your needs
-
-2. **💻 Code Generator**
-   - Generate clean, functional code snippets
-   - Support for multiple programming languages
-   - Smart context-aware code completion
-
-3. **🤖 AI Assistant**
-   - Engage in natural conversations
-   - Get instant answers to complex questions
-   - Receive step-by-step guidance for various tasks
-
-4. **📑 Document Conversion**
-   - Transform content between different formats
-   - Create presentations, spreadsheets, and documents
-   - Maintain formatting integrity during conversion
-
-5. **📱 Cross-Platform Accessibility**
-   - Use on desktop and mobile devices
-   - Seamless synchronization across devices
-   - Responsive design for optimal viewing
-
-## 💪 Benefits
-
-- **⏱️ Time Savings**: Automate repetitive content creation tasks
-- **🎯 Quality**: Ensure consistent, high-quality output
-- **🧠 Efficiency**: Focus on ideas while AI handles the execution
-- **🔄 Versatility**: Address multiple content needs in one platform
-`;
-    } else if (isExplicitSumanthCsyQuery) {
-      // Only override system prompt when explicitly asked about Sumanth Csy
-      systemPrompt = `You are an expert AI assistant that provides only the following information about Sumanth Csy when users ask about him, the founder, or the creator. Format your response in Markdown:
-
-# 🧠 Who is Sumanth Csy?
-
-Sumanth Csy is a highly skilled AI expert, web developer, and the Founder & CEO of Taskify AI — an innovative AI-powered productivity platform. He is known for combining intelligence and creativity to build tools that make everyday digital tasks smoother and smarter.
-
-## 🚀 About Taskify AI
-Taskify AI is Sumanth's flagship project that includes:
-
-- 🎯 PPT Generator
-- 📄 PDF Creator
-- 📊 Excel Automation Tool
-- 💻 Code Generator
-- 🤖 AI Chat Assistant
-
-It's designed to boost productivity for students, professionals, and developers by using AI to automate and simplify tasks.
-
-## 💼 His Skills & Expertise
-- Artificial Intelligence & Machine Learning
-- Full-Stack Web Development
-- UI/UX Design with 3D and animated interfaces
-- Android Development using Kotlin
-- Microsoft Office Suite (Advanced)
-- Creative Problem Solving & Tech Innovation
-
-## 🌐 Online Presence
-- 🔗 Website: sumanthcsy.netlify.app
-- 📍 Based in Telangana, India`;
-    }
+    console.log("Environment variables:", {
+      hasConfigKey: !!config.openRouter.apiKey,
+      hasEnvKey: !!process.env.OPENROUTER_API_KEY,
+      envKeys: Object.keys(process.env)
+    });
     
     // Get or create chat session and add user message
     addUserMessage(sessionId, prompt);
@@ -412,38 +278,48 @@ It's designed to boost productivity for students, professionals, and developers 
     // Get all messages from the session history
     const chatHistory = getSessionMessages(sessionId);
     
-    // Update system prompt if needed
-    if (isTaskifyAiQuery || isExplicitSumanthCsyQuery) {
-      updateSystemPrompt(sessionId, systemPrompt);
-    }
-    
     console.log(`Using chat history for session ${sessionId} with ${chatHistory.length} messages`);
     
+    // Format messages according to OpenRouter's expected format
+    const formattedMessages = chatHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
     const requestBody = {
-      model: "anthropic/claude-3-haiku:latest", // Using a smaller model that's more reliable
-      messages: chatHistory,
+      model: "anthropic/claude-2",
+      messages: formattedMessages,
       temperature: 0.7,
-      max_tokens: 2000
+      max_tokens: 2000,
+      stream: false
     };
     
     console.log("OpenRouter request:", JSON.stringify(requestBody, null, 2));
+    console.log("Request headers:", {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer [REDACTED]",
+      "HTTP-Referer": "https://github.com/taskify-ai",
+      "X-Title": "Taskify AI"
+    });
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKeyToUse}`,
-        "HTTP-Referer": "https://replit.com",
-        "X-Title": "Replit AI App"
+        "HTTP-Referer": "https://github.com/taskify-ai",
+        "X-Title": "Taskify AI"
       },
       body: JSON.stringify(requestBody)
     });
 
     console.log("OpenRouter response status:", response.status);
+    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       const errorData = await response.text();
       console.error("OpenRouter error response:", errorData);
+      console.error("Response headers:", Object.fromEntries(response.headers.entries()));
       throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
     }
 
@@ -452,95 +328,56 @@ It's designed to boost productivity for students, professionals, and developers 
     
     let data;
     try {
-      data = JSON.parse(rawResponse) as OpenRouterResponse;
+      data = JSON.parse(rawResponse);
+      console.log("Full parsed response:", JSON.stringify(data, null, 2));
     } catch (err) {
       console.error("Failed to parse OpenRouter response as JSON:", err);
       throw new Error("Failed to parse OpenRouter response as JSON");
     }
     
-    console.log("Parsed response structure:", Object.keys(data));
+    // Check for error in response
+    if (data.error) {
+      console.error("OpenRouter API returned an error:", data.error);
+      throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
     
-    if (!data.choices || data.choices.length === 0) {
-      console.error("Invalid response format. Missing choices array:", data);
+    // Check for choices array
+    if (!data.choices) {
+      console.error("Invalid response format. Missing choices array. Full response:", data);
       throw new Error("Invalid response format from OpenRouter API: Missing choices array");
     }
     
-    if (!data.choices[0].message) {
+    if (!Array.isArray(data.choices) || data.choices.length === 0) {
+      console.error("Invalid response format. Choices is not an array or is empty:", data.choices);
+      throw new Error("Invalid response format from OpenRouter API: Invalid choices array");
+    }
+    
+    // Check for message in first choice
+    if (!data.choices[0] || !data.choices[0].message) {
       console.error("Invalid response format. Missing message in first choice:", data.choices[0]);
-      throw new Error("Invalid response format from OpenRouter API: Missing message");
+      throw new Error("Invalid response format from OpenRouter API: Missing message in first choice");
     }
     
-    let content = data.choices[0].message.content;
-
-    // Try to fetch real-time data and web search results based on the prompt
-    try {
-      // First check for real-time data (cricket scores, etc.)
-      const realTimeData = await detectAndFetchRealTimeData(prompt);
-      
-      // Then check if we should perform a web search
-      let webSearchResults = null;
-      if (shouldPerformWebSearch(prompt)) {
-        console.log("Performing web search for enhanced accuracy");
-        const searchResults = await performWebSearch(prompt);
-        if (searchResults && searchResults.length > 0) {
-          webSearchResults = formatSearchResults(searchResults);
-          console.log("Web search completed successfully");
-        }
-      }
-      
-      // If we have data to insert, process it
-      if (realTimeData || webSearchResults) {
-        // Insert the data at the beginning of the content, after the title
-        const contentLines = content.split('\n');
-        let titleLine = 0;
-        
-        // Find the title line
-        for (let i = 0; i < contentLines.length; i++) {
-          if (contentLines[i].startsWith('# ')) {
-            titleLine = i;
-            break;
-          }
-        }
-        
-        // Prepare the data to insert
-        let dataToInsert = '';
-        if (realTimeData) {
-          dataToInsert += '\n' + realTimeData;
-        }
-        if (webSearchResults) {
-          dataToInsert += '\n' + webSearchResults;
-        }
-        
-        // Insert data after the title
-        contentLines.splice(titleLine + 1, 0, dataToInsert);
-        content = contentLines.join('\n');
-      }
-    } catch (error) {
-      console.error("Error fetching additional data:", error);
-      // Continue without additional data if there's an error
+    const content = data.choices[0].message.content;
+    if (!content) {
+      console.error("Invalid response format. Empty content in message:", data.choices[0].message);
+      throw new Error("Invalid response format from OpenRouter API: Empty message content");
     }
-
-    // Extract title from markdown (assuming first line is a markdown heading)
-    let title = "AI-Generated Response";
-    const contentLines = content.split('\n');
     
-    for (const line of contentLines) {
-      if (line.startsWith('# ')) {
-        title = line.substring(2).trim();
-        break;
-      }
-    }
-
-    // Save the assistant's response to chat history
+    // Extract title from content if possible
+    const titleMatch = content.match(/^#\s+(.+)$/m);
+    const title = titleMatch ? titleMatch[1] : "AI Response";
+    
+    // Add the assistant's response to the chat history
     addAssistantMessage(sessionId, content);
     
     return {
       title,
       content
     };
-  } catch (error: any) {
-    console.error("Error generating AI response:", error);
-    throw new Error(`Failed to generate AI response: ${error.message}`);
+  } catch (error) {
+    console.error("Error in generateAiResponse:", error);
+    throw error;
   }
 }
 
@@ -619,7 +456,7 @@ export async function generateReportContent(prompt: string, title: string): Prom
     systemPrompt += "\n\nFor data presentation:\n1. Use markdown tables with clear headers and aligned columns\n2. For numerical comparisons, use visual indicators (like ✅, ⚠️, ❌) when appropriate\n3. Structure complex information in a hierarchical manner\n4. Include summaries or key takeaways after tables\n5. Ensure all data is well-organized and visually appealing\n6. Use emojis as bullet points where appropriate to make key sections stand out";
     
     const requestBody = {
-      model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
+      model: "claude-3-haiku",
       messages: [
         {
           role: "system",
@@ -631,7 +468,9 @@ export async function generateReportContent(prompt: string, title: string): Prom
         }
       ],
       temperature: 0.5,
-      max_tokens: 4000
+      max_tokens: 4000,
+      stream: false,
+      route: "fallback"
     };
     
     console.log("OpenRouter report request:", JSON.stringify(requestBody, null, 2));
@@ -641,8 +480,8 @@ export async function generateReportContent(prompt: string, title: string): Prom
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKeyToUse}`,
-        "HTTP-Referer": "https://replit.com",
-        "X-Title": "Replit AI App"
+        "HTTP-Referer": "https://github.com/taskify-ai",
+        "X-Title": "Taskify AI"
       },
       body: JSON.stringify(requestBody)
     });
@@ -739,7 +578,7 @@ export async function getSuggestedPrompts(): Promise<string[]> {
     console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
     
     const requestBody = {
-      model: "anthropic/claude-3-haiku:latest", // Using the same model as for regular responses
+      model: "claude-3-haiku",
       messages: [
         {
           role: "system",
@@ -751,7 +590,9 @@ export async function getSuggestedPrompts(): Promise<string[]> {
         }
       ],
       temperature: 0.8,
-      max_tokens: 1000
+      max_tokens: 1000,
+      stream: false,
+      route: "fallback"
     };
     
     console.log("OpenRouter suggested prompts request:", JSON.stringify(requestBody, null, 2));
@@ -761,8 +602,8 @@ export async function getSuggestedPrompts(): Promise<string[]> {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKeyToUse}`,
-        "HTTP-Referer": "https://replit.com",
-        "X-Title": "Replit AI App"
+        "HTTP-Referer": "https://github.com/taskify-ai",
+        "X-Title": "Taskify AI"
       },
       body: JSON.stringify(requestBody)
     });

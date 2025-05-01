@@ -49,6 +49,15 @@ export const config = {
   }
 };
 
+// Add detailed logging for API key configuration
+console.log("Environment check:", {
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL: process.env.VERCEL,
+  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ? "Key is set" : "No key found",
+  configApiKey: config.openRouter.apiKey ? "Key is set" : "No key found",
+  allEnvVariables: Object.keys(process.env)
+});
+
 // Create a local .env file with the API key if it doesn't exist
 export function ensureEnvFile() {
   // Only run this in development mode

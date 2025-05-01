@@ -1,0 +1,1831 @@
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
+    ],
+    "env": {
+        "OPENROUTER_API_KEY": "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"
+    }
+}
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "routes": [{
+            "src": "/api/(.*)",
+            "dest": "/api/index.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
+        }
