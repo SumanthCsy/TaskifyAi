@@ -2,7 +2,11 @@ services:
   - type: web
     name: taskify-ai
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: |
+      npm install
+      npm run clean
+      npm run build:client
+      npm run build:server
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -10,4 +14,15 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
     healthCheckPath: /
-    autoDeploy: true 
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - package.json
+        - package-lock.json
+        - client/**
+        - server/**
+        - shared/**
+        - vite.config.ts
+        - tsconfig.json
+        - tailwind.config.ts
+        - postcss.config.js 
