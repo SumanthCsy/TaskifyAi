@@ -5,10 +5,6 @@ import { config, ensureEnvFile, checkRequiredApiKeys } from "./config";
 import { readdirSync } from 'fs';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
@@ -18,14 +14,30 @@ app.use(express.urlencoded({ extended: false }));
 const distPath = path.join(process.cwd(), 'dist');
 const publicPath = path.join(distPath, 'public');
 
+console.log('Static file paths:', {
+  distPath,
+  publicPath,
+  exists: fs.existsSync(publicPath),
+  contents: fs.existsSync(publicPath) ? fs.readdirSync(publicPath) : []
+});
+
 // Ensure the public directory exists
 if (!fs.existsSync(publicPath)) {
   console.log('Creating public directory:', publicPath);
   fs.mkdirSync(publicPath, { recursive: true });
 }
 
-// Serve static files
+// Serve static files with detailed logging
 app.use(express.static(publicPath));
+app.use((req, res, next) => {
+  console.log('Request:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    originalUrl: req.originalUrl
+  });
+  next();
+});
 
 // Add error handling middleware at the start
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -86,6 +98,18 @@ app.use((req, res, next) => {
       Files: readdirSync('.'),
       DistPath: distPath,
       PublicPath: publicPath
+    });
+
+    // Add uncaught exception handler
+    process.on('uncaughtException', (error) => {
+      console.error('Uncaught Exception:', error);
+      console.error('Stack trace:', error.stack);
+    });
+
+    // Add unhandled rejection handler
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise);
+      console.error('Reason:', reason);
     });
 
     // Ensure .env file exists with API keys for local development
