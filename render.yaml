@@ -5,6 +5,7 @@ services:
     buildCommand: |
       npm install
       npm run clean
+      mkdir -p dist/public
       npm run build:client
       npm run build:server
     startCommand: npm start

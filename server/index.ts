@@ -3,10 +3,24 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { config, ensureEnvFile, checkRequiredApiKeys } from "./config";
 import { readdirSync } from 'fs';
+import path from 'path';
+import fs from 'fs';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static files from the dist directory
+const distPath = path.join(process.cwd(), 'dist');
+const publicPath = path.join(distPath, 'public');
+
+// Ensure the public directory exists
+if (!fs.existsSync(publicPath)) {
+  fs.mkdirSync(publicPath, { recursive: true });
+}
+
+// Serve static files
+app.use(express.static(publicPath));
 
 // Add error handling middleware at the start
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -62,7 +76,9 @@ app.use((req, res, next) => {
       VERCEL: process.env.VERCEL,
       PORT: process.env.PORT,
       PWD: process.cwd(),
-      Files: readdirSync('.')
+      Files: readdirSync('.'),
+      DistPath: distPath,
+      PublicPath: publicPath
     });
 
     // Ensure .env file exists with API keys for local development
