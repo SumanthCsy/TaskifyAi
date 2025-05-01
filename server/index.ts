@@ -27,16 +27,6 @@ if (!fs.existsSync(publicPath)) {
 // Serve static files
 app.use(express.static(publicPath));
 
-// Add a catch-all route to serve index.html for client-side routing
-app.get('*', (req, res) => {
-  const indexPath = path.join(publicPath, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('Not found');
-  }
-});
-
 // Add error handling middleware at the start
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', err);
@@ -196,6 +186,18 @@ app.use((req, res, next) => {
       serveStatic(app);
       console.log("Static file serving setup completed");
     }
+
+    // Add catch-all route AFTER all other routes are registered
+    app.get('*', (req, res) => {
+      const indexPath = path.join(publicPath, 'index.html');
+      console.log('Catch-all route hit, serving index.html from:', indexPath);
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        console.error('index.html not found at:', indexPath);
+        res.status(404).send('Not found');
+      }
+    });
 
     // Use Vercel's PORT environment variable if available, otherwise default to 5000
     const port = process.env.PORT || 5000;

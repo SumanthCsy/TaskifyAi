@@ -31,13 +31,14 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: "dist/public",
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, "client/index.html"),
       },
     },
+    sourcemap: true,
   },
   server: {
     port: 3000,

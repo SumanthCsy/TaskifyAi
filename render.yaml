@@ -3,15 +3,23 @@ services:
     name: taskify-ai
     env: node
     buildCommand: |
+      echo "Starting build process..."
       npm install
+      echo "Cleaning dist directory..."
       npm run clean
+      echo "Building application..."
       npm run build
+      echo "Build completed. Contents of dist directory:"
+      ls -la dist/
+      ls -la dist/public/
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: OPENROUTER_API_KEY
         sync: false
+      - key: DEBUG
+        value: "*"
     healthCheckPath: /
     autoDeploy: true
     buildFilter:
