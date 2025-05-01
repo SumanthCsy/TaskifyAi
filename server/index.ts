@@ -5,6 +5,10 @@ import { config, ensureEnvFile, checkRequiredApiKeys } from "./config";
 import { readdirSync } from 'fs';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
