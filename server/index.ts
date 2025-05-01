@@ -20,6 +20,7 @@ const publicPath = path.join(distPath, 'public');
 
 // Ensure the public directory exists
 if (!fs.existsSync(publicPath)) {
+  console.log('Creating public directory:', publicPath);
   fs.mkdirSync(publicPath, { recursive: true });
 }
 
@@ -75,6 +76,8 @@ app.use((req, res, next) => {
 (async () => {
   try {
     console.log("Starting server initialization...");
+    console.log("Current working directory:", process.cwd());
+    console.log("Directory contents:", readdirSync('.'));
     console.log("Environment:", {
       NODE_ENV: process.env.NODE_ENV,
       VERCEL: process.env.VERCEL,
@@ -86,14 +89,22 @@ app.use((req, res, next) => {
     });
 
     // Ensure .env file exists with API keys for local development
-    ensureEnvFile();
+    try {
+      ensureEnvFile();
+    } catch (error) {
+      console.error("Error ensuring .env file:", error);
+    }
     
     // Check if all required API keys are available
-    const apiKeysAvailable = checkRequiredApiKeys();
-    if (!apiKeysAvailable) {
-      console.error("WARNING: Some required API keys are missing. Functionality may be limited.");
-    } else {
-      console.log("All API keys are configured properly.");
+    try {
+      const apiKeysAvailable = checkRequiredApiKeys();
+      if (!apiKeysAvailable) {
+        console.error("WARNING: Some required API keys are missing. Functionality may be limited.");
+      } else {
+        console.log("All API keys are configured properly.");
+      }
+    } catch (error) {
+      console.error("Error checking API keys:", error);
     }
     
     // Create API endpoint to check API key status
@@ -159,15 +170,21 @@ app.use((req, res, next) => {
       }
     });
     
+    console.log("Registering routes...");
     const server = await registerRoutes(app);
+    console.log("Routes registered successfully");
 
     // importantly only setup vite in development and after
     // setting up all the other routes so the catch-all route
     // doesn't interfere with the other routes
-    if (app.get("env") === "development") {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Setting up Vite for development...");
       await setupVite(app, server);
+      console.log("Vite setup completed");
     } else {
+      console.log("Setting up static file serving for production...");
       serveStatic(app);
+      console.log("Static file serving setup completed");
     }
 
     // Use Vercel's PORT environment variable if available, otherwise default to 5000
@@ -176,13 +193,23 @@ app.use((req, res, next) => {
     // Only start the server if not running on Vercel
     if (!process.env.VERCEL) {
       server.listen(port, () => {
-        log(`serving on port ${port}`);
+        console.log(`Server is running on port ${port}`);
+        console.log(`Static files being served from: ${publicPath}`);
       });
+    } else {
+      console.log("Running on Vercel - server will be started by the platform");
     }
 
     console.log("Server initialization completed successfully");
   } catch (error) {
     console.error("Failed to initialize server:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
     process.exit(1);
   }
 })();
