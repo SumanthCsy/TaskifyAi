@@ -290,7 +290,7 @@ export async function generateAiResponse(prompt: string, sessionId: string = 'de
       model: "anthropic/claude-2",
       messages: formattedMessages,
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 1500,
       stream: false
     };
     
