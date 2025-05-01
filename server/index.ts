@@ -27,6 +27,16 @@ if (!fs.existsSync(publicPath)) {
 // Serve static files
 app.use(express.static(publicPath));
 
+// Add a catch-all route to serve index.html for client-side routing
+app.get('*', (req, res) => {
+  const indexPath = path.join(publicPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
 // Add error handling middleware at the start
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', err);

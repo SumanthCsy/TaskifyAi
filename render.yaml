@@ -2,7 +2,10 @@ services:
   - type: web
     name: taskify-ai
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: |
+      npm install
+      npm run clean
+      npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
