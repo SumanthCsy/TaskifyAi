@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: taskify-ai
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENROUTER_API_KEY
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true 
