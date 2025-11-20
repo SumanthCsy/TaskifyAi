@@ -262,14 +262,19 @@ export async function generateAiResponse(prompt: string, sessionId: string = 'de
     
     if (!apiKeyToUse) {
       console.error("OpenRouter API key is not set. Please set it through API or environment variables.");
-      throw new Error("OpenRouter API key is not configured. Please contact support.");
+      throw new Error("OpenRouter API key is not configured. Please set OPENROUTER_API_KEY environment variable.");
     }
     
-    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
+    // Validate API key format
+    if (!apiKeyToUse.startsWith('sk-or-v1-')) {
+      console.error("Invalid OpenRouter API key format. Key should start with 'sk-or-v1-'");
+      throw new Error("Invalid OpenRouter API key format. Please check your API key.");
+    }
+    
+    console.log("Using OpenRouter API key:", apiKeyToUse ? `${apiKeyToUse.substring(0, 15)}...` : "No key found");
     console.log("Environment variables:", {
       hasConfigKey: !!config.openRouter.apiKey,
-      hasEnvKey: !!process.env.OPENROUTER_API_KEY,
-      envKeys: Object.keys(process.env)
+      hasEnvKey: !!process.env.OPENROUTER_API_KEY
     });
     
     // Get or create chat session and add user message
@@ -287,17 +292,20 @@ export async function generateAiResponse(prompt: string, sessionId: string = 'de
     }));
 
     const requestBody = {
-      model: "anthropic/claude-2",
+      model: "anthropic/claude-3.5-sonnet",
       messages: formattedMessages,
       temperature: 0.7,
-      max_tokens: 1200,
+      max_tokens: 8000,
       stream: false
     };
     
-    console.log("OpenRouter request:", JSON.stringify(requestBody, null, 2));
+    console.log("OpenRouter request:", JSON.stringify({
+      ...requestBody,
+      messages: `${formattedMessages.length} messages`
+    }, null, 2));
     console.log("Request headers:", {
       "Content-Type": "application/json",
-      "Authorization": "Bearer [REDACTED]",
+      "Authorization": `Bearer ${apiKeyToUse.substring(0, 15)}...`,
       "HTTP-Referer": "https://github.com/taskify-ai",
       "X-Title": "Taskify AI"
     });
@@ -320,7 +328,26 @@ export async function generateAiResponse(prompt: string, sessionId: string = 'de
       const errorData = await response.text();
       console.error("OpenRouter error response:", errorData);
       console.error("Response headers:", Object.fromEntries(response.headers.entries()));
-      throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
+      
+      // Parse error for better messages
+      let errorMessage = `OpenRouter API request failed with status ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorData);
+        if (errorJson.error?.message) {
+          errorMessage = errorJson.error.message;
+          
+          // Provide helpful error messages
+          if (response.status === 401) {
+            errorMessage = "Authentication failed: Invalid or expired API key. Please check your OPENROUTER_API_KEY environment variable and ensure it's valid.";
+          } else if (errorJson.error.code === 401 && errorJson.error.message === "User not found.") {
+            errorMessage = "API key authentication failed: The provided API key is invalid or the associated user account doesn't exist. Please verify your OpenRouter API key at https://openrouter.ai/keys";
+          }
+        }
+      } catch (e) {
+        // Keep the default error message
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const rawResponse = await response.text();
@@ -390,10 +417,16 @@ export async function generateReportContent(prompt: string, title: string): Prom
     const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
     if (!apiKeyToUse) {
-      throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
+      throw new Error("OpenRouter API key is not set. Please set OPENROUTER_API_KEY environment variable.");
     }
     
-    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
+    // Validate API key format
+    if (!apiKeyToUse.startsWith('sk-or-v1-')) {
+      console.error("Invalid OpenRouter API key format. Key should start with 'sk-or-v1-'");
+      throw new Error("Invalid OpenRouter API key format. Please check your API key.");
+    }
+    
+    console.log("Using OpenRouter API key:", apiKeyToUse ? `${apiKeyToUse.substring(0, 15)}...` : "No key found");
     
     // Detect if the prompt is asking for code
     const isCodeReport = /(?:code|programming|development|software|app|application|website|web|mobile|script|function|algorithm)/i.test(prompt);
@@ -456,7 +489,7 @@ export async function generateReportContent(prompt: string, title: string): Prom
     systemPrompt += "\n\nFor data presentation:\n1. Use markdown tables with clear headers and aligned columns\n2. For numerical comparisons, use visual indicators (like ✅, ⚠️, ❌) when appropriate\n3. Structure complex information in a hierarchical manner\n4. Include summaries or key takeaways after tables\n5. Ensure all data is well-organized and visually appealing\n6. Use emojis as bullet points where appropriate to make key sections stand out";
     
     const requestBody = {
-      model: "claude-3-haiku",
+      model: "anthropic/claude-3.5-sonnet",
       messages: [
         {
           role: "system",
@@ -468,7 +501,7 @@ export async function generateReportContent(prompt: string, title: string): Prom
         }
       ],
       temperature: 0.5,
-      max_tokens: 4000,
+      max_tokens: 16000,
       stream: false,
       route: "fallback"
     };
@@ -491,7 +524,26 @@ export async function generateReportContent(prompt: string, title: string): Prom
     if (!response.ok) {
       const errorData = await response.text();
       console.error("OpenRouter report error response:", errorData);
-      throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
+      
+      // Parse error for better messages
+      let errorMessage = `OpenRouter API request failed with status ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorData);
+        if (errorJson.error?.message) {
+          errorMessage = errorJson.error.message;
+          
+          // Provide helpful error messages
+          if (response.status === 401) {
+            errorMessage = "Authentication failed: Invalid or expired API key. Please check your OPENROUTER_API_KEY environment variable and ensure it's valid.";
+          } else if (errorJson.error.code === 401 && errorJson.error.message === "User not found.") {
+            errorMessage = "API key authentication failed: The provided API key is invalid or the associated user account doesn't exist. Please verify your OpenRouter API key at https://openrouter.ai/keys";
+          }
+        }
+      } catch (e) {
+        // Keep the default error message
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const rawResponse = await response.text();
@@ -572,13 +624,19 @@ export async function getSuggestedPrompts(): Promise<string[]> {
     const apiKeyToUse = config.openRouter.apiKey || process.env.OPENROUTER_API_KEY;
     
     if (!apiKeyToUse) {
-      throw new Error("OpenRouter API key is not set. Please set it through API or environment variables.");
+      throw new Error("OpenRouter API key is not set. Please set OPENROUTER_API_KEY environment variable.");
     }
     
-    console.log("Using OpenRouter API key:", apiKeyToUse ? "Key is set" : "No key found");
+    // Validate API key format
+    if (!apiKeyToUse.startsWith('sk-or-v1-')) {
+      console.error("Invalid OpenRouter API key format. Key should start with 'sk-or-v1-'");
+      throw new Error("Invalid OpenRouter API key format. Please check your API key.");
+    }
+    
+    console.log("Using OpenRouter API key:", apiKeyToUse ? `${apiKeyToUse.substring(0, 15)}...` : "No key found");
     
     const requestBody = {
-      model: "claude-3-haiku",
+      model: "anthropic/claude-3.5-sonnet",
       messages: [
         {
           role: "system",
@@ -590,7 +648,7 @@ export async function getSuggestedPrompts(): Promise<string[]> {
         }
       ],
       temperature: 0.8,
-      max_tokens: 1000,
+      max_tokens: 4000,
       stream: false,
       route: "fallback"
     };
@@ -613,7 +671,26 @@ export async function getSuggestedPrompts(): Promise<string[]> {
     if (!response.ok) {
       const errorData = await response.text();
       console.error("OpenRouter suggested prompts error response:", errorData);
-      throw new Error(`OpenRouter API request failed: ${response.status} ${errorData}`);
+      
+      // Parse error for better messages
+      let errorMessage = `OpenRouter API request failed with status ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorData);
+        if (errorJson.error?.message) {
+          errorMessage = errorJson.error.message;
+          
+          // Provide helpful error messages
+          if (response.status === 401) {
+            errorMessage = "Authentication failed: Invalid or expired API key. Please check your OPENROUTER_API_KEY environment variable and ensure it's valid.";
+          } else if (errorJson.error.code === 401 && errorJson.error.message === "User not found.") {
+            errorMessage = "API key authentication failed: The provided API key is invalid or the associated user account doesn't exist. Please verify your OpenRouter API key at https://openrouter.ai/keys";
+          }
+        }
+      } catch (e) {
+        // Keep the default error message
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const rawResponse = await response.text();
